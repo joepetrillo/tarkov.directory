@@ -4,33 +4,50 @@ import React from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getAllGuns } from "@/utils/query-options";
 import Image from "next/image";
+import { mapAllGunsToCategories } from "@/utils/data-mapping";
+import { toTitleCase } from "@/utils/utils";
 
 export function GunList() {
   const { data, error } = useSuspenseQuery(getAllGuns);
+  const categorizedGuns = mapAllGunsToCategories(data);
 
   if (error) {
     return <p>There was an error fetching data</p>;
   }
 
   return (
-    <div className="xs:grid-cols-3 grid grid-cols-1 gap-4 md:grid-cols-4">
-      {data.items.map((gun) => {
-        if (!gun) return null;
+    <div className="flex flex-col gap-12">
+      {categorizedGuns.map(({ categoryName, items }) => {
         return (
-          <div
-            key={gun.id}
-            className="flex h-[175px] flex-col items-center justify-center gap-4 border border-eft-tan/50 p-6 hover:bg-stone-900"
-          >
-            <p>{gun.shortName}</p>
-            {gun.properties?.__typename === "ItemPropertiesWeapon" &&
-              gun.properties.defaultPreset?.baseImageLink && (
-                <Image
-                  src={gun.properties.defaultPreset?.baseImageLink}
-                  alt=""
-                  width={125}
-                  height={50}
-                />
-              )}
+          <div key={categoryName}>
+            <h2 className="mb-4 text-2xl">
+              {toTitleCase(categoryName)} - ({items.length})
+            </h2>
+            <div className="xs:grid-cols-2 grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {items.map((gun) => {
+                return (
+                  <div
+                    key={gun.id}
+                    className="group flex h-[110px] flex-col items-center justify-center gap-2 border border-eft-tan/30 p-2 hover:bg-stone-900/60"
+                  >
+                    <p className="text-center group-hover:underline">
+                      {gun.shortName}
+                    </p>
+                    {gun.defaultPresetImageUrl && (
+                      <div className="relative h-[50px] w-full max-w-[150px]">
+                        <Image
+                          src={gun.defaultPresetImageUrl}
+                          alt={gun.name}
+                          sizes="150px"
+                          className="object-contain"
+                          fill={true}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}

@@ -3,12 +3,25 @@ import { graphql } from "@/gql";
 // Returns all guns in the game
 export const getAllGunsQuery = graphql(`
   query GetAllGuns {
-    items(categoryNames: Weapon) {
+    items(
+      handbookCategoryNames: [
+        AssaultCarbines
+        AssaultRifles
+        BoltActionRifles
+        GrenadeLaunchers
+        MachineGuns
+        MarksmanRifles
+        Pistols
+        SMGs
+        Shotguns
+      ]
+      type: gun
+    ) {
       id
       name
       normalizedName
       shortName
-      category {
+      handbookCategories {
         name
         normalizedName
       }
