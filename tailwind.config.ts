@@ -12,6 +12,9 @@ const config: Config = {
         "eft-tan": "#9a8866",
         "eft-white": "#c2c2c4",
       },
+      screens: {
+        xs: "320px",
+      },
     },
   },
   plugins: [],
