@@ -26,6 +26,7 @@ export function mapAllGunsToCategories(
         defaultPresetImageUrl:
           gun.properties.defaultPreset?.baseImageLink ?? null,
         category: {
+          // get first element in handbook categories array for most specific category
           name: gun.handbookCategories[0]?.name ?? "Miscellaneous",
           normalizedName: gun.handbookCategories[0]?.normalizedName ?? "misc",
         },

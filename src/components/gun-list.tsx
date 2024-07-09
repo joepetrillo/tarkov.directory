@@ -4,20 +4,18 @@ import React from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getAllGuns } from "@/utils/query-options";
 import Image from "next/image";
-import { mapAllGunsToCategories } from "@/utils/data-mapping";
 import { toTitleCase } from "@/utils/utils";
 
 export function GunList() {
   const { data, error } = useSuspenseQuery(getAllGuns);
-  const categorizedGuns = mapAllGunsToCategories(data);
 
-  if (error) {
-    return <p>There was an error fetching data</p>;
-  }
+  // if (error) {
+  //   return <p>There was an error fetching data</p>;
+  // }
 
   return (
     <div className="flex flex-col gap-12">
-      {categorizedGuns.map(({ categoryName, items }) => {
+      {data.map(({ categoryName, items }) => {
         return (
           <div key={categoryName}>
             <h2 className="mb-4 text-2xl">
