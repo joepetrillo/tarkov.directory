@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Providers from "@/app/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -19,11 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-stone-950 font-sans text-eft-white">
       <body className="flex min-h-[100dvh] flex-col overflow-y-scroll">
-        <Providers>
-          <Header />
-          <main className="mx-auto w-full max-w-3xl px-4">{children}</main>
-          <Footer />
-        </Providers>
+        <Header />
+        <main className="mx-auto w-full max-w-3xl px-4">{children}</main>
+        <Footer />
       </body>
     </html>
   );

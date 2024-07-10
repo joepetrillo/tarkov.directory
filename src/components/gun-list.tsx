@@ -1,21 +1,18 @@
-"use client";
-
 import React from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getAllGuns } from "@/utils/query-options";
 import Image from "next/image";
-import { toTitleCase } from "@/utils/utils";
+import { toTitleCase } from "@/lib/utils";
+import { request } from "graphql-request";
+import { TARKOV_API_URL } from "@/lib/constants";
+import { getAllGunsQuery } from "@/graphql/queries";
+import { mapAllGunsToCategories } from "@/lib/data-mapping";
 
-export function GunList() {
-  const { data, error } = useSuspenseQuery(getAllGuns);
-
-  // if (error) {
-  //   return <p>There was an error fetching data</p>;
-  // }
+export async function GunList() {
+  const data = await request(TARKOV_API_URL, getAllGunsQuery);
+  const categorizedData = mapAllGunsToCategories(data);
 
   return (
     <div className="flex flex-col gap-12">
-      {data.map(({ categoryName, items }) => {
+      {categorizedData.map(({ categoryName, items }) => {
         return (
           <div key={categoryName}>
             <h2 className="mb-4 text-2xl">
