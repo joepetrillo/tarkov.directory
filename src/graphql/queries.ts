@@ -1,3 +1,5 @@
+// This file contains all the GraphQL queries that are used in the application.
+
 import { graphql } from "@/gql";
 
 // Returns all guns in the game

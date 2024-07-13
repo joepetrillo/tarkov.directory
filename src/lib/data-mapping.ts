@@ -1,3 +1,5 @@
+// This file contains functions that map raw data from the GraphQL API into a type safe format.
+
 import { GetAllGunsQuery } from "@/gql/graphql";
 import { BasicGunInfo } from "@/types";
 
