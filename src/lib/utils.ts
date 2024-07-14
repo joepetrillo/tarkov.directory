@@ -2,7 +2,7 @@
 
 // Function to convert a string to title case
 export function toTitleCase(str: string) {
-  return str.toLowerCase().replace(/(?:^|\s)\w/g, function (match) {
+  return str.replace(/(?:^|\s)\w/g, function (match) {
     return match.toUpperCase();
   });
 }

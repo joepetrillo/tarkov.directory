@@ -39,19 +39,26 @@ export const getAllGunsQuery = graphql(`
   }
 `);
 
-export const initialGunInfoQuery = graphql(`
-  query GetInitialGunInfo {
-    items(name: "ak-74n", type: gun, categoryNames: Weapon) {
+export const getGunInfoQuery = graphql(`
+  query GetGunInfo($id: [ID]) {
+    items(type: gun, ids: $id) {
       id
       name
       normalizedName
       shortName
+      handbookCategories {
+        name
+        normalizedName
+      }
       properties {
         __typename
         ... on ItemPropertiesWeapon {
           recoilHorizontal
           recoilVertical
           ergonomics
+          defaultPreset {
+            baseImageLink
+          }
           slots {
             id
             required

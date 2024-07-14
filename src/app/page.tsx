@@ -1,17 +1,12 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { GunList } from "@/components/gun-list";
-import Spinner from "@/components/spinner";
 
-export default async function Home() {
+export default async function Page() {
   return (
-    <>
-      <Link href="/cool" className="mb-10 inline-block underline">
-        Go to cool page
+    <div>
+      <p>Welcome!</p>
+      <Link href="/guns" className="inline-block py-4 underline">
+        Go to guns page
       </Link>
-      <Suspense fallback={<Spinner />}>
-        <GunList />
-      </Suspense>
-    </>
+    </div>
   );
 }
