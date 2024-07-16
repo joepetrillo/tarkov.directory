@@ -33,6 +33,7 @@ export const getAllGunsQuery = graphql(`
           defaultPreset {
             baseImageLink
           }
+          caliber
         }
       }
     }
@@ -53,6 +54,7 @@ export const getGunInfoQuery = graphql(`
       properties {
         __typename
         ... on ItemPropertiesWeapon {
+          caliber
           recoilHorizontal
           recoilVertical
           ergonomics

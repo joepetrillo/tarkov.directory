@@ -1,7 +1,13 @@
+import { Box, Text } from "@radix-ui/themes";
+
 export default function Footer() {
   return (
-    <footer className="mx-auto mt-auto max-w-3xl pb-4 pt-8 text-center text-eft-tan">
-      <p>Joe Petrillo - {new Date().getFullYear()}</p>
-    </footer>
+    <Box p="5" pt="7" mt="auto" asChild>
+      <footer>
+        <Text as="div" align="center" className="text-accent-10">
+          <span>Joe Petrillo - {new Date().getFullYear()}</span>
+        </Text>
+      </footer>
+    </Box>
   );
 }

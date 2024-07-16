@@ -1,12 +1,10 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 
 export default async function Page() {
   return (
     <div>
       <p>Welcome!</p>
-      <Link href="/guns" className="inline-block py-4 underline">
-        Go to guns page
-      </Link>
+      <Link href="/guns">Go to all guns page</Link>
     </div>
   );
 }

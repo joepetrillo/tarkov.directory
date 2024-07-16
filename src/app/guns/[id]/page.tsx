@@ -3,6 +3,7 @@ import { getGunInfoQuery } from "@/graphql/queries";
 import { TARKOV_API_URL } from "@/lib/constants";
 import { mapToFullGunInfo } from "@/lib/data-mapping";
 import { toTitleCase } from "@/lib/utils";
+import { Button } from "@radix-ui/themes";
 import request from "graphql-request";
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -14,6 +15,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold">{toTitleCase(gun.name)}</h2>
+      <Button variant="classic">Test Button</Button>
       <ModdingControls gun={gun} />
     </div>
   );

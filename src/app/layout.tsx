@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Container, Flex, Theme, ThemePanel } from "@radix-ui/themes";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
+import "@radix-ui/themes/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,11 +18,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="bg-stone-950 font-sans text-eft-white">
-      <body className="flex min-h-[100dvh] flex-col overflow-y-scroll">
-        <Header />
-        <main className="mx-auto w-full max-w-3xl px-4">{children}</main>
-        <Footer />
+    <html lang="en">
+      <body className="overflow-y-scroll">
+        <Theme
+          appearance="dark"
+          accentColor="gold"
+          grayColor="auto"
+          panelBackground="solid"
+          radius="none"
+          className="text-accent-12 subpixel-antialiased"
+        >
+          <Flex minHeight="100dvh" direction="column">
+            <Header />
+            <Container size="2" px="4" asChild>
+              <main>{children}</main>
+            </Container>
+            <Footer />
+          </Flex>
+          <ThemePanel defaultOpen={false} />
+        </Theme>
       </body>
     </html>
   );

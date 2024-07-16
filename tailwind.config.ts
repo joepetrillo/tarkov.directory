@@ -1,8 +1,9 @@
-import type { Config } from "tailwindcss";
+import { type Config } from "tailwindcss";
 const defaultTheme = require("tailwindcss/defaultTheme");
+import { radixThemePreset } from "radix-themes-tw";
 
 const config: Config = {
-  content: ["./src/components/**/*.{ts,tsx}", "./src/app/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -17,6 +18,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  presets: [radixThemePreset],
 };
 export default config;

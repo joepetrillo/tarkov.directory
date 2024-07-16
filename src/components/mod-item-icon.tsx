@@ -31,7 +31,7 @@ export default function ModItemIcon({
           {item.shortName}
         </span>
       </div>
-      <Image width={57} height={57} src={item.iconLink} alt={item.name} />
+      <Image width={60} height={60} src={item.iconLink} alt={item.name} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
 import { GetAllGunsQuery, GetGunInfoQuery } from "@/gql/graphql";
+import { extractCaliber } from "@/lib/utils";
 import { BasicGunInfo, FullGunInfo } from "@/types";
 
 export function mapAllGunsToCategories(
@@ -15,7 +16,8 @@ export function mapAllGunsToCategories(
         !gun.normalizedName ||
         !gun.shortName ||
         !gun.properties ||
-        gun.properties.__typename !== "ItemPropertiesWeapon"
+        gun.properties.__typename !== "ItemPropertiesWeapon" ||
+        !gun.properties.caliber
       ) {
         return acc;
       }
@@ -25,6 +27,7 @@ export function mapAllGunsToCategories(
         name: gun.name,
         normalizedName: gun.normalizedName,
         shortName: gun.shortName,
+        caliber: extractCaliber(gun.properties.caliber),
         defaultPresetImageUrl:
           gun.properties.defaultPreset?.baseImageLink ?? null,
         category: {
@@ -71,6 +74,7 @@ export function mapToFullGunInfo(data: GetGunInfoQuery): FullGunInfo {
     gun.shortName &&
     gun.properties &&
     gun.properties.__typename === "ItemPropertiesWeapon" &&
+    gun.properties.caliber &&
     gun.properties.recoilHorizontal != null &&
     gun.properties.recoilVertical != null &&
     gun.properties.ergonomics != null &&
@@ -87,6 +91,7 @@ export function mapToFullGunInfo(data: GetGunInfoQuery): FullGunInfo {
         name: gun.handbookCategories[0]?.name ?? "Miscellaneous",
         normalizedName: gun.handbookCategories[0]?.normalizedName ?? "misc",
       },
+      caliber: extractCaliber(gun.properties.caliber),
       recoilHorizontal: gun.properties.recoilHorizontal,
       recoilVertical: gun.properties.recoilVertical,
       ergonomics: gun.properties.ergonomics,

@@ -1,7 +1,19 @@
+import { Box, Heading } from "@radix-ui/themes";
+
 export default function Header() {
   return (
-    <header className="mx-auto max-w-3xl pb-8 pt-4 text-center text-4xl font-bold text-eft-tan">
-      <h2>Tarkov Directory</h2>
-    </header>
+    <Box p="5" pb="7" asChild>
+      <header>
+        <Heading
+          as="h1"
+          weight="bold"
+          align="center"
+          size="8"
+          className="text-accent-10"
+        >
+          Tarkov Directory
+        </Heading>
+      </header>
+    </Box>
   );
 }

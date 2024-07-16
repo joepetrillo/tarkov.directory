@@ -3,6 +3,7 @@ export type BasicGunInfo = {
   name: string;
   normalizedName: string;
   shortName: string;
+  caliber: string;
   defaultPresetImageUrl: string | null;
   category: {
     name: string;
