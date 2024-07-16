@@ -6,6 +6,8 @@ import { toTitleCase } from "@/lib/utils";
 import { Button } from "@radix-ui/themes";
 import request from "graphql-request";
 
+export const revalidate = 3600; // revalidate the data at most every hour
+
 export default async function Page({ params }: { params: { id: string } }) {
   const data = await request(TARKOV_API_URL, getGunInfoQuery, {
     id: params.id,
@@ -14,7 +16,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <h2 className="mb-4 text-2xl font-bold">{toTitleCase(gun.name)}</h2>
+      <h2 className="text-2xl mb-4 font-bold">{toTitleCase(gun.name)}</h2>
       <Button variant="classic">Test Button</Button>
       <ModdingControls gun={gun} />
     </div>
