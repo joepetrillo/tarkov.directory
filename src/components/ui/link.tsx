@@ -1,11 +1,15 @@
 import { Link as RadixLink } from "@radix-ui/themes";
-import NextLink from "next/link";
+import NextLink, { LinkProps } from "next/link";
 
-// We use this component to wrap the NextLink component with Radix UI styles
-export default function Link(props: React.ComponentProps<typeof NextLink>) {
+type CustomLinkProps = LinkProps & {
+  children: React.ReactNode;
+  className?: string;
+};
+
+export default function Link({ children, ...props }: CustomLinkProps) {
   return (
     <RadixLink asChild>
-      <NextLink {...props}>Go to all guns page</NextLink>
+      <NextLink {...props}>{children}</NextLink>
     </RadixLink>
   );
 }

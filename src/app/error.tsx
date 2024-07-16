@@ -6,7 +6,7 @@ export default function Error() {
   return (
     <div>
       <p>An error has occurred.</p>
-      <Link href="/">Go home</Link>
+      <Link href="/">Go Home</Link>
     </div>
   );
 }

@@ -1,10 +1,9 @@
 import ModdingControls from "@/components/modding-controls";
-import { GetGunInfoQuery } from "@/gql/graphql";
+import Link from "@/components/ui/link";
 import { getGunInfoQuery } from "@/graphql/queries";
 import { TARKOV_API_URL } from "@/lib/constants";
 import { mapToFullGunInfo } from "@/lib/data-mapping";
 import { toTitleCase } from "@/lib/utils";
-import { Button } from "@radix-ui/themes";
 import request from "graphql-request";
 import { unstable_cache } from "next/cache";
 
@@ -26,8 +25,10 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div>
+      <Link href="/guns" className="block pb-4">
+        Go Back
+      </Link>
       <h2 className="text-2xl font-bol3d mb-4">{toTitleCase(gun.name)}</h2>
-      <Button variant="classic">Test Button</Button>
       <ModdingControls gun={gun} />
     </div>
   );

@@ -42,7 +42,7 @@ export default function GunList({
   return (
     <div>
       <TextField.Root
-        autoFocus
+        size={"3"}
         placeholder="Search by name"
         value={searchInput}
         onChange={(e) => setSearchInput(e.currentTarget.value)}
@@ -51,6 +51,13 @@ export default function GunList({
           <MagnifyingGlassIcon height="16" width="16" />
         </TextField.Slot>
       </TextField.Root>
+      {categorizedGuns.length === 0 && (
+        <Flex align={"center"} justify={"center"} pt={"7"}>
+          <Text weight={"bold"} align={"center"}>
+            No guns found
+          </Text>
+        </Flex>
+      )}
       {categorizedGuns.map(({ categoryName, items }) => {
         return (
           <Section key={categoryName} size={"1"}>
@@ -77,7 +84,7 @@ export default function GunList({
                       justify={"center"}
                       gap={"2"}
                       p={"2"}
-                      className="group border border-gray-6 bg-gradient-to-b from-accent-2 hover:bg-accent-2"
+                      className="group border border-accent-6 bg-accent-1 bg-gradient-to-b from-accent-2 hover:from-accent-3"
                     >
                       <Text
                         className="group-hover:underline"
@@ -102,7 +109,7 @@ export default function GunList({
                           />
                         </Box>
                       )}
-                      <Text size={"1"} className="block text-accent-8">
+                      <Text size={"1"} className="block text-gray-11">
                         {gun.caliber}
                       </Text>
                     </Flex>
