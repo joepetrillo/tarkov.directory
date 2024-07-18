@@ -19,14 +19,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="overflow-y-scroll">
+      <body className="dark overflow-y-scroll bg-gray-1 text-accent-12 subpixel-antialiased">
         <Theme
           appearance="dark"
           accentColor="gold"
           grayColor="auto"
           panelBackground="solid"
           radius="none"
-          className="text-accent-12 subpixel-antialiased"
         >
           <Flex minHeight="100dvh" direction="column">
             <Header />

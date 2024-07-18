@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <Link href="/guns" className="block pb-4">
+      <Link href="/guns" className="inline-block pb-4">
         Go Back
       </Link>
       <h2 className="text-2xl font-bol3d mb-4">{toTitleCase(gun.name)}</h2>
