@@ -27,7 +27,7 @@ export default function Header() {
           </Link>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
-              <button className="overflow-hidden rounded-full outline-2 outline-offset-2 focus-visible:outline-accent-8">
+              <button className="overflow-hidden rounded-full outline-none outline-2 outline-offset-2 focus-visible:outline-accent-8">
                 <div className="h-11 w-11 bg-accent-4"></div>
               </button>
             </DropdownMenu.Trigger>
