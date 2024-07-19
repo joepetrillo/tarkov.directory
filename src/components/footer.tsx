@@ -1,13 +1,14 @@
-import { Box, Text } from "@radix-ui/themes";
+import { Container, Flex, Text } from "@radix-ui/themes";
 
 export default function Footer() {
   return (
-    <Box p="5" pt="7" asChild>
-      <footer>
-        <Text as="div" align="center" className="text-accent-10">
-          <span>Joe Petrillo - {new Date().getFullYear()}</span>
-        </Text>
-      </footer>
-    </Box>
+    <Container size={"2"} flexGrow={"0"} px="4">
+      <Flex pb="5" pt="7" justify={"between"} align={"center"} asChild>
+        <footer className="text-accent-11">
+          <Text>Joe Petrillo</Text>
+          <Text>{new Date().getFullYear()}</Text>
+        </footer>
+      </Flex>
+    </Container>
   );
 }
