@@ -7,7 +7,7 @@ export default function Spinner() {
     <Flex align={"center"} justify={"center"}>
       <Image
         src={spinner}
-        alt="loading spinner"
+        alt="loading"
         className="animate-spin"
         priority={true}
       />
