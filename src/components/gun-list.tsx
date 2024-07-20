@@ -76,7 +76,11 @@ export default function GunList({
             >
               {items.map((gun) => {
                 return (
-                  <Link key={gun.id} href={`/guns/${gun.id}`}>
+                  <Link
+                    key={gun.id}
+                    href={`/guns/${gun.id}`}
+                    className="outline-none outline-2 outline-offset-2 focus-visible:outline-accent-8"
+                  >
                     <Flex
                       height={"120px"}
                       direction={"column"}
