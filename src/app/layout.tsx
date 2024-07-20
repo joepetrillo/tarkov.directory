@@ -29,7 +29,7 @@ export default function RootLayout({
           radius="none"
         >
           <Flex minHeight="100dvh" direction="column">
-            <Container size="2" px="4">
+            <Container size="2" px="4" flexGrow={"0"}>
               <Callout.Root
                 variant="surface"
                 color="red"
