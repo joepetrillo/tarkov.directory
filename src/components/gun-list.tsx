@@ -52,7 +52,7 @@ export default function GunList({
         </TextField.Slot>
       </TextField.Root>
       {categorizedGuns.length === 0 && (
-        <Flex align={"center"} justify={"center"} pt={"7"}>
+        <Flex align={"center"} justify={"center"} mt={"7"}>
           <Text weight={"bold"} align={"center"}>
             No guns found
           </Text>
@@ -61,7 +61,7 @@ export default function GunList({
       {categorizedGuns.map(({ categoryName, items }) => {
         return (
           <Section key={categoryName} size={"1"}>
-            <Box pb={"4"}>
+            <Box mb={"4"}>
               <Heading as="h3" size={"5"}>
                 {toTitleCase(categoryName)} ({items.length})
               </Heading>
