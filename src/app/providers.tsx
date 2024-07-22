@@ -11,6 +11,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           baseTheme: dark,
           variables: {
             borderRadius: "0",
+            fontSize: "14px",
             fontWeight: {
               normal: 400,
               medium: 700,

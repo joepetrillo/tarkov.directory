@@ -1,6 +1,19 @@
-import { SignOutButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignOutButton,
+  UserButton,
+  UserProfile,
+} from "@clerk/nextjs";
 import { ExitIcon, GearIcon, PersonIcon } from "@radix-ui/react-icons";
-import { Container, DropdownMenu, Flex, Text, Heading } from "@radix-ui/themes";
+import {
+  Container,
+  DropdownMenu,
+  Flex,
+  Text,
+  Heading,
+  Button,
+} from "@radix-ui/themes";
 import Link from "next/link";
 
 export default function Header() {
@@ -16,39 +29,22 @@ export default function Header() {
               Tarkov Directory
             </Heading>
           </Link>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              <button className="overflow-hidden rounded-full outline-none outline-2 outline-offset-2 focus-visible:outline-accent-8">
-                <div className="h-11 w-11 bg-accent-4"></div>
-              </button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-              <DropdownMenu.Item asChild>
-                <Link href={"/profile"} className="hover:cursor-pointer">
-                  <Flex gap={"3"} align={"center"}>
-                    <PersonIcon />
-                    <Text weight={"bold"}>Profile</Text>
-                  </Flex>
-                </Link>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item asChild>
-                <Link href={"/settings"} className="hover:cursor-pointer">
-                  <Flex gap={"3"} align={"center"}>
-                    <GearIcon />
-                    <Text weight={"bold"}>Settings</Text>
-                  </Flex>
-                </Link>
-              </DropdownMenu.Item>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item>
-                <SignOutButton />
-                <Flex gap={"3"} align={"center"}>
-                  <ExitIcon />
-                  <Text weight={"bold"}>Sign Out</Text>
-                </Flex>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+          <SignedOut>
+            <Button variant="classic" asChild>
+              <Link href="/sign-in">Sign In</Link>
+            </Button>
+          </SignedOut>
+          <SignedIn>
+            <div className="h-11 w-11">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: { height: "44px", width: "44px" },
+                  },
+                }}
+              />
+            </div>
+          </SignedIn>
         </header>
       </Flex>
     </Container>

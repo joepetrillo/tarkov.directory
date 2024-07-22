@@ -8,7 +8,7 @@ export default function Spinner() {
       <Image
         src={spinner}
         alt="loading"
-        className="animate-spin"
+        className="animate-spin select-none"
         priority={true}
       />
     </Flex>
