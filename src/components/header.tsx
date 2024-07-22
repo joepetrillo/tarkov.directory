@@ -1,3 +1,4 @@
+import { SignOutButton } from "@clerk/nextjs";
 import { ExitIcon, GearIcon, PersonIcon } from "@radix-ui/react-icons";
 import { Container, DropdownMenu, Flex, Text, Heading } from "@radix-ui/themes";
 import Link from "next/link";
@@ -40,6 +41,7 @@ export default function Header() {
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
               <DropdownMenu.Item>
+                <SignOutButton />
                 <Flex gap={"3"} align={"center"}>
                   <ExitIcon />
                   <Text weight={"bold"}>Sign Out</Text>

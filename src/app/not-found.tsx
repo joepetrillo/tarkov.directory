@@ -1,5 +1,10 @@
-import { Text } from "@radix-ui/themes";
+import Link from "@/components/ui/link";
 
 export default function NotFound() {
-  return <Text>Page Not Found</Text>;
+  return (
+    <div>
+      <p>Page not found</p>
+      <Link href="/">Go Home</Link>
+    </div>
+  );
 }

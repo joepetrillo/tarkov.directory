@@ -1,6 +1,6 @@
 import { type Config } from "tailwindcss";
-const defaultTheme = require("tailwindcss/defaultTheme");
 import { radixThemePreset } from "radix-themes-tw";
+const defaultTheme = require("tailwindcss/defaultTheme");
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],

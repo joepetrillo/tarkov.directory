@@ -17,7 +17,7 @@ export function normalizeString(input: string) {
   return input.replace(/-/g, "").replace(/\s+/g, "").toLowerCase();
 }
 
-// FUnction to extract the caliber from the input string
+// Function to convert API caliber response to something more human readable
 export function extractCaliber(input: string) {
   const caliberMapping: Record<string, string> = {
     Caliber556x45NATO: "5.56x45",
