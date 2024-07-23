@@ -1,19 +1,6 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignOutButton,
-  UserButton,
-  UserProfile,
-} from "@clerk/nextjs";
-import { ExitIcon, GearIcon, PersonIcon } from "@radix-ui/react-icons";
-import {
-  Container,
-  DropdownMenu,
-  Flex,
-  Text,
-  Heading,
-  Button,
-} from "@radix-ui/themes";
+import HeaderAuth from "@/components/header-auth";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { Container, Flex, Heading, Button } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default function Header() {
@@ -36,22 +23,7 @@ export default function Header() {
               Tarkov Directory
             </Heading>
           </Link>
-          <SignedOut>
-            <Button variant="classic" asChild>
-              <Link href="/sign-in">Sign In</Link>
-            </Button>
-          </SignedOut>
-          <SignedIn>
-            <div className="h-11 w-11">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: { height: "44px", width: "44px" },
-                  },
-                }}
-              />
-            </div>
-          </SignedIn>
+          <HeaderAuth />
         </header>
       </Flex>
     </Container>
