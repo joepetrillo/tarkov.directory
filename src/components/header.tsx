@@ -1,6 +1,5 @@
 import HeaderAuth from "@/components/header-auth";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Container, Flex, Heading, Button } from "@radix-ui/themes";
+import { Container, Flex, Heading } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default function Header() {
