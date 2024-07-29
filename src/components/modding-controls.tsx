@@ -1,8 +1,8 @@
 "use client";
 
-import ModItemIcon from "@/components/mod-item-icon";
+import ModItemIcon from "@/components/modding/mod-item-icon";
 import StatsCard from "@/components/stats-card";
-import { FullGunInfo, ModdingAction, ModdingState } from "@/types";
+import { Gun, ModdingAction, ModdingState } from "@/types";
 import { useReducer } from "react";
 
 function reducer(state: ModdingState, action: ModdingAction) {
@@ -42,7 +42,7 @@ function reducer(state: ModdingState, action: ModdingAction) {
   }
 }
 
-export default function ModdingControls({ gun }: { gun: FullGunInfo }) {
+export default function ModdingControls({ gun }: { gun: Gun }) {
   const [moddingState, dispatch] = useReducer(reducer, {
     stats: {
       recoilVertical: gun.recoilVertical,
@@ -58,16 +58,16 @@ export default function ModdingControls({ gun }: { gun: FullGunInfo }) {
       <div className="mt-8 flex flex-col gap-8">
         {gun.slots.map((slot) => (
           <div key={slot.id}>
-            <h3 className="mb-4 text-xl font-bold">{slot.name}</h3>
+            <h3 className="text-xl mb-4 font-bold">{slot.name}</h3>
             <div className="flex flex-wrap gap-1">
-              {slot.allowedItems.map((item) => (
+              {/* {slot.allowedItems.map((item) => (
                 <ModItemIcon
                   key={item.id}
                   dispatch={dispatch}
                   slotNameId={slot.nameId}
                   item={item}
                 />
-              ))}
+              ))} */}
             </div>
           </div>
         ))}

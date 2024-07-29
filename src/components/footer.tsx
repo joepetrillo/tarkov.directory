@@ -3,9 +3,9 @@ import { Container, Flex, Text } from "@radix-ui/themes";
 
 export default function Footer() {
   return (
-    <Container size={"2"} flexGrow={"0"} px="4">
-      <Flex mb="5" mt="7" justify={"between"} align={"center"} asChild>
-        <footer className="text-accent-11">
+    <Container size={"2"} flexGrow={"0"} px="4" mb="5" mt="7" asChild>
+      <footer className="text-accent-11">
+        <Flex justify={"between"} align={"center"}>
           <Text size={"2"}>{new Date().getFullYear()} - tarkov.directory</Text>
           <Flex gap={"2"} justify={"center"} align={"center"}>
             <a href="https://github.com/joepetrillo" target="_blank">
@@ -17,8 +17,8 @@ export default function Footer() {
               <GlobeIcon width={20} height={20} />
             </a>
           </Flex>
-        </footer>
-      </Flex>
+        </Flex>
+      </footer>
     </Container>
   );
 }

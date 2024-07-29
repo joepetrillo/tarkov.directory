@@ -1,15 +1,26 @@
 import React from "react";
-import { request } from "graphql-request";
-import { TARKOV_API_URL } from "@/lib/constants";
-import { getAllGunsQuery } from "@/graphql/queries";
-import { mapAllGunsToCategories } from "@/lib/data-mapping";
 import GunList from "@/components/gun-list";
-
-export const revalidate = 3600;
+import { getProcessedGunAndModData } from "@/lib/data-layer";
 
 export default async function Page() {
-  const data = await request(TARKOV_API_URL, getAllGunsQuery);
-  const categorizedData = mapAllGunsToCategories(data);
+  const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
+  const categorizedGunList = Object.entries(gunsByCategory).map(
+    ([_, gunIds]) => {
+      return {
+        categoryName: allGuns[gunIds[0]].category.name,
+        guns: gunIds.map((id) => {
+          const currGun = allGuns[id];
+          return {
+            id: currGun.id,
+            name: currGun.name,
+            shortName: currGun.shortName,
+            defaultPresetImageUrl: currGun.defaultPresetImageUrl,
+            caliber: currGun.caliber,
+          };
+        }),
+      };
+    },
+  );
 
-  return <GunList categorizedGuns={categorizedData} />;
+  return <GunList categorizedGunList={categorizedGunList} />;
 }

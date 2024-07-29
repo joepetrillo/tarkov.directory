@@ -2,10 +2,9 @@
 
 import { graphql } from "@/gql";
 
-// Returns all guns in the game
-export const getAllGunsQuery = graphql(`
-  query GetAllGuns {
-    items(
+export const GetAllGunsAndMods = graphql(`
+  query GetAllGunsAndMods {
+    gunData: items(
       handbookCategoryNames: [
         AssaultCarbines
         AssaultRifles
@@ -19,30 +18,6 @@ export const getAllGunsQuery = graphql(`
       ]
       type: gun
     ) {
-      id
-      name
-      normalizedName
-      shortName
-      handbookCategories {
-        name
-        normalizedName
-      }
-      properties {
-        __typename
-        ... on ItemPropertiesWeapon {
-          defaultPreset {
-            baseImageLink
-          }
-          caliber
-        }
-      }
-    }
-  }
-`);
-
-export const getGunInfoQuery = graphql(`
-  query GetGunInfo($id: [ID]) {
-    items(type: gun, ids: $id) {
       id
       name
       normalizedName
@@ -69,15 +44,74 @@ export const getGunInfoQuery = graphql(`
             filters {
               allowedItems {
                 id
-                name
-                shortName
-                iconLink
-                recoilModifier
-                ergonomicsModifier
-                conflictingSlotIds
-                conflictingItems {
-                  id
-                }
+              }
+            }
+          }
+        }
+      }
+    }
+    modData: items(types: [mods]) {
+      id
+      name
+      normalizedName
+      shortName
+      iconLink
+      recoilModifier
+      ergonomicsModifier
+      conflictingSlotIds
+      conflictingItems {
+        id
+      }
+      properties {
+        __typename
+        ... on ItemPropertiesWeaponMod {
+          slots {
+            id
+            required
+            name
+            nameId
+            filters {
+              allowedItems {
+                id
+              }
+            }
+          }
+        }
+        ... on ItemPropertiesBarrel {
+          slots {
+            id
+            required
+            name
+            nameId
+            filters {
+              allowedItems {
+                id
+              }
+            }
+          }
+        }
+        ... on ItemPropertiesMagazine {
+          slots {
+            id
+            required
+            name
+            nameId
+            filters {
+              allowedItems {
+                id
+              }
+            }
+          }
+        }
+        ... on ItemPropertiesScope {
+          slots {
+            id
+            required
+            name
+            nameId
+            filters {
+              allowedItems {
+                id
               }
             }
           }

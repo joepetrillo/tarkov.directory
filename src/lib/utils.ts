@@ -13,12 +13,12 @@ export function sleep(ms: number) {
 }
 
 // Function to normalize a string by removing spaces and hyphens and converting to lowercase
-export function normalizeString(input: string) {
+export function normalizeShortNameSearch(input: string) {
   return input.replace(/-/g, "").replace(/\s+/g, "").toLowerCase();
 }
 
 // Function to convert API caliber response to something more human readable
-export function extractCaliber(input: string) {
+export function extractCaliber(input: string | null) {
   const caliberMapping: Record<string, string> = {
     Caliber556x45NATO: "5.56x45",
     Caliber9x18PM: "9x18",
@@ -45,5 +45,10 @@ export function extractCaliber(input: string) {
     Caliber68x51: "6.8x51",
     Caliber20x1mm: "Toy Disk",
   };
+
+  if (!input) {
+    return "Unknown";
+  }
+
   return caliberMapping[input] ?? input.replace("Caliber", "") ?? "Unknown";
 }

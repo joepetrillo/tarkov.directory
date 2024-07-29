@@ -1,10 +1,9 @@
 "use client";
 
-import { BasicGunInfo } from "@/types";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import Image from "next/image";
-import { normalizeString, toTitleCase } from "@/lib/utils";
+import { normalizeShortNameSearch, toTitleCase } from "@/lib/utils";
 import Link from "next/link";
 import {
   Box,
@@ -15,29 +14,27 @@ import {
   Section,
   TextField,
 } from "@radix-ui/themes";
+import { CategorizedGunListData } from "@/types";
 
 export default function GunList({
-  categorizedGuns,
+  categorizedGunList,
 }: {
-  categorizedGuns: {
-    categoryName: string;
-    items: BasicGunInfo[];
-  }[];
+  categorizedGunList: CategorizedGunListData;
 }) {
   const [searchInput, setSearchInput] = useState("");
 
-  categorizedGuns = categorizedGuns
+  categorizedGunList = categorizedGunList
     .map((category) => {
       return {
         categoryName: category.categoryName,
-        items: category.items.filter((item) => {
-          return normalizeString(item.shortName).includes(
-            normalizeString(searchInput),
+        guns: category.guns.filter((gun) => {
+          return normalizeShortNameSearch(gun.shortName).includes(
+            normalizeShortNameSearch(searchInput),
           );
         }),
       };
     })
-    .filter((category) => category.items.length > 0);
+    .filter((category) => category.guns.length > 0);
 
   return (
     <div>
@@ -51,19 +48,19 @@ export default function GunList({
           <MagnifyingGlassIcon height="16" width="16" />
         </TextField.Slot>
       </TextField.Root>
-      {categorizedGuns.length === 0 && (
+      {categorizedGunList.length === 0 && (
         <Flex align={"center"} justify={"center"} mt={"7"}>
           <Text weight={"bold"} align={"center"}>
             No guns found
           </Text>
         </Flex>
       )}
-      {categorizedGuns.map(({ categoryName, items }) => {
+      {categorizedGunList.map(({ categoryName, guns }) => {
         return (
           <Section key={categoryName} size={"1"}>
             <Box mb={"4"}>
               <Heading as="h3" size={"5"}>
-                {toTitleCase(categoryName)} ({items.length})
+                {toTitleCase(categoryName)} ({guns.length})
               </Heading>
             </Box>
             <Grid
@@ -74,7 +71,7 @@ export default function GunList({
               }}
               gap={"3"}
             >
-              {items.map((gun) => {
+              {guns.map((gun) => {
                 return (
                   <Link
                     key={gun.id}
