@@ -16,13 +16,14 @@ export const getProcessedGunAndModData = unstable_cache(
   },
 );
 
-export const getFullGunData = async (id: string) => {
+export const getFullGunData = async (id: string): Promise<FullGun | null> => {
   const { allGuns, allMods } = await getProcessedGunAndModData();
 
   const gun = allGuns[id];
 
   if (!gun) {
-    throw new Error(`Gun with id ${id} not found`);
+    console.warn(`Gun with id ${id} not found`);
+    return null;
   }
 
   const populateSlots = (slots: Slot[], depth: number = 0): FullSlot[] => {
@@ -31,22 +32,26 @@ export const getFullGunData = async (id: string) => {
       return [];
     }
 
-    return slots.map((slot) => ({
-      ...slot,
-      allowedMods: slot.allowedModIds
-        .map((modId) => {
-          const mod = allMods[modId];
-          if (!mod) {
-            console.warn(`Mod with id ${modId} not found`);
-            return null;
-          }
-          return {
-            ...mod,
-            slots: populateSlots(mod.slots, depth + 1),
-          };
-        })
-        .filter((mod): mod is FullMod => mod !== null),
-    }));
+    return slots.map((slot) => {
+      const { allowedModIds, ...everythingExceptAllowedModIds } = slot;
+
+      return {
+        ...everythingExceptAllowedModIds,
+        allowedMods: slot.allowedModIds
+          .map((modId) => {
+            const mod = allMods[modId];
+            if (!mod) {
+              console.warn(`Mod with id ${modId} not found`);
+              return null;
+            }
+            return {
+              ...mod,
+              slots: populateSlots(mod.slots, depth + 1),
+            };
+          })
+          .filter((mod): mod is FullMod => mod !== null),
+      };
+    });
   };
 
   const fullGun: FullGun = {

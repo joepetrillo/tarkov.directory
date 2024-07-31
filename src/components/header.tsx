@@ -23,7 +23,7 @@ export default function Header() {
           </Link>
           <HeaderAuth />
         </Flex>
-        {/* <HeaderNav /> */}
+        <HeaderNav />
       </header>
     </Container>
   );

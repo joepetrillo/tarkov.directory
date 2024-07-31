@@ -58,36 +58,9 @@ export type CategorizedGunListData = {
   >[];
 }[];
 
-export type ModPreset = {
-  // id: string;
-  gunId: string;
-  name: string;
-  // createdAt: Date;
-  // updatedAt: Date;
-  selections: {
-    slotId: string;
-    modId: string | null;
-  }[];
+export type ModSelection = {
+  modId: ItemId | null;
+  slots: Record<string, ModSelection> | null;
 };
 
-export type ModdingAction =
-  | {
-      type: "added_item";
-      nameId: string;
-      item: Mod;
-    }
-  | {
-      type: "removed_item";
-      nameId: string;
-    };
-
-export type ModdingState = {
-  stats: {
-    recoilVertical: number;
-    recoilHorizontal: number;
-    ergonomics: number;
-  };
-  selectedItems: {
-    [nameId: string]: Mod | null;
-  };
-};
+export type ModSelectionState = Record<string, ModSelection>;

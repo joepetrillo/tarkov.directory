@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Text } from "@radix-ui/themes";
 
-export default function ModItemIcon({
+export function ModIcon({
   iconImageUrl,
   shortName,
 }: {
@@ -9,12 +9,12 @@ export default function ModItemIcon({
   shortName: string;
 }) {
   return (
-    <div className="from-stone-900 relative h-[50px] w-[50px] border border-eft-white/30 bg-gradient-to-b">
+    <div className="relative h-[55px] w-[55px] shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3">
       <div className="absolute right-0 top-0">
         <Text className="line-clamp-1 text-right text-[11px]">{shortName}</Text>
       </div>
       {iconImageUrl && (
-        <Image width={50} height={50} src={iconImageUrl} alt={shortName} />
+        <Image width={55} height={55} src={iconImageUrl} alt={shortName} />
       )}
     </div>
   );
