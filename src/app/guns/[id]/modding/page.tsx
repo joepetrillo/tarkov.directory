@@ -1,14 +1,15 @@
 // app/guns/[id]/page.tsx
-import { getFullGunData } from "@/lib/data-layer";
+import { getProcessedGunAndModData } from "@/lib/data-layer";
 import { notFound } from "next/navigation";
 import GunModding from "@/components/modding/gun-modding";
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const fullGunData = await getFullGunData(params.id);
+  const { allGuns, allMods } = await getProcessedGunAndModData();
+  const gun = allGuns[params.id];
 
-  if (!fullGunData) {
+  if (!gun) {
     notFound();
   }
 
-  return <GunModding gun={fullGunData} />;
+  return <GunModding gun={gun} mods={allMods} />;
 }

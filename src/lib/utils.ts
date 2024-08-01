@@ -1,5 +1,18 @@
 // This file contains utility functions that are used throughout the application
 
+import { Slot, SlotSelectionNode } from "@/types";
+
+// Function to initialize the empty state of the modding screen, if not using a preset
+export function initializeEmptyState(slots: Slot[]): SlotSelectionNode[] {
+  return slots.map((slot) => {
+    return {
+      nameId: slot.nameId,
+      selectedModId: null,
+      slots: null,
+    };
+  });
+}
+
 // Function to convert a string to title case
 export function toTitleCase(str: string) {
   return str.replace(/(?:^|\s)\w/g, function (match) {

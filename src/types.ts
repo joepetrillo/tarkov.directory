@@ -23,8 +23,6 @@ export type Gun = {
   slots: Slot[];
 };
 
-export type FullGun = Omit<Gun, "slots"> & { slots: FullSlot[] };
-
 export type Slot = {
   id: string;
   required: boolean;
@@ -32,8 +30,6 @@ export type Slot = {
   nameId: string;
   allowedModIds: ItemId[];
 };
-
-export type FullSlot = Omit<Slot, "allowedModIds"> & { allowedMods: FullMod[] };
 
 export type Mod = {
   id: ItemId;
@@ -48,6 +44,8 @@ export type Mod = {
   slots: Slot[];
 };
 
+export type FullGun = Omit<Gun, "slots"> & { slots: FullSlot[] };
+export type FullSlot = Omit<Slot, "allowedModIds"> & { allowedMods: FullMod[] };
 export type FullMod = Omit<Mod, "slots"> & { slots: FullSlot[] };
 
 export type CategorizedGunListData = {
@@ -58,9 +56,8 @@ export type CategorizedGunListData = {
   >[];
 }[];
 
-export type ModSelection = {
-  modId: ItemId | null;
-  slots: Record<string, ModSelection> | null;
+export type SlotSelectionNode = {
+  nameId: Slot["nameId"];
+  selectedModId: ItemId | null;
+  slots: SlotSelectionNode[] | null;
 };
-
-export type ModSelectionState = Record<string, ModSelection>;
