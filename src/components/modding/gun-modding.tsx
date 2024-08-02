@@ -1,11 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
+import { Gun, ItemId, Mod, Slot, SlotSelectionNode } from "@/types";
 import { Box, Flex, Heading, Separator } from "@radix-ui/themes";
-import { initializeEmptyState, toTitleCase } from "@/lib/utils";
+import { toTitleCase } from "@/lib/utils";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
+
+// Function to initialize the empty state of the modding screen, if not using a preset
+function initializeEmptyState(slots: Slot[]): SlotSelectionNode[] {
+  return slots.map((slot) => {
+    return {
+      nameId: slot.nameId,
+      selectedModId: null,
+      slots: null,
+    };
+  });
+}
 
 export default function GunModding({
   gun,
