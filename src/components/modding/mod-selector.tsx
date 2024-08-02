@@ -17,18 +17,18 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ModIcon } from "@/components/modding/mod-icon";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   CaretDownIcon,
   CaretSortIcon,
   CaretUpIcon,
 } from "@radix-ui/react-icons";
 
-type ModSelectionProps = {
+type ModSelectorProps = {
   slot: Slot;
   mods: Record<ItemId, Mod>;
   selection: SlotSelectionNode;
-  setSelections: Dispatch<SetStateAction<SlotSelectionNode[]>>;
+  updateSelection: (path: string[], modId: ItemId | null) => void;
   path: string[];
 };
 
@@ -89,9 +89,9 @@ export function ModSelector({
   slot,
   mods,
   selection,
-  setSelections,
+  updateSelection,
   path,
-}: ModSelectionProps) {
+}: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -102,65 +102,20 @@ export function ModSelector({
   const table = useReactTable({
     data: tableData,
     columns,
-    state: {
-      sorting,
-    },
+    state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const handleSelectMod = (slotId: string, modId: string | null) => {
-    setSelections((prevSelections) => {
-      const updateSlotRecursive = (
-        slots: SlotSelectionNode[],
-        currentPath: string[],
-      ): SlotSelectionNode[] => {
-        if (currentPath.length === 0) {
-          return slots.map((slot) => {
-            if (slot.nameId === slotId) {
-              const selectedMod = modId ? mods[modId] : null;
-              return {
-                ...slot,
-                selectedModId: modId,
-                slots: selectedMod
-                  ? selectedMod.slots.map((s) => ({
-                      ...s,
-                      selectedModId: null,
-                      slots: null,
-                    }))
-                  : null,
-              };
-            }
-            return slot;
-          });
-        }
-
-        return slots.map((slot) => {
-          if (slot.nameId === currentPath[0]) {
-            return {
-              ...slot,
-              slots: slot.slots
-                ? updateSlotRecursive(slot.slots, currentPath.slice(1))
-                : null,
-            };
-          }
-          return slot;
-        });
-      };
-
-      return updateSlotRecursive(prevSelections, path);
-    });
+  const handleSelectMod = (modId: ItemId | null) => {
+    updateSelection(path, modId);
     setIsOpen(false);
   };
 
-  const getSelectedMod = () => {
-    const modId = selection.selectedModId;
-    if (!modId) return null;
-    return mods[modId];
-  };
-
-  const selectedMod = getSelectedMod();
+  const selectedMod = selection.selectedModId
+    ? mods[selection.selectedModId]
+    : null;
 
   return (
     <>
@@ -173,15 +128,15 @@ export function ModSelector({
           shortName={selectedMod?.shortName ?? "Empty"}
         />
       </button>
-      <Dialog.Root open={isOpen} onOpenChange={(isOpen) => setIsOpen(isOpen)}>
+      <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Content
           aria-describedby={undefined}
           className="max-w-screen-md"
         >
           <Dialog.Title className="text-balance">{slot.name} Mods</Dialog.Title>
-          <Inset side={"x"}>
+          <Inset side="x">
             <ScrollArea
-              size={"2"}
+              size="2"
               style={{
                 height: "max(calc(100dvh - 300px), 450px)",
                 width: "min(calc(100dvw - 32px), 1024px)",
@@ -226,11 +181,13 @@ export function ModSelector({
                   {table.getRowModel().rows.map((row) => (
                     <Table.Row
                       key={row.id}
-                      onClick={() =>
-                        handleSelectMod(selection.nameId, row.original.id)
-                      }
-                      className={`cursor-pointer hover:bg-accent-1 ${row.original.id === selection.selectedModId ? "bg-accent-1" : ""}`}
-                      align={"center"}
+                      onClick={() => handleSelectMod(row.original.id)}
+                      className={`cursor-pointer hover:bg-accent-1 ${
+                        row.original.id === selection.selectedModId
+                          ? "bg-accent-1"
+                          : ""
+                      }`}
+                      align="center"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <Table.Cell key={cell.id}>
@@ -253,9 +210,7 @@ export function ModSelector({
               </Button>
             </Dialog.Close>
             <Dialog.Close>
-              <Button onClick={() => handleSelectMod(selection.nameId, null)}>
-                Remove Mod
-              </Button>
+              <Button onClick={() => handleSelectMod(null)}>Remove Mod</Button>
             </Dialog.Close>
           </Flex>
         </Dialog.Content>
