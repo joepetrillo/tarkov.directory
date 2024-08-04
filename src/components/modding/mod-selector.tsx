@@ -28,8 +28,8 @@ type ModSelectorProps = {
   slot: Slot;
   mods: Record<ItemId, Mod>;
   selection: SlotSelectionNode;
-  updateSelection: (path: string[], modId: ItemId | null) => void;
   path: string[];
+  updateSelection: (path: string[], modId: ItemId | null) => void;
 };
 
 const columnHelper = createColumnHelper<Mod>();
@@ -89,8 +89,8 @@ export function ModSelector({
   slot,
   mods,
   selection,
-  updateSelection,
   path,
+  updateSelection,
 }: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -113,9 +113,7 @@ export function ModSelector({
     setIsOpen(false);
   };
 
-  const selectedMod = selection.selectedModId
-    ? mods[selection.selectedModId]
-    : null;
+  const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   return (
     <>
@@ -183,9 +181,7 @@ export function ModSelector({
                       key={row.id}
                       onClick={() => handleSelectMod(row.original.id)}
                       className={`cursor-pointer hover:bg-accent-1 ${
-                        row.original.id === selection.selectedModId
-                          ? "bg-accent-1"
-                          : ""
+                        row.original.id === selection.modId ? "bg-accent-1" : ""
                       }`}
                       align="center"
                     >

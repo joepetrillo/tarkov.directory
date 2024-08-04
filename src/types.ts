@@ -57,7 +57,17 @@ export type CategorizedGunListData = {
 }[];
 
 export type SlotSelectionNode = {
-  nameId: Slot["nameId"];
-  selectedModId: ItemId | null;
-  slots: SlotSelectionNode[] | null;
+  slotNameId: string;
+  modId: ItemId | null;
+  slots: SlotSelectionNode[];
 };
+
+export type State = {
+  selections: SlotSelectionNode[];
+  // conflictingModIds: Set<ItemId>;
+  // conflictingSlotIds: Set<string>;
+};
+
+export type Action =
+  | { type: "updated_selection"; path: string[]; modId: ItemId | null }
+  | { type: "reset"; slots: Slot[] };

@@ -6,20 +6,18 @@ type ModSlotProps = {
   slot: Slot;
   mods: Record<ItemId, Mod>;
   selection: SlotSelectionNode;
-  updateSelection: (path: string[], modId: ItemId | null) => void;
   path: string[];
+  updateSelection: (path: string[], modId: ItemId | null) => void;
 };
 
 export default function ModSlot({
   slot,
   mods,
   selection,
-  updateSelection,
   path,
+  updateSelection,
 }: ModSlotProps) {
-  const selectedMod = selection.selectedModId
-    ? mods[selection.selectedModId]
-    : null;
+  const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   return (
     <Flex direction="column" gap="4">
@@ -29,24 +27,25 @@ export default function ModSlot({
           slot={slot}
           mods={mods}
           selection={selection}
-          updateSelection={updateSelection}
           path={path}
+          updateSelection={updateSelection}
         />
       </Flex>
       {selectedMod?.slots && selectedMod.slots.length > 0 && (
         <>
           {selectedMod.slots.map((subSlot) => {
-            const subSelection = selection.slots
-              ? selection.slots.find((s) => s.nameId === subSlot.nameId)
-              : undefined;
+            const subSelection = selection.slots.find(
+              (s) => s.slotNameId === subSlot.nameId,
+            );
+
             return subSelection ? (
               <div key={subSlot.nameId} className="ml-10">
                 <ModSlot
                   slot={subSlot}
                   mods={mods}
                   selection={subSelection}
-                  updateSelection={updateSelection}
                   path={[...path, subSlot.nameId]}
+                  updateSelection={updateSelection}
                 />
               </div>
             ) : null;

@@ -11,10 +11,10 @@ function calculateUpdatedStats(
   let recoilHorizontal = gun.recoilHorizontal;
 
   function calculateStats(selection: SlotSelectionNode) {
-    if (selection.selectedModId !== null) {
-      const selectedMod = mods[selection.selectedModId];
+    if (selection.modId !== null) {
+      const selectedMod = mods[selection.modId];
       if (!selectedMod) {
-        console.warn(`Mod with id ${mods[selection.selectedModId]} not found`);
+        console.warn(`Mod with id ${mods[selection.modId]} not found`);
       } else {
         ergonomics += selectedMod.ergonomicsModifier;
         recoilVertical += selectedMod.recoilModifier;
