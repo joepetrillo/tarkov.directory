@@ -32,14 +32,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="dark overflow-y-scroll bg-gray-1 text-accent-12 subpixel-antialiased">
+      <body className="overflow-y-scroll bg-[#111110] subpixel-antialiased">
         <Providers>
           <Theme
             appearance="dark"
             accentColor="gold"
-            grayColor="auto"
+            grayColor="sand"
             panelBackground="solid"
             radius="none"
+            className="text-accent-12"
           >
             <Flex minHeight="100dvh" direction="column">
               <Container size="2" px="4" flexGrow={"0"}>
