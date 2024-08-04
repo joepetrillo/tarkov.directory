@@ -34,58 +34,6 @@ type ModSelectorProps = {
 
 const columnHelper = createColumnHelper<Mod>();
 
-const columns = [
-  columnHelper.accessor("shortName", {
-    header: "Mod",
-    cell: (info) => (
-      <Flex align="center" gap="2" className="min-w-[125px]">
-        <ModIcon
-          iconImageUrl={info.row.original.iconImageUrl}
-          shortName={info.getValue()}
-          showShortName={false}
-        />
-        <Flex direction="column">
-          <Text size="2" weight="bold">
-            {info.getValue()}
-          </Text>
-          <Text size="1" className="line-clamp-2 text-balance text-gray-11">
-            {info.row.original.name}
-          </Text>
-        </Flex>
-      </Flex>
-    ),
-    enableSorting: false,
-  }),
-  columnHelper.accessor("recoilModifier", {
-    header: "Recoil",
-    cell: (info) => {
-      const value = info.getValue();
-      const formattedValue = value > 0 ? `+${value}` : value;
-      const textColorClass =
-        value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
-      return (
-        <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
-          {formattedValue}
-        </Text>
-      );
-    },
-  }),
-  columnHelper.accessor("ergonomicsModifier", {
-    header: "Ergo",
-    cell: (info) => {
-      const value = info.getValue();
-      const formattedValue = value > 0 ? `+${value}` : value;
-      const textColorClass =
-        value < 0 ? "text-tomato-11" : value > 0 ? "text-jade-11" : "";
-      return (
-        <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
-          {formattedValue}
-        </Text>
-      );
-    },
-  }),
-];
-
 export function ModSelector({
   slot,
   mods,
@@ -95,6 +43,62 @@ export function ModSelector({
 }: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("shortName", {
+        header: "Mod",
+        cell: (info) => (
+          <Flex align="center" gap="2" className="min-w-[125px]">
+            <ModIcon
+              iconImageUrl={info.row.original.iconImageUrl}
+              shortName={info.getValue()}
+              showShortName={false}
+            />
+            <Flex direction="column">
+              <Text size="2" weight="bold">
+                {info.getValue()}{" "}
+                {info.row.original.id === selection.modId && "(Selected)"}
+              </Text>
+              <Text size="1" className="line-clamp-2 text-balance text-gray-11">
+                {info.row.original.name}
+              </Text>
+            </Flex>
+          </Flex>
+        ),
+        enableSorting: false,
+      }),
+      columnHelper.accessor("recoilModifier", {
+        header: "Recoil",
+        cell: (info) => {
+          const value = info.getValue();
+          const formattedValue = value > 0 ? `+${value}` : value;
+          const textColorClass =
+            value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
+          return (
+            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
+              {formattedValue}
+            </Text>
+          );
+        },
+      }),
+      columnHelper.accessor("ergonomicsModifier", {
+        header: "Ergo",
+        cell: (info) => {
+          const value = info.getValue();
+          const formattedValue = value > 0 ? `+${value}` : value;
+          const textColorClass =
+            value < 0 ? "text-tomato-11" : value > 0 ? "text-jade-11" : "";
+          return (
+            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
+              {formattedValue}
+            </Text>
+          );
+        },
+      }),
+    ],
+    [selection.modId],
+  );
 
   const tableData = useMemo(() => {
     const sortedMods = slot.allowedModIds
@@ -197,14 +201,20 @@ export function ModSelector({
                       key={row.id}
                       onClick={() => handleSelectMod(row.original.id)}
                       className={`cursor-pointer hover:bg-accent-1 ${
-                        row.original.id === selection.modId
-                          ? "slanted-line-bg border-l border-accent-9 bg-accent-1"
-                          : ""
+                        row.original.id === selection.modId &&
+                        "slanted-line-bg bg-accent-1"
                       }`}
                       align="center"
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <Table.Cell key={cell.id}>
+                      {row.getVisibleCells().map((cell, index) => (
+                        <Table.Cell
+                          key={cell.id}
+                          className={`relative ${
+                            row.original.id === selection.modId &&
+                            index === 0 &&
+                            "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-9"
+                          }`}
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

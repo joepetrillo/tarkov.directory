@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
-import { Callout, Container, Flex, Theme, ThemePanel } from "@radix-ui/themes";
+import { Callout, Container, Flex, Theme } from "@radix-ui/themes";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Providers from "@/app/providers";
 
-import "@radix-ui/themes/styles.css";
+// Base theme tokens
+import "@radix-ui/themes/tokens/base.css";
+
+// Include just the colors we want to use
+import "@radix-ui/themes/tokens/colors/gold.css";
+import "@radix-ui/themes/tokens/colors/sand.css";
+import "@radix-ui/themes/tokens/colors/tomato.css";
+import "@radix-ui/themes/tokens/colors/jade.css";
+
+// Rest of the CSS
+import "@radix-ui/themes/components.css";
+import "@radix-ui/themes/utilities.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +45,7 @@ export default function RootLayout({
               <Container size="2" px="4" flexGrow={"0"}>
                 <Callout.Root
                   variant="surface"
-                  color="red"
+                  color="tomato"
                   size={"1"}
                   className="mt-5"
                 >
@@ -53,7 +64,6 @@ export default function RootLayout({
               </Container>
               <Footer />
             </Flex>
-            <ThemePanel defaultOpen={false} />
           </Theme>
         </Providers>
       </body>
