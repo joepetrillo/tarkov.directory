@@ -20,7 +20,13 @@ export function ModIcon({
         </div>
       )}
       {iconImageUrl && (
-        <Image width={56} height={56} src={iconImageUrl} alt={shortName} />
+        <Image
+          width={56}
+          height={56}
+          src={iconImageUrl}
+          alt={shortName}
+          unoptimized={true}
+        />
       )}
     </div>
   );

@@ -107,6 +107,7 @@ export default function GunList({
                             sizes="150px"
                             className="object-contain"
                             fill={true}
+                            unoptimized={true}
                           />
                         </Box>
                       )}
