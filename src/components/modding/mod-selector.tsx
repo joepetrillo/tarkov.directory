@@ -42,6 +42,7 @@ const columns = [
         <ModIcon
           iconImageUrl={info.row.original.iconImageUrl}
           shortName={info.getValue()}
+          showShortName={false}
         />
         <Flex direction="column">
           <Text size="2" weight="bold">
@@ -96,8 +97,22 @@ export function ModSelector({
   const [isOpen, setIsOpen] = useState(false);
 
   const tableData = useMemo(() => {
-    return slot.allowedModIds.map((modId) => mods[modId]);
-  }, [mods, slot.allowedModIds]);
+    const sortedMods = slot.allowedModIds
+      .map((modId) => mods[modId])
+      .sort((a, b) => a.shortName.localeCompare(b.shortName));
+
+    if (selection.modId) {
+      const selectedIndex = sortedMods.findIndex(
+        (mod) => mod.id === selection.modId,
+      );
+      if (selectedIndex !== -1) {
+        const [selectedMod] = sortedMods.splice(selectedIndex, 1);
+        sortedMods.unshift(selectedMod);
+      }
+    }
+
+    return sortedMods;
+  }, [mods, selection.modId, slot.allowedModIds]);
 
   const table = useReactTable({
     data: tableData,
@@ -135,8 +150,9 @@ export function ModSelector({
           <Inset side="x">
             <ScrollArea
               size="2"
+              type="auto"
               style={{
-                height: "max(calc(100dvh - 300px), 450px)",
+                height: "max(calc(100dvh - 300px), 425px)",
                 width: "min(calc(100dvw - 32px), 1024px)",
               }}
             >
@@ -181,7 +197,9 @@ export function ModSelector({
                       key={row.id}
                       onClick={() => handleSelectMod(row.original.id)}
                       className={`cursor-pointer hover:bg-accent-1 ${
-                        row.original.id === selection.modId ? "bg-accent-1" : ""
+                        row.original.id === selection.modId
+                          ? "slanted-line-bg border-l border-accent-9 bg-accent-1"
+                          : ""
                       }`}
                       align="center"
                     >
