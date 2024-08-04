@@ -62,12 +62,12 @@ export type SlotSelectionNode = {
   slots: SlotSelectionNode[];
 };
 
-export type State = {
+export type GunModdingState = {
   selections: SlotSelectionNode[];
   // conflictingModIds: Set<ItemId>;
   // conflictingSlotIds: Set<string>;
 };
 
-export type Action =
+export type GunModdingAction =
   | { type: "updated_selection"; path: string[]; modId: ItemId | null }
   | { type: "reset"; slots: Slot[] };

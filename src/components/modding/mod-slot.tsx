@@ -31,7 +31,7 @@ export default function ModSlot({
           updateSelection={updateSelection}
         />
       </Flex>
-      {selectedMod?.slots && selectedMod.slots.length > 0 && (
+      {!!selectedMod?.slots.length && (
         <>
           {selectedMod.slots.map((subSlot) => {
             const subSelection = selection.slots.find(

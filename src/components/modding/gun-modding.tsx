@@ -16,7 +16,7 @@ type GunModdingProps = {
 export default function GunModding({ gun, mods, preset }: GunModdingProps) {
   const { selections, dispatch } = useGunModding(gun, mods, preset);
 
-  // console.log(selections);
+  console.log(selections);
 
   return (
     <div>
