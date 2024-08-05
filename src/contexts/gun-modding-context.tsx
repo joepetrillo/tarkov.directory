@@ -1,17 +1,22 @@
-// src/hooks/useGunModding.ts
+"use client";
 
-import { Reducer, useCallback, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  ReactNode,
+} from "react";
 import {
-  GunModdingAction,
   Gun,
   ItemId,
   Mod,
   Slot,
   SlotSelectionNode,
   GunModdingState,
+  GunModdingAction,
 } from "@/types";
 
-// reset all slots to empty
 function initializeEmptyState(slots: Slot[]): GunModdingState {
   return {
     selections: slots.map((slot) => ({
@@ -58,12 +63,30 @@ function updateSelectionNode(
   return node;
 }
 
-export function useGunModding(
-  gun: Gun,
-  mods: Record<ItemId, Mod>,
-  preset?: SlotSelectionNode[],
-) {
-  const reducer = useCallback<Reducer<GunModdingState, GunModdingAction>>(
+type GunModdingContextType = {
+  state: GunModdingState;
+  dispatch: React.Dispatch<GunModdingAction>;
+  gun: Gun;
+  mods: Record<ItemId, Mod>;
+  preset?: SlotSelectionNode[];
+};
+
+const GunModdingContext = createContext<GunModdingContextType | null>(null);
+
+export function GunModdingProvider({
+  children,
+  gun,
+  mods,
+  preset,
+}: {
+  children: ReactNode;
+  gun: Gun;
+  mods: Record<ItemId, Mod>;
+  preset?: SlotSelectionNode[];
+}) {
+  console.log("GunModdingProvider re-render");
+
+  const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
     (state, action) => {
       switch (action.type) {
         case "updated_selection":
@@ -81,7 +104,7 @@ export function useGunModding(
           return state;
       }
     },
-    [mods], // Now 'mods' is explicitly listed as a dependency
+    [mods],
   );
 
   const [state, dispatch] = useReducer(
@@ -89,8 +112,19 @@ export function useGunModding(
     preset ? { selections: preset } : initializeEmptyState(gun.slots),
   );
 
-  return {
-    selections: state.selections,
-    dispatch,
-  };
+  const value: GunModdingContextType = { state, dispatch, gun, mods, preset };
+
+  return (
+    <GunModdingContext.Provider value={value}>
+      {children}
+    </GunModdingContext.Provider>
+  );
+}
+
+export function useGunModding() {
+  const context = useContext(GunModdingContext);
+  if (context === null) {
+    throw new Error("useGunModding must be used within a GunModdingProvider");
+  }
+  return context;
 }

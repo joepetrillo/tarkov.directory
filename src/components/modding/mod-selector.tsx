@@ -23,26 +23,21 @@ import {
   CaretSortIcon,
   CaretUpIcon,
 } from "@radix-ui/react-icons";
+import { useGunModding } from "@/contexts/gun-modding-context";
 
 type ModSelectorProps = {
   slot: Slot;
-  mods: Record<ItemId, Mod>;
   selection: SlotSelectionNode;
   path: string[];
-  updateSelection: (path: string[], modId: ItemId | null) => void;
 };
 
 const columnHelper = createColumnHelper<Mod>();
 
-export function ModSelector({
-  slot,
-  mods,
-  selection,
-  path,
-  updateSelection,
-}: ModSelectorProps) {
+export function ModSelector({ slot, selection, path }: ModSelectorProps) {
+  console.log("ModSelector re-render");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const { dispatch, mods } = useGunModding();
 
   const columns = useMemo(
     () => [
@@ -128,7 +123,7 @@ export function ModSelector({
   });
 
   const handleSelectMod = (modId: ItemId | null) => {
-    updateSelection(path, modId);
+    dispatch({ type: "updated_selection", path, modId });
     setIsOpen(false);
   };
 

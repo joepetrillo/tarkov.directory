@@ -1,22 +1,18 @@
 "use client";
 
-import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
 import { Box, Button, Flex, Heading, Separator } from "@radix-ui/themes";
 import { toTitleCase } from "@/lib/utils";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
-import { useGunModding } from "@/hooks/use-gun-modding";
+import { useGunModding } from "@/contexts/gun-modding-context";
 
-type GunModdingProps = {
-  gun: Gun;
-  mods: Record<ItemId, Mod>;
-  preset?: SlotSelectionNode[];
-};
-
-export default function GunModding({ gun, mods, preset }: GunModdingProps) {
-  const { selections, dispatch } = useGunModding(gun, mods, preset);
-
-  console.log(selections);
+export default function GunModding() {
+  console.log("GunModding re-render");
+  const {
+    state: { selections },
+    dispatch,
+    gun,
+  } = useGunModding();
 
   return (
     <div>
@@ -24,7 +20,7 @@ export default function GunModding({ gun, mods, preset }: GunModdingProps) {
         {toTitleCase(gun.name)}
       </Heading>
       <Box mb="8">
-        <GunStats gun={gun} mods={mods} selections={selections} />
+        <GunStats />
       </Box>
       <div>
         <Heading size="3">Modding Slots</Heading>
@@ -47,13 +43,9 @@ export default function GunModding({ gun, mods, preset }: GunModdingProps) {
               selection && (
                 <ModSlot
                   key={slot.nameId}
-                  mods={mods}
                   slot={slot}
                   selection={selection}
                   path={[slot.nameId]}
-                  updateSelection={(path, modId) =>
-                    dispatch({ type: "updated_selection", path, modId })
-                  }
                 />
               )
             );

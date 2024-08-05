@@ -1,3 +1,4 @@
+import { useGunModding } from "@/contexts/gun-modding-context";
 import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
 import { Card, DataList, Flex, Heading, Text } from "@radix-ui/themes";
 
@@ -42,15 +43,14 @@ const formatDifference = (current: number, base: number) => {
   return diff > 0 ? `+${diff}` : diff;
 };
 
-export default function GunStats({
-  gun,
-  mods,
-  selections,
-}: {
-  gun: Gun;
-  mods: Record<ItemId, Mod>;
-  selections: SlotSelectionNode[];
-}) {
+export default function GunStats() {
+  console.log("GunStats re-render");
+  const {
+    state: { selections },
+    gun,
+    mods,
+  } = useGunModding();
+
   const { ergonomics, recoilVertical, recoilHorizontal } =
     calculateUpdatedStats(gun, mods, selections);
 
