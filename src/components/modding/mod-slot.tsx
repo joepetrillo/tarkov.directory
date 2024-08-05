@@ -14,6 +14,10 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
 
   const selectedMod = selection.modId ? mods[selection.modId] : null;
 
+  if (slot.allowedModIds.length === 0) {
+    return null;
+  }
+
   return (
     <Flex direction="column" gap="4">
       <Flex gap="2" align="center" justify="between" width="160px">
