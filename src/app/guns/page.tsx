@@ -8,16 +8,18 @@ export default async function Page() {
     ([_, gunIds]) => {
       return {
         categoryName: allGuns[gunIds[0]].category.name,
-        guns: gunIds.map((id) => {
-          const currGun = allGuns[id];
-          return {
-            id: currGun.id,
-            name: currGun.name,
-            shortName: currGun.shortName,
-            defaultPresetImageUrl: currGun.defaultPresetImageUrl,
-            caliber: currGun.caliber,
-          };
-        }),
+        guns: gunIds
+          .map((id) => {
+            const currGun = allGuns[id];
+            return {
+              id: currGun.id,
+              name: currGun.name,
+              shortName: currGun.shortName,
+              defaultPresetImageUrl: currGun.defaultPresetImageUrl,
+              caliber: currGun.caliber,
+            };
+          })
+          .sort((a, b) => a.shortName.localeCompare(b.shortName)),
       };
     },
   );

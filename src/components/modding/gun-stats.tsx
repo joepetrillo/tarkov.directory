@@ -1,4 +1,4 @@
-import { useGunModding } from "@/contexts/gun-modding-context";
+import { useGunModding } from "@/contexts/gun-modding.context";
 import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
 import { Card, DataList, Flex, Heading, Text } from "@radix-ui/themes";
 
@@ -44,7 +44,6 @@ const formatDifference = (current: number, base: number) => {
 };
 
 export default function GunStats() {
-  console.log("GunStats re-render");
   const {
     state: { selections },
     gun,
@@ -65,18 +64,21 @@ export default function GunStats() {
   );
 
   return (
-    <Card variant="classic" className="max-w-max" size={"3"}>
-      <Heading size="2" mb={"4"} as="h4">
-        Gun Stats
-      </Heading>
-      <DataList.Root>
-        <DataList.Item align="center">
-          <DataList.Label minWidth="110px">Ergonomics</DataList.Label>
-          <DataList.Value>
-            <Flex align="baseline" gap="2" className="font-mono">
-              <Text>{ergonomics}</Text>
-              {ergonomicsDiff && (
+    <Card variant="classic" size={"3"} className="max-w-max">
+      <div className="overflow-x-auto">
+        <Heading size="3" mb={"4"} as="h4">
+          Gun Stats
+        </Heading>
+        <Flex direction={"column"} gap={"4"}>
+          <Flex gap={"4"}>
+            <Text className="min-w-[110px] text-gray-11" size={"2"}>
+              Ergonomics
+            </Text>
+            <Flex align="center" gap="2" className="font-mono">
+              <Text size={"2"}>{ergonomics}</Text>
+              {ergonomicsDiff !== null && (
                 <Text
+                  size={"2"}
                   className={
                     ergonomics > gun.ergonomics
                       ? "text-jade-11"
@@ -87,15 +89,16 @@ export default function GunStats() {
                 </Text>
               )}
             </Flex>
-          </DataList.Value>
-        </DataList.Item>
-        <DataList.Item align="center">
-          <DataList.Label minWidth="110px">Vertical Recoil</DataList.Label>
-          <DataList.Value>
+          </Flex>
+          <Flex gap={"4"}>
+            <Text className="min-w-[110px] text-gray-11" size={"2"}>
+              Vertical Recoil
+            </Text>
             <Flex align="baseline" gap="2" className="font-mono">
-              <Text>{recoilVertical}</Text>
-              {recoilVerticalDiff && (
+              <Text size={"2"}>{recoilVertical}</Text>
+              {recoilVerticalDiff !== null && (
                 <Text
+                  size={"2"}
                   className={
                     recoilVertical < gun.recoilVertical
                       ? "text-jade-11"
@@ -106,15 +109,16 @@ export default function GunStats() {
                 </Text>
               )}
             </Flex>
-          </DataList.Value>
-        </DataList.Item>
-        <DataList.Item align="center">
-          <DataList.Label minWidth="110px">Horizontal Recoil</DataList.Label>
-          <DataList.Value>
+          </Flex>
+          <Flex gap={"4"}>
+            <Text className="min-w-[110px] text-gray-11" size={"2"}>
+              Horizontal Recoil
+            </Text>
             <Flex align="baseline" gap="2" className="font-mono">
-              <Text>{recoilHorizontal}</Text>
-              {recoilHorizontalDiff && (
+              <Text size={"2"}>{recoilHorizontal}</Text>
+              {recoilHorizontalDiff !== null && (
                 <Text
+                  size={"2"}
                   className={
                     recoilHorizontal < gun.recoilHorizontal
                       ? "text-jade-11"
@@ -125,9 +129,9 @@ export default function GunStats() {
                 </Text>
               )}
             </Flex>
-          </DataList.Value>
-        </DataList.Item>
-      </DataList.Root>
+          </Flex>
+        </Flex>
+      </div>
     </Card>
   );
 }

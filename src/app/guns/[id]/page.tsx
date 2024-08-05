@@ -4,7 +4,7 @@ import Link from "@/components/ui/link";
 export default async function Page({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col gap-4">
-      <Link href="/guns">Go Back</Link>
+      <Link href="/">Go Home</Link>
       <Link href={`/guns/${params.id}/modding`}>Start Modding</Link>
     </div>
   );

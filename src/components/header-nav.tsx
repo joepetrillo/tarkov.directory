@@ -16,6 +16,9 @@ export function HeaderNav() {
         <TabNav.Link active={pathname === "/guns"} asChild>
           <Link href="/guns">Guns</Link>
         </TabNav.Link>
+        <TabNav.Link active={pathname === "/presets"} asChild>
+          <Link href="/presets">Presets</Link>
+        </TabNav.Link>
       </TabNav.Root>
     </nav>
   );

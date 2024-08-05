@@ -23,7 +23,7 @@ import {
   CaretSortIcon,
   CaretUpIcon,
 } from "@radix-ui/react-icons";
-import { useGunModding } from "@/contexts/gun-modding-context";
+import { useGunModding } from "@/contexts/gun-modding.context";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -34,7 +34,6 @@ type ModSelectorProps = {
 const columnHelper = createColumnHelper<Mod>();
 
 export function ModSelector({ slot, selection, path }: ModSelectorProps) {
-  console.log("ModSelector re-render");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
   const { dispatch, mods } = useGunModding();
@@ -145,7 +144,9 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
           aria-describedby={undefined}
           className="max-w-screen-md"
         >
-          <Dialog.Title className="text-balance">{slot.name} Mods</Dialog.Title>
+          <Dialog.Title className="text-balance" mb={"4"}>
+            {slot.name} Mods
+          </Dialog.Title>
           <Inset side="x">
             <ScrollArea
               size="2"
@@ -229,7 +230,9 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
               </Button>
             </Dialog.Close>
             <Dialog.Close>
-              <Button onClick={() => handleSelectMod(null)}>Remove Mod</Button>
+              <Button variant={"classic"} onClick={() => handleSelectMod(null)}>
+                Remove Mod
+              </Button>
             </Dialog.Close>
           </Flex>
         </Dialog.Content>

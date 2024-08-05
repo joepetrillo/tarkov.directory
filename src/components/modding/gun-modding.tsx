@@ -4,10 +4,9 @@ import { Box, Button, Flex, Heading, Separator } from "@radix-ui/themes";
 import { toTitleCase } from "@/lib/utils";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
-import { useGunModding } from "@/contexts/gun-modding-context";
+import { useGunModding } from "@/contexts/gun-modding.context";
 
 export default function GunModding() {
-  console.log("GunModding re-render");
   const {
     state: { selections },
     dispatch,
@@ -26,6 +25,7 @@ export default function GunModding() {
         <Heading size="3">Modding Slots</Heading>
         <Separator mt="2" mb="4" size="4" />
         <Button
+          variant="classic"
           mb={"4"}
           onClick={(e) => {
             e.preventDefault();

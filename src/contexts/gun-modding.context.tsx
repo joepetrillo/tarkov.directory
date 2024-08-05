@@ -84,8 +84,6 @@ export function GunModdingProvider({
   mods: Record<ItemId, Mod>;
   preset?: SlotSelectionNode[];
 }) {
-  console.log("GunModdingProvider re-render");
-
   const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
     (state, action) => {
       switch (action.type) {

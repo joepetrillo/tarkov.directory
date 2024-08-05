@@ -1,7 +1,7 @@
 import { Slot, SlotSelectionNode } from "@/types";
 import { Flex, Text } from "@radix-ui/themes";
 import { ModSelector } from "@/components/modding/mod-selector";
-import { useGunModding } from "@/contexts/gun-modding-context";
+import { useGunModding } from "@/contexts/gun-modding.context";
 
 type ModSlotProps = {
   slot: Slot;
@@ -10,7 +10,6 @@ type ModSlotProps = {
 };
 
 export default function ModSlot({ slot, selection, path }: ModSlotProps) {
-  console.log("ModSlot re-render");
   const { mods } = useGunModding();
 
   const selectedMod = selection.modId ? mods[selection.modId] : null;
