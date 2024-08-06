@@ -24,8 +24,6 @@ function initializeEmptyState(slots: Slot[]): GunModdingState {
       modId: null,
       slots: [],
     })),
-    // conflictingModIds: new Set(), will add later
-    // conflictingSlotIds: new Set(), will add later
   };
 }
 
@@ -93,8 +91,6 @@ export function GunModdingProvider({
           );
           return {
             selections: newSelections,
-            // conflictingModIds, will add later
-            // conflictingSlotIds, will add later
           };
         case "reset":
           return initializeEmptyState(action.slots);
@@ -111,6 +107,8 @@ export function GunModdingProvider({
   );
 
   const value: GunModdingContextType = { state, dispatch, gun, mods, preset };
+
+  console.log(state);
 
   return (
     <GunModdingContext.Provider value={value}>

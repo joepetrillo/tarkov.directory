@@ -64,8 +64,6 @@ export type SlotSelectionNode = {
 
 export type GunModdingState = {
   selections: SlotSelectionNode[];
-  // conflictingModIds: Set<ItemId>;
-  // conflictingSlotIds: Set<string>;
 };
 
 export type GunModdingAction =

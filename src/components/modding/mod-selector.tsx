@@ -31,12 +31,44 @@ type ModSelectorProps = {
   path: string[];
 };
 
-const columnHelper = createColumnHelper<Mod>();
+type ModWithConflicting = Mod & { isConflicting: boolean };
+
+const columnHelper = createColumnHelper<ModWithConflicting>();
+
+function isConflicting(
+  modId: ItemId,
+  mods: Record<ItemId, Mod>,
+  selections: SlotSelectionNode[],
+) {
+  const mod = mods[modId];
+  let conflicting = false;
+
+  function isConflictingNode(node: SlotSelectionNode): boolean {
+    if (node.modId !== null) {
+      const selectedMod = mods[node.modId];
+      if (
+        mod.conflictingModIds.includes(node.modId) ||
+        selectedMod.conflictingModIds.includes(modId)
+      ) {
+        conflicting = true;
+      }
+    }
+    return node.slots.some(isConflictingNode);
+  }
+
+  selections.forEach(isConflictingNode);
+
+  return conflicting;
+}
 
 export function ModSelector({ slot, selection, path }: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const { dispatch, mods } = useGunModding();
+  const {
+    dispatch,
+    mods,
+    state: { selections },
+  } = useGunModding();
 
   const columns = useMemo(
     () => [
@@ -52,7 +84,11 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
             <Flex direction="column">
               <Text size="2" weight="bold">
                 {info.getValue()}{" "}
-                {info.row.original.id === selection.modId && "(Selected)"}
+                {info.row.original.id === selection.modId
+                  ? "(Selected)"
+                  : info.row.original.isConflicting
+                    ? "(Conflicting)"
+                    : ""}
               </Text>
               <Text size="1" className="line-clamp-2 text-balance text-gray-11">
                 {info.row.original.name}
@@ -94,9 +130,14 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     [selection.modId],
   );
 
-  const tableData = useMemo(() => {
+  const tableData: ModWithConflicting[] = useMemo(() => {
     const sortedMods = slot.allowedModIds
-      .map((modId) => mods[modId])
+      .map((modId) => {
+        return {
+          ...mods[modId],
+          isConflicting: isConflicting(modId, mods, selections),
+        };
+      })
       .sort((a, b) => a.shortName.localeCompare(b.shortName));
 
     if (selection.modId) {
@@ -110,7 +151,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     }
 
     return sortedMods;
-  }, [mods, selection.modId, slot.allowedModIds]);
+  }, [mods, selection.modId, selections, slot.allowedModIds]);
 
   const table = useReactTable({
     data: tableData,
@@ -121,9 +162,11 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const handleSelectMod = (modId: ItemId | null) => {
-    dispatch({ type: "updated_selection", path, modId });
-    setIsOpen(false);
+  const handleSelectMod = (mod: ModWithConflicting | null) => {
+    if (mod && !mod.isConflicting) {
+      dispatch({ type: "updated_selection", path, modId: mod.id });
+      setIsOpen(false);
+    }
   };
 
   const selectedMod = selection.modId ? mods[selection.modId] : null;
@@ -195,10 +238,13 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                   {table.getRowModel().rows.map((row) => (
                     <Table.Row
                       key={row.id}
-                      onClick={() => handleSelectMod(row.original.id)}
+                      onClick={() => handleSelectMod(row.original)}
                       className={`cursor-pointer hover:bg-accent-1 ${
-                        row.original.id === selection.modId &&
-                        "slanted-line-bg bg-accent-1"
+                        row.original.id === selection.modId
+                          ? "slanted-line-bg bg-accent-1"
+                          : row.original.isConflicting
+                            ? "cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
+                            : ""
                       }`}
                       align="center"
                     >
@@ -206,9 +252,9 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                         <Table.Cell
                           key={cell.id}
                           className={`relative ${
-                            row.original.id === selection.modId &&
-                            index === 0 &&
-                            "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-9"
+                            row.original.id === selection.modId && index === 0
+                              ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-9"
+                              : ""
                           }`}
                         >
                           {flexRender(

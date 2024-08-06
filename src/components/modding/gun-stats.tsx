@@ -1,6 +1,6 @@
 import { useGunModding } from "@/contexts/gun-modding.context";
 import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
-import { Card, DataList, Flex, Heading, Text } from "@radix-ui/themes";
+import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 
 function calculateUpdatedStats(
   gun: Gun,
@@ -8,18 +8,16 @@ function calculateUpdatedStats(
   selections: SlotSelectionNode[],
 ) {
   let ergonomics = gun.ergonomics;
-  let recoilVertical = gun.recoilVertical;
-  let recoilHorizontal = gun.recoilHorizontal;
+  let totalRecoilModifier = 0;
 
   function calculateStats(selection: SlotSelectionNode) {
     if (selection.modId !== null) {
       const selectedMod = mods[selection.modId];
       if (!selectedMod) {
-        console.warn(`Mod with id ${mods[selection.modId]} not found`);
+        console.warn(`Mod with id ${selection.modId} not found`);
       } else {
         ergonomics += selectedMod.ergonomicsModifier;
-        recoilVertical += selectedMod.recoilModifier;
-        recoilHorizontal += selectedMod.recoilModifier;
+        totalRecoilModifier += selectedMod.recoilModifier;
       }
     }
 
@@ -30,9 +28,11 @@ function calculateUpdatedStats(
     }
   }
 
-  for (const selection of selections) {
-    calculateStats(selection);
-  }
+  selections.forEach(calculateStats);
+
+  const recoilMultiplier = 1 + totalRecoilModifier / 100;
+  const recoilVertical = Math.round(gun.recoilVertical * recoilMultiplier);
+  const recoilHorizontal = Math.round(gun.recoilHorizontal * recoilMultiplier);
 
   return { ergonomics, recoilVertical, recoilHorizontal };
 }
