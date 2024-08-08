@@ -75,11 +75,12 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       columnHelper.accessor("shortName", {
         header: "Mod",
         cell: (info) => (
-          <Flex align="center" gap="2" className="min-w-[125px]">
+          <Flex align="center" gap="4" className="min-w-[250px]">
             <ModIcon
               iconImageUrl={info.row.original.iconImageUrl}
               shortName={info.getValue()}
               showShortName={false}
+              size={46}
             />
             <Flex direction="column">
               <Text size="2" weight="bold">
@@ -90,7 +91,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                     ? "(Conflicting)"
                     : ""}
               </Text>
-              <Text size="1" className="line-clamp-2 text-balance text-gray-11">
+              <Text size="1" className="line-clamp-1 text-balance text-gray-11">
                 {info.row.original.name}
               </Text>
             </Flex>
@@ -163,8 +164,15 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
   });
 
   const handleSelectMod = (mod: ModWithConflicting | null) => {
+    // We are selecting a valid mod and it is not conflicting
     if (mod && !mod.isConflicting) {
       dispatch({ type: "updated_selection", path, modId: mod.id });
+      setIsOpen(false);
+    }
+
+    // We are requesting to remove the mod
+    if (mod === null) {
+      dispatch({ type: "updated_selection", path, modId: null });
       setIsOpen(false);
     }
   };
