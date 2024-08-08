@@ -75,7 +75,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       columnHelper.accessor("shortName", {
         header: "Mod",
         cell: (info) => (
-          <Flex align="center" gap="4" className="min-w-[250px]">
+          <Flex align="center" gap="4" className="min-w-[235px]">
             <ModIcon
               iconImageUrl={info.row.original.iconImageUrl}
               shortName={info.getValue()}
@@ -247,12 +247,12 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                     <Table.Row
                       key={row.id}
                       onClick={() => handleSelectMod(row.original)}
-                      className={`cursor-pointer hover:bg-accent-1 ${
+                      className={`hover:bg-accent-1 ${
                         row.original.id === selection.modId
-                          ? "slanted-line-bg bg-accent-1"
+                          ? "slanted-line-bg cursor-pointer bg-accent-1"
                           : row.original.isConflicting
-                            ? "cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
-                            : ""
+                            ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
+                            : "cursor-pointer"
                       }`}
                       align="center"
                     >
