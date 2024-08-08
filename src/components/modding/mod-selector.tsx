@@ -36,6 +36,7 @@ type ModWithConflicting = Mod & { isConflicting: boolean };
 const columnHelper = createColumnHelper<ModWithConflicting>();
 
 function isConflicting(
+  fullPathString: string,
   modId: ItemId,
   mods: Record<ItemId, Mod>,
   selections: SlotSelectionNode[],
@@ -43,20 +44,27 @@ function isConflicting(
   const mod = mods[modId];
   let conflicting = false;
 
-  function isConflictingNode(node: SlotSelectionNode): boolean {
+  function isConflictingNode(pathString: string, node: SlotSelectionNode) {
     if (node.modId !== null) {
       const selectedMod = mods[node.modId];
-      if (
+      if (fullPathString === pathString) {
+        return;
+      } else if (
         mod.conflictingModIds.includes(node.modId) ||
         selectedMod.conflictingModIds.includes(modId)
       ) {
         conflicting = true;
+        return;
       }
     }
-    return node.slots.some(isConflictingNode);
+    node.slots.forEach((selection) => {
+      isConflictingNode(`${pathString}-${selection.slotNameId}`, selection);
+    });
   }
 
-  selections.forEach(isConflictingNode);
+  selections.forEach((selection) => {
+    isConflictingNode(selection.slotNameId, selection);
+  });
 
   return conflicting;
 }
@@ -69,6 +77,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     mods,
     state: { selections },
   } = useGunModding();
+  const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   const columns = useMemo(
     () => [
@@ -136,7 +145,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       .map((modId) => {
         return {
           ...mods[modId],
-          isConflicting: isConflicting(modId, mods, selections),
+          isConflicting: isConflicting(path.join("-"), modId, mods, selections),
         };
       })
       .sort((a, b) => a.shortName.localeCompare(b.shortName));
@@ -150,9 +159,8 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
         sortedMods.unshift(selectedMod);
       }
     }
-
     return sortedMods;
-  }, [mods, selection.modId, selections, slot.allowedModIds]);
+  }, [slot.allowedModIds, selection.modId, mods, path, selections]);
 
   const table = useReactTable({
     data: tableData,
@@ -176,8 +184,6 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       setIsOpen(false);
     }
   };
-
-  const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   return (
     <>
