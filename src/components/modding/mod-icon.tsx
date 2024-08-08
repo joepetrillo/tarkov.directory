@@ -5,18 +5,18 @@ export function ModIcon({
   iconImageUrl,
   shortName,
   showShortName = true,
-  className,
   size = 56,
 }: {
   iconImageUrl: string | null;
   shortName: string;
   showShortName?: boolean;
-  className?: string;
   size?: number;
 }) {
+  const tailwindSize = `h-[${size}px] w-[${size}px]`;
+
   return (
     <div
-      className={`${className ? className : ""} relative h-[${size}px] w-[${size}px] shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold`}
+      className={`relative ${tailwindSize} shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold`}
     >
       {showShortName && (
         <div className="absolute right-0 top-0 max-w-full bg-gray-1 px-[1px]">
