@@ -12,11 +12,13 @@ export function ModIcon({
   showShortName?: boolean;
   size?: number;
 }) {
-  const tailwindSize = `h-[${size}px] w-[${size}px]`;
-
   return (
     <div
-      className={`relative ${tailwindSize} shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold`}
+      className="${tailwindSize} relative shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold"
+      style={{
+        height: `${size}px`,
+        width: `${size}px`,
+      }}
     >
       {showShortName && (
         <div className="absolute right-0 top-0 max-w-full bg-gray-1 px-[1px]">
