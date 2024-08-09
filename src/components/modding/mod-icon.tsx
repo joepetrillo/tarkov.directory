@@ -5,7 +5,7 @@ export function ModIcon({
   iconImageUrl,
   shortName,
   showShortName = true,
-  size = 56,
+  size = 60,
 }: {
   iconImageUrl: string | null;
   shortName: string;
@@ -14,7 +14,7 @@ export function ModIcon({
 }) {
   return (
     <div
-      className="${tailwindSize} relative shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold"
+      className="relative shrink-0 overflow-hidden border border-gray-6 bg-gradient-to-b from-accent-3 font-bold"
       style={{
         height: `${size}px`,
         width: `${size}px`,

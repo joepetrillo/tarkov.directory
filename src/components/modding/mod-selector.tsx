@@ -6,6 +6,7 @@ import {
   Text,
   Inset,
   ScrollArea,
+  Card,
 } from "@radix-ui/themes";
 import { ItemId, Mod, Slot, SlotSelectionNode } from "@/types";
 import {
@@ -187,15 +188,17 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="cursor-pointer select-none"
-      >
-        <ModIcon
-          iconImageUrl={selectedMod?.iconImageUrl ?? null}
-          shortName={selectedMod?.shortName ?? "Empty"}
-        />
-      </button>
+      <Card variant="classic" asChild className="p-0">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="cursor-pointer select-none"
+        >
+          <ModIcon
+            iconImageUrl={selectedMod?.iconImageUrl ?? null}
+            shortName={selectedMod?.shortName ?? "Empty"}
+          />
+        </button>
+      </Card>
       <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Content
           aria-describedby={undefined}

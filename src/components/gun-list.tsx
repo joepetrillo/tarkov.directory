@@ -13,6 +13,7 @@ import {
   Section,
   TextField,
   IconButton,
+  Card,
 } from "@radix-ui/themes";
 import { CategorizedGunListData } from "@/types";
 import { useQueryState } from "nuqs";
@@ -47,6 +48,7 @@ export default function GunList({
         placeholder="Search by name"
         value={searchInput}
         onChange={(e) => setSearchInput(e.currentTarget.value)}
+        variant="surface"
       >
         <TextField.Slot side="left">
           <MagnifyingGlassIcon height="18" width="18" />
@@ -88,49 +90,47 @@ export default function GunList({
             >
               {guns.map((gun) => {
                 return (
-                  <Link
-                    key={gun.id}
-                    href={`/guns/${gun.id}`}
-                    className="outline-none outline-2 outline-offset-2 focus-visible:outline-accent-8"
-                  >
-                    <Flex
-                      height={"120px"}
-                      direction={"column"}
-                      align={"center"}
-                      justify={"center"}
-                      gap={"2"}
-                      p={"2"}
-                      className="group border border-accent-6 bg-accent-1 bg-gradient-to-b from-accent-2 hover:from-accent-3"
-                    >
-                      <Text
-                        className="group-hover:underline"
+                  <Card variant="classic" asChild className="p-0" key={gun.id}>
+                    <Link href={`/guns/${gun.id}`}>
+                      <Flex
+                        height={"120px"}
+                        direction={"column"}
                         align={"center"}
-                        size={"2"}
+                        justify={"center"}
+                        gap={"2"}
+                        p={"2"}
+                        className="group border-accent-6 bg-accent-1 bg-gradient-to-b from-accent-2 hover:from-accent-3"
                       >
-                        {gun.shortName}
-                      </Text>
-                      {gun.defaultPresetImageUrl && (
-                        <Box
-                          height={"50px"}
-                          width={"100%"}
-                          position={"relative"}
-                          maxWidth={"150px"}
+                        <Text
+                          className="group-hover:underline"
+                          align={"center"}
+                          size={"2"}
                         >
-                          <Image
-                            src={gun.defaultPresetImageUrl}
-                            alt={gun.name}
-                            sizes="150px"
-                            className="object-contain"
-                            fill={true}
-                            unoptimized={true}
-                          />
-                        </Box>
-                      )}
-                      <Text size={"1"} className="block text-gray-11">
-                        {gun.caliber}
-                      </Text>
-                    </Flex>
-                  </Link>
+                          {gun.shortName}
+                        </Text>
+                        {gun.defaultPresetImageUrl && (
+                          <Box
+                            height={"50px"}
+                            width={"100%"}
+                            position={"relative"}
+                            maxWidth={"150px"}
+                          >
+                            <Image
+                              src={gun.defaultPresetImageUrl}
+                              alt={gun.name}
+                              sizes="150px"
+                              className="object-contain"
+                              fill={true}
+                              unoptimized={true}
+                            />
+                          </Box>
+                        )}
+                        <Text size={"1"} className="block text-gray-11">
+                          {gun.caliber}
+                        </Text>
+                      </Flex>
+                    </Link>
+                  </Card>
                 );
               })}
             </Grid>
