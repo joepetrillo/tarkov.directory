@@ -101,11 +101,7 @@ export default function GunList({
                         p={"2"}
                         className="group border-accent-6 bg-accent-1 bg-gradient-to-b from-accent-2 hover:from-accent-3"
                       >
-                        <Text
-                          className="group-hover:underline"
-                          align={"center"}
-                          size={"2"}
-                        >
+                        <Text align={"center"} size={"2"}>
                           {gun.shortName}
                         </Text>
                         {gun.defaultPresetImageUrl && (

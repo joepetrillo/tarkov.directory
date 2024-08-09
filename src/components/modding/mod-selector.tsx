@@ -270,7 +270,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                           key={cell.id}
                           className={`relative ${
                             row.original.id === selection.modId && index === 0
-                              ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-9"
+                              ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
                               : ""
                           }`}
                         >
