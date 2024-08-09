@@ -1,7 +1,6 @@
 "use client";
 
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
+import { MagnifyingGlassIcon, TrashIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { normalizeShortNameSearch, toTitleCase } from "@/lib/utils";
 import Link from "next/link";
@@ -13,15 +12,20 @@ import {
   Heading,
   Section,
   TextField,
+  IconButton,
 } from "@radix-ui/themes";
 import { CategorizedGunListData } from "@/types";
+import { useQueryState } from "nuqs";
 
 export default function GunList({
   categorizedGunList,
 }: {
   categorizedGunList: CategorizedGunListData;
 }) {
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useQueryState("search", {
+    clearOnDefault: true,
+    defaultValue: "",
+  });
 
   categorizedGunList = categorizedGunList
     .map((category) => {
@@ -44,9 +48,20 @@ export default function GunList({
         value={searchInput}
         onChange={(e) => setSearchInput(e.currentTarget.value)}
       >
-        <TextField.Slot>
-          <MagnifyingGlassIcon height="16" width="16" />
+        <TextField.Slot side="left">
+          <MagnifyingGlassIcon height="18" width="18" />
         </TextField.Slot>
+        {searchInput && (
+          <TextField.Slot side="right" pr={"1"}>
+            <IconButton
+              variant="soft"
+              className="cursor-pointer"
+              onClick={() => setSearchInput(null)}
+            >
+              <TrashIcon height="18" width="18" />
+            </IconButton>
+          </TextField.Slot>
+        )}
       </TextField.Root>
       {categorizedGunList.length === 0 && (
         <Flex align={"center"} justify={"center"} mt={"7"}>

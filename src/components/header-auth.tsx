@@ -13,7 +13,7 @@ export default function HeaderAuth() {
 
   if (!isSignedIn) {
     return (
-      <Button variant="surface" asChild>
+      <Button variant="soft" asChild>
         <Link href="/sign-in">Sign In</Link>
       </Button>
     );
