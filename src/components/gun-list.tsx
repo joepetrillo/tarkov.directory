@@ -1,6 +1,5 @@
 "use client";
 
-import { MagnifyingGlassIcon, TrashIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { normalizeShortNameSearch, toTitleCase } from "@/lib/utils";
 import Link from "next/link";
@@ -11,12 +10,11 @@ import {
   Grid,
   Heading,
   Section,
-  TextField,
-  IconButton,
   Card,
 } from "@radix-ui/themes";
 import { CategorizedGunListData } from "@/types";
 import { useQueryState } from "nuqs";
+import SearchInput from "@/components/ui/search-input";
 
 export default function GunList({
   categorizedGunList,
@@ -28,7 +26,7 @@ export default function GunList({
     defaultValue: "",
   });
 
-  categorizedGunList = categorizedGunList
+  const filteredList = categorizedGunList
     .map((category) => {
       return {
         categoryName: category.categoryName,
@@ -43,36 +41,19 @@ export default function GunList({
 
   return (
     <div>
-      <TextField.Root
-        size={"3"}
+      <SearchInput
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
         placeholder="Search by name"
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.currentTarget.value)}
-        variant="surface"
-      >
-        <TextField.Slot side="left">
-          <MagnifyingGlassIcon height="18" width="18" />
-        </TextField.Slot>
-        {searchInput && (
-          <TextField.Slot side="right" pr={"1"}>
-            <IconButton
-              variant="soft"
-              className="cursor-pointer"
-              onClick={() => setSearchInput(null)}
-            >
-              <TrashIcon height="18" width="18" />
-            </IconButton>
-          </TextField.Slot>
-        )}
-      </TextField.Root>
-      {categorizedGunList.length === 0 && (
+      />
+      {filteredList.length === 0 && (
         <Flex align={"center"} justify={"center"} mt={"7"}>
           <Text weight={"bold"} align={"center"}>
-            No guns found
+            No guns found matching search
           </Text>
         </Flex>
       )}
-      {categorizedGunList.map(({ categoryName, guns }) => {
+      {filteredList.map(({ categoryName, guns }) => {
         return (
           <Section key={categoryName} size={"1"}>
             <Box mb={"4"}>

@@ -31,10 +31,18 @@ function calculateUpdatedStats(
   selections.forEach(calculateStats);
 
   const recoilMultiplier = 1 + totalRecoilModifier / 100;
-  const recoilVertical = Math.round(gun.recoilVertical * recoilMultiplier);
-  const recoilHorizontal = Math.round(gun.recoilHorizontal * recoilMultiplier);
 
-  return { ergonomics, recoilVertical, recoilHorizontal };
+  return {
+    ergonomics: Math.max(0, ergonomics),
+    recoilVertical: Math.max(
+      0,
+      Math.floor(gun.recoilVertical * recoilMultiplier),
+    ),
+    recoilHorizontal: Math.max(
+      0,
+      Math.floor(gun.recoilHorizontal * recoilMultiplier),
+    ),
+  };
 }
 
 const formatDifference = (current: number, base: number) => {

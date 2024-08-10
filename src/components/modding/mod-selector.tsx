@@ -7,6 +7,7 @@ import {
   Inset,
   ScrollArea,
   Card,
+  Box,
 } from "@radix-ui/themes";
 import { ItemId, Mod, Slot, SlotSelectionNode } from "@/types";
 import {
@@ -25,6 +26,8 @@ import {
   CaretUpIcon,
 } from "@radix-ui/react-icons";
 import { useGunModding } from "@/contexts/gun-modding.context";
+import SearchInput from "@/components/ui/search-input";
+import { normalizeShortNameSearch } from "@/lib/utils";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -73,11 +76,13 @@ function isConflicting(
 export function ModSelector({ slot, selection, path }: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
   const {
     dispatch,
     mods,
     state: { selections },
   } = useGunModding();
+
   const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   const columns = useMemo(
@@ -163,8 +168,21 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     return sortedMods;
   }, [slot.allowedModIds, selection.modId, mods, path, selections]);
 
+  const filteredTableData = useMemo(() => {
+    return tableData.filter((mod) => {
+      return (
+        normalizeShortNameSearch(mod.shortName).includes(
+          normalizeShortNameSearch(searchInput),
+        ) ||
+        normalizeShortNameSearch(mod.name).includes(
+          normalizeShortNameSearch(searchInput),
+        )
+      );
+    });
+  }, [tableData, searchInput]);
+
   const table = useReactTable({
-    data: tableData,
+    data: filteredTableData,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
@@ -177,12 +195,14 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
     if (mod && !mod.isConflicting) {
       dispatch({ type: "updated_selection", path, modId: mod.id });
       setIsOpen(false);
+      setSearchInput("");
     }
 
     // We are requesting to remove the mod
     if (mod === null) {
       dispatch({ type: "updated_selection", path, modId: null });
       setIsOpen(false);
+      setSearchInput("");
     }
   };
 
@@ -207,83 +227,99 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
           <Dialog.Title className="text-balance" mb={"4"}>
             {slot.name} Mods
           </Dialog.Title>
+          <Box mb={"4"}>
+            <SearchInput
+              searchInput={searchInput}
+              setSearchInput={setSearchInput}
+              placeholder="Search by name"
+            />
+          </Box>
           <Inset side="x">
             <ScrollArea
               size="2"
               type="auto"
               style={{
-                height: "max(calc(100dvh - 300px), 425px)",
+                height: "max(calc(100dvh - 325px), 370px)",
                 width: "min(calc(100dvw - 32px), 1024px)",
               }}
             >
-              <Table.Root variant="surface">
-                <Table.Header>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <Table.Row key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <Table.ColumnHeaderCell
-                          key={header.id}
-                          onClick={
-                            header.column.getCanSort()
-                              ? header.column.getToggleSortingHandler()
-                              : undefined
-                          }
-                          className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
-                        >
-                          <Flex align="center" gap="2">
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                            {header.column.getCanSort() &&
-                              (header.column.getIsSorted() ? (
-                                header.column.getIsSorted() === "asc" ? (
-                                  <CaretUpIcon />
+              {filteredTableData.length === 0 && (
+                <Flex align={"center"} justify={"center"} mt={"5"}>
+                  <Text weight={"bold"} align={"center"}>
+                    No mods found matching search
+                  </Text>
+                </Flex>
+              )}
+              {filteredTableData.length > 0 && (
+                <Table.Root variant="surface">
+                  <Table.Header>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <Table.Row key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <Table.ColumnHeaderCell
+                            key={header.id}
+                            onClick={
+                              header.column.getCanSort()
+                                ? header.column.getToggleSortingHandler()
+                                : undefined
+                            }
+                            className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
+                          >
+                            <Flex align="center" gap="2">
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                              {header.column.getCanSort() &&
+                                (header.column.getIsSorted() ? (
+                                  header.column.getIsSorted() === "asc" ? (
+                                    <CaretUpIcon />
+                                  ) : (
+                                    <CaretDownIcon />
+                                  )
                                 ) : (
-                                  <CaretDownIcon />
-                                )
-                              ) : (
-                                <CaretSortIcon />
-                              ))}
-                          </Flex>
-                        </Table.ColumnHeaderCell>
-                      ))}
-                    </Table.Row>
-                  ))}
-                </Table.Header>
-                <Table.Body>
-                  {table.getRowModel().rows.map((row) => (
-                    <Table.Row
-                      key={row.id}
-                      onClick={() => handleSelectMod(row.original)}
-                      className={`hover:bg-accent-1 ${
-                        row.original.id === selection.modId
-                          ? "slanted-line-bg cursor-pointer bg-accent-1"
-                          : row.original.isConflicting
-                            ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
-                            : "cursor-pointer"
-                      }`}
-                      align="center"
-                    >
-                      {row.getVisibleCells().map((cell, index) => (
-                        <Table.Cell
-                          key={cell.id}
-                          className={`relative ${
-                            row.original.id === selection.modId && index === 0
-                              ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
-                              : ""
-                          }`}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </Table.Cell>
-                      ))}
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+                                  <CaretSortIcon />
+                                ))}
+                            </Flex>
+                          </Table.ColumnHeaderCell>
+                        ))}
+                      </Table.Row>
+                    ))}
+                  </Table.Header>
+                  <Table.Body>
+                    {table.getRowModel().rows.map((row) => (
+                      <Table.Row
+                        key={row.id}
+                        onClick={() => handleSelectMod(row.original)}
+                        className={`hover:bg-accent-1 ${
+                          row.original.id === selection.modId
+                            ? "slanted-line-bg cursor-pointer bg-accent-1"
+                            : row.original.isConflicting
+                              ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
+                              : "cursor-pointer"
+                        }`}
+                        align="center"
+                      >
+                        {row.getVisibleCells().map((cell, index) => (
+                          <Table.Cell
+                            key={cell.id}
+                            className={`relative ${
+                              row.original.id === selection.modId && index === 0
+                                ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
+                                : ""
+                            }`}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </Table.Cell>
+                        ))}
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              )}
             </ScrollArea>
           </Inset>
           <Flex gap="3" mt="4" justify="end">
