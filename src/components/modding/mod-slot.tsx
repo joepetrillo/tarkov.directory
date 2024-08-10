@@ -1,5 +1,5 @@
 import { Slot, SlotSelectionNode } from "@/types";
-import { Flex, Text } from "@radix-ui/themes";
+import { Badge, Flex, Text } from "@radix-ui/themes";
 import { ModSelector } from "@/components/modding/mod-selector";
 import { useGunModding } from "@/contexts/gun-modding.context";
 
@@ -20,8 +20,15 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
 
   return (
     <Flex direction="column" gap="4">
-      <Flex gap="2" align="center" justify="between" width="160px">
-        <Text>{slot.name}:</Text>
+      <Flex
+        align="center"
+        direction={"row"}
+        justify={"between"}
+        className="w-[155px]"
+      >
+        <Badge variant="soft" color="gold" highContrast size={"1"}>
+          {slot.name}:
+        </Badge>
         <ModSelector slot={slot} selection={selection} path={path} />
       </Flex>
       {!!selectedMod?.slots.length && (

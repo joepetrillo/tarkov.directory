@@ -20,11 +20,11 @@ export default function HeaderAuth() {
   }
 
   return (
-    <div className="h-11 w-11">
+    <div className="h-10 w-10">
       <UserButton
         appearance={{
           elements: {
-            avatarBox: { height: "44px", width: "44px" },
+            avatarBox: { height: "40px", width: "40px" },
           },
         }}
       />
