@@ -1,4 +1,5 @@
 import { useGunModding } from "@/contexts/gun-modding.context";
+import { customRound } from "@/lib/utils";
 import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
 import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 
@@ -36,11 +37,11 @@ function calculateUpdatedStats(
     ergonomics: Math.max(0, ergonomics),
     recoilVertical: Math.max(
       0,
-      Math.floor(gun.recoilVertical * recoilMultiplier),
+      customRound(gun.recoilVertical * recoilMultiplier),
     ),
     recoilHorizontal: Math.max(
       0,
-      Math.floor(gun.recoilHorizontal * recoilMultiplier),
+      customRound(gun.recoilHorizontal * recoilMultiplier),
     ),
   };
 }

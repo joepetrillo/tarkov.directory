@@ -11,6 +11,16 @@ export function isMobileDevice() {
   );
 }
 
+// Function to round gun stats like BSG does
+export function customRound(number: number) {
+  const fractionalPart = number % 1;
+  if (fractionalPart <= 0.5) {
+    return Math.floor(number);
+  } else {
+    return Math.ceil(number);
+  }
+}
+
 // Function to convert a string to title case
 export function toTitleCase(str: string) {
   return str.replace(/(?:^|\s)\w/g, function (match) {
