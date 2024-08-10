@@ -1,5 +1,16 @@
 // This file contains utility functions that are used throughout the application
 
+// Function to easily check if the device is a mobile device
+export function isMobileDevice() {
+  const mobileRegex =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS|FxiOS|Tablet|Kindle|Windows Phone|Silk|UCBrowser|Nokia|SymbianOS|SonyEricsson|LG|SAMSUNG|Samsung|Meizu|Huawei|Xiaomi|OPPO/i;
+  return (
+    mobileRegex.test(navigator.userAgent) ||
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0
+  );
+}
+
 // Function to convert a string to title case
 export function toTitleCase(str: string) {
   return str.replace(/(?:^|\s)\w/g, function (match) {

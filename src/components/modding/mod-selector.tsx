@@ -27,7 +27,7 @@ import {
 } from "@radix-ui/react-icons";
 import { useGunModding } from "@/contexts/gun-modding.context";
 import SearchInput from "@/components/ui/search-input";
-import { normalizeShortNameSearch } from "@/lib/utils";
+import { isMobileDevice, normalizeShortNameSearch } from "@/lib/utils";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -223,6 +223,11 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
         <Dialog.Content
           aria-describedby={undefined}
           className="max-w-screen-md"
+          onOpenAutoFocus={(event) => {
+            if (isMobileDevice()) {
+              event.preventDefault();
+            }
+          }}
         >
           <Dialog.Title className="text-balance" mb={"4"}>
             {slot.name} Mods
