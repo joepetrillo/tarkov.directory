@@ -1,13 +1,11 @@
-export type ItemId = string;
-
 export type ProcessedData = {
-  gunsByCategory: Record<string, ItemId[]>;
-  allGuns: Record<ItemId, Gun>;
-  allMods: Record<ItemId, Mod>;
+  gunsByCategory: Record<string, string[]>;
+  allGuns: Record<string, Gun>;
+  allMods: Record<string, Mod>;
 };
 
 export type Gun = {
-  id: ItemId;
+  id: string;
   name: string;
   normalizedName: string;
   shortName: string;
@@ -28,11 +26,11 @@ export type Slot = {
   required: boolean;
   name: string;
   nameId: string;
-  allowedModIds: ItemId[];
+  allowedModIds: string[];
 };
 
 export type Mod = {
-  id: ItemId;
+  id: string;
   name: string;
   normalizedName: string;
   shortName: string;
@@ -40,7 +38,7 @@ export type Mod = {
   recoilModifier: number;
   ergonomicsModifier: number;
   conflictingSlotIds: string[];
-  conflictingModIds: ItemId[];
+  conflictingModIds: string[];
   slots: Slot[];
 };
 
@@ -58,7 +56,7 @@ export type CategorizedGunListData = {
 
 export type SlotSelectionNode = {
   slotNameId: string;
-  modId: ItemId | null;
+  modId: string | null;
   slots: SlotSelectionNode[];
 };
 
@@ -67,5 +65,5 @@ export type GunModdingState = {
 };
 
 export type GunModdingAction =
-  | { type: "updated_selection"; path: string[]; modId: ItemId | null }
+  | { type: "updated_selection"; path: string[]; modId: string | null }
   | { type: "reset"; slots: Slot[] };

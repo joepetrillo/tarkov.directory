@@ -9,7 +9,7 @@ import {
   Card,
   Box,
 } from "@radix-ui/themes";
-import { ItemId, Mod, Slot, SlotSelectionNode } from "@/types";
+import { Mod, Slot, SlotSelectionNode } from "@/types";
 import {
   createColumnHelper,
   flexRender,
@@ -41,8 +41,8 @@ const columnHelper = createColumnHelper<ModWithConflicting>();
 
 function isConflicting(
   fullPathString: string,
-  modId: ItemId,
-  mods: Record<ItemId, Mod>,
+  modId: string,
+  mods: Record<string, Mod>,
   selections: SlotSelectionNode[],
 ) {
   const mod = mods[modId];

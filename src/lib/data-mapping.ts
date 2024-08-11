@@ -2,8 +2,9 @@
 
 import { GetAllGunsAndModsQuery } from "@/gql/graphql";
 import { extractCaliber } from "@/lib/utils";
-import { Gun, ItemId, Mod, ProcessedData, Slot } from "@/types";
+import { Gun, Mod, ProcessedData, Slot } from "@/types";
 
+// Process slot
 function processSlot(
   slot: {
     __typename: "ItemSlot";
@@ -28,10 +29,12 @@ function processSlot(
     !slot.nameId ||
     !slot.filters
   ) {
-    if (slot?.id) {
+    if (slot?.name && slot?.id) {
+      console.warn(
+        `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`,
+      );
+    } else if (slot?.id) {
       console.warn(`Skipped slot with id ${slot.id}`);
-    } else if (slot?.name) {
-      console.warn(`Skipped slot with name ${slot.name}`);
     } else {
       console.warn(`Skipped unknown slot`);
     }
@@ -52,10 +55,10 @@ function processSlot(
 export function processAllGunsAndMods(
   data: GetAllGunsAndModsQuery,
 ): ProcessedData {
-  const gunsByCategory: Record<string, ItemId[]> = {};
+  const gunsByCategory: Record<string, string[]> = {};
 
   // Process guns
-  const allGuns: Record<ItemId, Gun> = data.gunData.reduce(
+  const allGuns: Record<string, Gun> = data.gunData.reduce(
     (acc, gun) => {
       if (
         !gun ||
@@ -70,10 +73,12 @@ export function processAllGunsAndMods(
         gun.properties.ergonomics === null ||
         !gun.properties.slots
       ) {
-        if (gun?.id) {
+        if (gun?.name && gun?.id) {
+          console.warn(
+            `Skipped gun with name "${gun.name}"\nID equals "${gun.id}"\n`,
+          );
+        } else if (gun?.id) {
           console.warn(`Skipped gun with id ${gun.id}`);
-        } else if (gun?.name) {
-          console.warn(`Skipped gun with name ${gun.name}`);
         } else {
           console.warn(`Skipped unknown gun`);
         }
@@ -109,11 +114,11 @@ export function processAllGunsAndMods(
 
       return acc;
     },
-    {} as Record<ItemId, Gun>,
+    {} as Record<string, Gun>,
   );
 
   // Process mods
-  const allMods: Record<ItemId, Mod> = data.modData.reduce(
+  const allMods: Record<string, Mod> = data.modData.reduce(
     (acc, mod) => {
       if (
         !mod ||
@@ -132,10 +137,12 @@ export function processAllGunsAndMods(
           mod.properties.__typename !== "ItemPropertiesScope") ||
         !mod.properties.slots
       ) {
-        if (mod?.id) {
+        if (mod?.name && mod?.id) {
+          console.warn(
+            `Skipped mod with name "${mod.name}"\nID equals "${mod.id}"\n`,
+          );
+        } else if (mod?.id) {
           console.warn(`Skipped mod with id ${mod.id}`);
-        } else if (mod?.name) {
-          console.warn(`Skipped mod with name ${mod.name}`);
         } else {
           console.warn(`Skipped unknown mod`);
         }
@@ -165,7 +172,7 @@ export function processAllGunsAndMods(
 
       return acc;
     },
-    {} as Record<ItemId, Mod>,
+    {} as Record<string, Mod>,
   );
 
   return { gunsByCategory, allGuns, allMods };

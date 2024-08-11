@@ -1,11 +1,11 @@
 import { useGunModding } from "@/contexts/gun-modding.context";
 import { customRound } from "@/lib/utils";
-import { Gun, ItemId, Mod, SlotSelectionNode } from "@/types";
+import { Gun, Mod, SlotSelectionNode } from "@/types";
 import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 
 function calculateUpdatedStats(
   gun: Gun,
-  mods: Record<ItemId, Mod>,
+  mods: Record<string, Mod>,
   selections: SlotSelectionNode[],
 ) {
   let ergonomics = gun.ergonomics;

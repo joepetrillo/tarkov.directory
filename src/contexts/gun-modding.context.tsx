@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import {
   Gun,
-  ItemId,
   Mod,
   Slot,
   SlotSelectionNode,
@@ -29,9 +28,9 @@ function initializeEmptyState(slots: Slot[]): GunModdingState {
 
 function updateSelectionNode(
   node: SlotSelectionNode,
-  mods: Record<ItemId, Mod>,
+  mods: Record<string, Mod>,
   path: string[],
-  modId: ItemId | null,
+  modId: string | null,
 ): SlotSelectionNode {
   if (node.slotNameId === path[0]) {
     if (path.length === 1) {
@@ -65,7 +64,7 @@ type GunModdingContextType = {
   state: GunModdingState;
   dispatch: React.Dispatch<GunModdingAction>;
   gun: Gun;
-  mods: Record<ItemId, Mod>;
+  mods: Record<string, Mod>;
   preset?: SlotSelectionNode[];
 };
 
@@ -79,7 +78,7 @@ export function GunModdingProvider({
 }: {
   children: ReactNode;
   gun: Gun;
-  mods: Record<ItemId, Mod>;
+  mods: Record<string, Mod>;
   preset?: SlotSelectionNode[];
 }) {
   const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
