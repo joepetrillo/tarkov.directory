@@ -107,10 +107,14 @@ export function processAllGunsAndMods(
 
       acc[processedGun.id] = processedGun;
 
-      if (!gunsByCategory[processedGun.category.normalizedName]) {
-        gunsByCategory[processedGun.category.normalizedName] = [];
+      const existingCategory =
+        gunsByCategory[processedGun.category.normalizedName];
+
+      if (!existingCategory) {
+        gunsByCategory[processedGun.category.normalizedName] = [gun.id];
+      } else {
+        existingCategory.push(gun.id);
       }
-      gunsByCategory[processedGun.category.normalizedName].push(gun.id);
 
       return acc;
     },

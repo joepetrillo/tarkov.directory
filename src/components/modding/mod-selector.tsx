@@ -51,6 +51,12 @@ function isConflicting(
   function isConflictingNode(pathString: string, node: SlotSelectionNode) {
     if (node.modId !== null) {
       const selectedMod = mods[node.modId];
+      if (mod === undefined) {
+        throw new Error(`Mod with id ${modId} not found`);
+      }
+      if (selectedMod === undefined) {
+        throw new Error(`Mod with id ${node.modId} not found`);
+      }
       if (fullPathString === pathString) {
         return;
       } else if (
@@ -84,6 +90,10 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
   } = useGunModding();
 
   const selectedMod = selection.modId ? mods[selection.modId] : null;
+
+  if (selectedMod === undefined) {
+    throw new Error(`Mod with id ${selection.modId} not found`);
+  }
 
   const columns = useMemo(
     () => [
@@ -149,6 +159,9 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
   const tableData: ModWithConflicting[] = useMemo(() => {
     const sortedMods = slot.allowedModIds
       .map((modId) => {
+        if (!mods[modId]) {
+          throw new Error(`Mod with id ${modId} not found`);
+        }
         return {
           ...mods[modId],
           isConflicting: isConflicting(path.join("-"), modId, mods, selections),
@@ -162,7 +175,9 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       );
       if (selectedIndex !== -1) {
         const [selectedMod] = sortedMods.splice(selectedIndex, 1);
-        sortedMods.unshift(selectedMod);
+        if (selectedMod) {
+          sortedMods.unshift(selectedMod);
+        }
       }
     }
     return sortedMods;
@@ -170,13 +185,11 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
 
   const filteredTableData = useMemo(() => {
     return tableData.filter((mod) => {
+      const normalizedSearchInput = normalizeShortNameSearch(searchInput);
       return (
         normalizeShortNameSearch(mod.shortName).includes(
-          normalizeShortNameSearch(searchInput),
-        ) ||
-        normalizeShortNameSearch(mod.name).includes(
-          normalizeShortNameSearch(searchInput),
-        )
+          normalizedSearchInput,
+        ) || normalizeShortNameSearch(mod.name).includes(normalizedSearchInput)
       );
     });
   }, [tableData, searchInput]);

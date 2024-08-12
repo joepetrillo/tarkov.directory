@@ -54,6 +54,13 @@ export type CategorizedGunListData = {
   >[];
 }[];
 
+export type GunModdingContextType = {
+  state: GunModdingState;
+  dispatch: React.Dispatch<GunModdingAction>;
+  gun: Gun;
+  mods: Record<string, Mod>;
+};
+
 export type SlotSelectionNode = {
   slotNameId: string;
   modId: string | null;

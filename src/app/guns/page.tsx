@@ -4,13 +4,19 @@ import { getProcessedGunAndModData } from "@/lib/data-layer";
 
 export default async function Page() {
   const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
-  const categorizedGunList = Object.entries(gunsByCategory).map(
-    ([_, gunIds]) => {
+  const categorizedGunList = Object.entries(gunsByCategory)
+    .map(([_, gunIds]) => {
+      if (!gunIds[0]) return null;
+      const gunId = gunIds[0];
+      if (!allGuns[gunId]) return null;
+      const gun = allGuns[gunId];
+
       return {
-        categoryName: allGuns[gunIds[0]].category.name,
+        categoryName: gun.category.name,
         guns: gunIds
           .map((id) => {
             const currGun = allGuns[id];
+            if (!currGun) return null;
             return {
               id: currGun.id,
               name: currGun.name,
@@ -19,10 +25,11 @@ export default async function Page() {
               caliber: currGun.caliber,
             };
           })
+          .filter((gun) => gun !== null)
           .sort((a, b) => a.shortName.localeCompare(b.shortName)),
       };
-    },
-  );
+    })
+    .filter((category) => category !== null);
 
   return <GunList categorizedGunList={categorizedGunList} />;
 }

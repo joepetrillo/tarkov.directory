@@ -1,5 +1,5 @@
 import { Slot, SlotSelectionNode } from "@/types";
-import { Badge, Flex, Text } from "@radix-ui/themes";
+import { Badge, Flex } from "@radix-ui/themes";
 import { ModSelector } from "@/components/modding/mod-selector";
 import { useGunModding } from "@/contexts/gun-modding.context";
 
@@ -14,8 +14,8 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
 
   const selectedMod = selection.modId ? mods[selection.modId] : null;
 
-  if (slot.allowedModIds.length === 0) {
-    return null;
+  if (selectedMod === undefined) {
+    throw new Error(`Mod with id ${selection.modId} not found`);
   }
 
   return (

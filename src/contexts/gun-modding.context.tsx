@@ -14,15 +14,35 @@ import {
   SlotSelectionNode,
   GunModdingState,
   GunModdingAction,
+  GunModdingContextType,
 } from "@/types";
 
-function initializeEmptyState(slots: Slot[]): GunModdingState {
-  return {
-    selections: slots.map((slot) => ({
+// gets us slots with at least one valid mod that can go in it, according to the mods object we have
+function getValidNodeSlots(
+  slots: Slot[],
+  mods: Record<string, Mod>,
+): SlotSelectionNode[] {
+  return slots
+    .map((slot) => {
+      return {
+        ...slot,
+        allowedModIds: slot.allowedModIds.filter((modId) => mods[modId]),
+      };
+    })
+    .filter((slot) => slot.allowedModIds.length > 0)
+    .map((slot) => ({
       slotNameId: slot.nameId,
       modId: null,
       slots: [],
-    })),
+    }));
+}
+
+function initializeEmptyState(
+  slots: Slot[],
+  mods: Record<string, Mod>,
+): GunModdingState {
+  return {
+    selections: getValidNodeSlots(slots, mods),
   };
 }
 
@@ -37,49 +57,42 @@ function updateSelectionNode(
       if (modId === null) {
         return { ...node, modId, slots: [] };
       }
+
       const mod = mods[modId];
+      if (!mod) {
+        throw new Error(`Mod with id ${modId} not found`);
+      }
+
       return {
         ...node,
         modId,
-        slots: mod.slots.map((slot) => ({
-          slotNameId: slot.nameId,
-          modId: null,
-          slots: [],
-        })),
+        slots: getValidNodeSlots(mod.slots, mods),
       };
     }
     return {
       ...node,
-      slots: node.slots.map((subNode) =>
-        subNode.slotNameId === path[1]
-          ? updateSelectionNode(subNode, mods, path.slice(1), modId)
-          : subNode,
+      slots: node.slots.map((childNode) =>
+        childNode.slotNameId === path[1]
+          ? updateSelectionNode(childNode, mods, path.slice(1), modId)
+          : childNode,
       ),
     };
   }
   return node;
 }
 
-type GunModdingContextType = {
-  state: GunModdingState;
-  dispatch: React.Dispatch<GunModdingAction>;
-  gun: Gun;
-  mods: Record<string, Mod>;
-  preset?: SlotSelectionNode[];
-};
-
 const GunModdingContext = createContext<GunModdingContextType | null>(null);
 
 export function GunModdingProvider({
-  children,
   gun,
   mods,
   preset,
+  children,
 }: {
-  children: ReactNode;
   gun: Gun;
   mods: Record<string, Mod>;
   preset?: SlotSelectionNode[];
+  children: ReactNode;
 }) {
   const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
     (state, action) => {
@@ -92,7 +105,7 @@ export function GunModdingProvider({
             selections: newSelections,
           };
         case "reset":
-          return initializeEmptyState(action.slots);
+          return initializeEmptyState(action.slots, mods);
         default:
           return state;
       }
@@ -102,10 +115,10 @@ export function GunModdingProvider({
 
   const [state, dispatch] = useReducer(
     reducer,
-    preset ? { selections: preset } : initializeEmptyState(gun.slots),
+    preset ? { selections: preset } : initializeEmptyState(gun.slots, mods),
   );
 
-  const value: GunModdingContextType = { state, dispatch, gun, mods, preset };
+  const value: GunModdingContextType = { state, dispatch, gun, mods };
 
   console.log(state);
 
