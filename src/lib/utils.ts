@@ -11,6 +11,13 @@ export function isMobileDevice() {
   );
 }
 
+// Function to format a difference between two numbers
+export function formatDiff(calculated: number, base: number) {
+  const diff = calculated - base;
+  if (diff === 0) return null;
+  return diff > 0 ? `+${diff}` : diff;
+}
+
 // Function to round gun stats like BSG does
 export function customRound(number: number) {
   const fractionalPart = number % 1;

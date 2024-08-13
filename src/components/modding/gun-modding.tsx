@@ -27,17 +27,14 @@ export default function GunModding() {
         <Button
           variant="classic"
           mb={"4"}
-          onClick={(e) => {
-            e.preventDefault();
-            dispatch({ type: "reset", slots: gun.slots });
-          }}
+          onClick={() => dispatch({ type: "reset" })}
         >
           Reset
         </Button>
         <Flex direction="column" gap="4">
           {gun.slots.map((slot) => {
             const selection = selections.find(
-              (s) => s.slotNameId === slot.nameId,
+              (selection) => selection.slotNameId === slot.nameId,
             );
             return (
               selection && (

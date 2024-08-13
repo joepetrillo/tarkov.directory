@@ -6,80 +6,24 @@ import React, {
   useReducer,
   useCallback,
   ReactNode,
+  useMemo,
 } from "react";
 import {
   Gun,
   Mod,
-  Slot,
   SlotSelectionNode,
   GunModdingState,
   GunModdingAction,
   GunModdingContextType,
 } from "@/types";
+import { createModdingUtils } from "@/lib/modding-utils";
 
-// gets us slots with at least one valid mod that can go in it, according to the mods object we have
-function getValidNodeSlots(
-  slots: Slot[],
-  mods: Record<string, Mod>,
-): SlotSelectionNode[] {
-  return slots
-    .map((slot) => {
-      return {
-        ...slot,
-        allowedModIds: slot.allowedModIds.filter((modId) => mods[modId]),
-      };
-    })
-    .filter((slot) => slot.allowedModIds.length > 0)
-    .map((slot) => ({
-      slotNameId: slot.nameId,
-      modId: null,
-      slots: [],
-    }));
-}
-
-function initializeEmptyState(
-  slots: Slot[],
-  mods: Record<string, Mod>,
-): GunModdingState {
-  return {
-    selections: getValidNodeSlots(slots, mods),
-  };
-}
-
-function updateSelectionNode(
-  node: SlotSelectionNode,
-  mods: Record<string, Mod>,
-  path: string[],
-  modId: string | null,
-): SlotSelectionNode {
-  if (node.slotNameId === path[0]) {
-    if (path.length === 1) {
-      if (modId === null) {
-        return { ...node, modId, slots: [] };
-      }
-
-      const mod = mods[modId];
-      if (!mod) {
-        throw new Error(`Mod with id ${modId} not found`);
-      }
-
-      return {
-        ...node,
-        modId,
-        slots: getValidNodeSlots(mod.slots, mods),
-      };
-    }
-    return {
-      ...node,
-      slots: node.slots.map((childNode) =>
-        childNode.slotNameId === path[1]
-          ? updateSelectionNode(childNode, mods, path.slice(1), modId)
-          : childNode,
-      ),
-    };
-  }
-  return node;
-}
+type GunModdingProviderProps = {
+  gun: Gun;
+  mods: Record<string, Mod>;
+  preset?: SlotSelectionNode[];
+  children: ReactNode;
+};
 
 const GunModdingContext = createContext<GunModdingContextType | null>(null);
 
@@ -88,39 +32,50 @@ export function GunModdingProvider({
   mods,
   preset,
   children,
-}: {
-  gun: Gun;
-  mods: Record<string, Mod>;
-  preset?: SlotSelectionNode[];
-  children: ReactNode;
-}) {
+}: GunModdingProviderProps) {
+  const moddingUtils = useMemo(
+    () => createModdingUtils(gun, mods),
+    [gun, mods],
+  );
+
   const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
     (state, action) => {
       switch (action.type) {
         case "updated_selection":
-          const newSelections = state.selections.map((node) =>
-            updateSelectionNode(node, mods, action.path, action.modId),
-          );
           return {
-            selections: newSelections,
+            selections: moddingUtils.getUpdatedSelections(
+              state.selections,
+              action.path,
+              action.modId,
+            ),
           };
         case "reset":
-          return initializeEmptyState(action.slots, mods);
+          return {
+            selections: moddingUtils.getEmptySelections(),
+          };
         default:
           return state;
       }
     },
-    [mods],
+    [moddingUtils],
   );
 
   const [state, dispatch] = useReducer(
     reducer,
-    preset ? { selections: preset } : initializeEmptyState(gun.slots, mods),
+    preset
+      ? { selections: preset }
+      : { selections: moddingUtils.getEmptySelections() },
   );
 
-  const value: GunModdingContextType = { state, dispatch, gun, mods };
+  const value: GunModdingContextType = {
+    state,
+    dispatch,
+    gun,
+    mods,
+    moddingUtils,
+  };
 
-  console.log(state);
+  console.log("SELECTIONS: ", state.selections);
 
   return (
     <GunModdingContext.Provider value={value}>

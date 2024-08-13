@@ -59,6 +59,24 @@ export type GunModdingContextType = {
   dispatch: React.Dispatch<GunModdingAction>;
   gun: Gun;
   mods: Record<string, Mod>;
+  moddingUtils: {
+    calculateStats: (selections: SlotSelectionNode[]) => {
+      ergonomics: number;
+      recoilVertical: number;
+      recoilHorizontal: number;
+    };
+    getEmptySelections: () => GunModdingState["selections"];
+    getUpdatedSelections: (
+      selections: SlotSelectionNode[],
+      path: string[],
+      modId: string | null,
+    ) => SlotSelectionNode[];
+    isConflicting: (
+      selections: SlotSelectionNode[],
+      fullPathString: string,
+      modId: string,
+    ) => boolean;
+  };
 };
 
 export type SlotSelectionNode = {
@@ -73,4 +91,4 @@ export type GunModdingState = {
 
 export type GunModdingAction =
   | { type: "updated_selection"; path: string[]; modId: string | null }
-  | { type: "reset"; slots: Slot[] };
+  | { type: "reset" };

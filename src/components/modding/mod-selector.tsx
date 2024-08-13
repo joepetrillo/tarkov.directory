@@ -9,7 +9,7 @@ import {
   Card,
   Box,
 } from "@radix-ui/themes";
-import { Mod, Slot, SlotSelectionNode } from "@/types";
+import { Mod, Slot } from "@/types";
 import {
   createColumnHelper,
   flexRender,
@@ -31,7 +31,7 @@ import { isMobileDevice, normalizeShortNameSearch } from "@/lib/utils";
 
 type ModSelectorProps = {
   slot: Slot;
-  selection: SlotSelectionNode;
+  selectedMod: Mod | null;
   path: string[];
 };
 
@@ -39,61 +39,16 @@ type ModWithConflicting = Mod & { isConflicting: boolean };
 
 const columnHelper = createColumnHelper<ModWithConflicting>();
 
-function isConflicting(
-  fullPathString: string,
-  modId: string,
-  mods: Record<string, Mod>,
-  selections: SlotSelectionNode[],
-) {
-  const mod = mods[modId];
-  let conflicting = false;
-
-  function isConflictingNode(pathString: string, node: SlotSelectionNode) {
-    if (node.modId !== null) {
-      const selectedMod = mods[node.modId];
-      if (mod === undefined) {
-        throw new Error(`Mod with id ${modId} not found`);
-      }
-      if (selectedMod === undefined) {
-        throw new Error(`Mod with id ${node.modId} not found`);
-      }
-      if (fullPathString === pathString) {
-        return;
-      } else if (
-        mod.conflictingModIds.includes(node.modId) ||
-        selectedMod.conflictingModIds.includes(modId)
-      ) {
-        conflicting = true;
-        return;
-      }
-    }
-    node.slots.forEach((selection) => {
-      isConflictingNode(`${pathString}-${selection.slotNameId}`, selection);
-    });
-  }
-
-  selections.forEach((selection) => {
-    isConflictingNode(selection.slotNameId, selection);
-  });
-
-  return conflicting;
-}
-
-export function ModSelector({ slot, selection, path }: ModSelectorProps) {
+export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const {
+    state: { selections },
     dispatch,
     mods,
-    state: { selections },
+    moddingUtils,
   } = useGunModding();
-
-  const selectedMod = selection.modId ? mods[selection.modId] : null;
-
-  if (selectedMod === undefined) {
-    throw new Error(`Mod with id ${selection.modId} not found`);
-  }
 
   const columns = useMemo(
     () => [
@@ -110,7 +65,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
             <Flex direction="column">
               <Text size="2" weight="bold">
                 {info.getValue()}{" "}
-                {info.row.original.id === selection.modId
+                {info.row.original.id === selectedMod?.id
                   ? "(Selected)"
                   : info.row.original.isConflicting
                     ? "(Conflicting)"
@@ -123,20 +78,6 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
           </Flex>
         ),
         enableSorting: false,
-      }),
-      columnHelper.accessor("recoilModifier", {
-        header: "Recoil",
-        cell: (info) => {
-          const value = info.getValue();
-          const formattedValue = value > 0 ? `+${value}` : value;
-          const textColorClass =
-            value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
-          return (
-            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
-              {formattedValue}
-            </Text>
-          );
-        },
       }),
       columnHelper.accessor("ergonomicsModifier", {
         header: "Ergo",
@@ -152,8 +93,22 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
           );
         },
       }),
+      columnHelper.accessor("recoilModifier", {
+        header: "Recoil",
+        cell: (info) => {
+          const value = info.getValue();
+          const formattedValue = value > 0 ? `+${value}` : value;
+          const textColorClass =
+            value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
+          return (
+            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
+              {formattedValue}
+            </Text>
+          );
+        },
+      }),
     ],
-    [selection.modId],
+    [selectedMod?.id],
   );
 
   const tableData: ModWithConflicting[] = useMemo(() => {
@@ -164,14 +119,18 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
         }
         return {
           ...mods[modId],
-          isConflicting: isConflicting(path.join("-"), modId, mods, selections),
+          isConflicting: moddingUtils.isConflicting(
+            selections,
+            path.join("-"),
+            modId,
+          ),
         };
       })
       .sort((a, b) => a.shortName.localeCompare(b.shortName));
 
-    if (selection.modId) {
+    if (selectedMod?.id) {
       const selectedIndex = sortedMods.findIndex(
-        (mod) => mod.id === selection.modId,
+        (mod) => mod.id === selectedMod?.id,
       );
       if (selectedIndex !== -1) {
         const [selectedMod] = sortedMods.splice(selectedIndex, 1);
@@ -181,7 +140,14 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
       }
     }
     return sortedMods;
-  }, [slot.allowedModIds, selection.modId, mods, path, selections]);
+  }, [
+    slot.allowedModIds,
+    selectedMod?.id,
+    mods,
+    moddingUtils,
+    selections,
+    path,
+  ]);
 
   const filteredTableData = useMemo(() => {
     return tableData.filter((mod) => {
@@ -310,7 +276,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                         key={row.id}
                         onClick={() => handleSelectMod(row.original)}
                         className={`hover:bg-accent-1 ${
-                          row.original.id === selection.modId
+                          row.original.id === selectedMod?.id
                             ? "slanted-line-bg cursor-pointer bg-accent-1"
                             : row.original.isConflicting
                               ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
@@ -322,7 +288,7 @@ export function ModSelector({ slot, selection, path }: ModSelectorProps) {
                           <Table.Cell
                             key={cell.id}
                             className={`relative ${
-                              row.original.id === selection.modId && index === 0
+                              row.original.id === selectedMod?.id && index === 0
                                 ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
                                 : ""
                             }`}

@@ -1,76 +1,22 @@
 import { useGunModding } from "@/contexts/gun-modding.context";
-import { customRound } from "@/lib/utils";
-import { Gun, Mod, SlotSelectionNode } from "@/types";
+import { formatDiff } from "@/lib/utils";
 import { Card, Flex, Heading, Text } from "@radix-ui/themes";
-
-function calculateUpdatedStats(
-  gun: Gun,
-  mods: Record<string, Mod>,
-  selections: SlotSelectionNode[],
-) {
-  let ergonomics = gun.ergonomics;
-  let totalRecoilModifier = 0;
-
-  function calculateStats(selection: SlotSelectionNode) {
-    if (selection.modId !== null) {
-      const selectedMod = mods[selection.modId];
-      if (!selectedMod) {
-        console.warn(`Mod with id ${selection.modId} not found`);
-      } else {
-        ergonomics += selectedMod.ergonomicsModifier;
-        totalRecoilModifier += selectedMod.recoilModifier;
-      }
-    }
-
-    if (selection.slots !== null) {
-      for (const nestedSelection of selection.slots) {
-        calculateStats(nestedSelection);
-      }
-    }
-  }
-
-  selections.forEach(calculateStats);
-
-  const recoilMultiplier = 1 + totalRecoilModifier / 100;
-
-  return {
-    ergonomics: Math.max(0, ergonomics),
-    recoilVertical: Math.max(
-      0,
-      customRound(gun.recoilVertical * recoilMultiplier),
-    ),
-    recoilHorizontal: Math.max(
-      0,
-      customRound(gun.recoilHorizontal * recoilMultiplier),
-    ),
-  };
-}
-
-const formatDifference = (current: number, base: number) => {
-  const diff = current - base;
-  if (diff === 0) return null;
-  return diff > 0 ? `+${diff}` : diff;
-};
 
 export default function GunStats() {
   const {
     state: { selections },
     gun,
-    mods,
+    moddingUtils,
   } = useGunModding();
 
+  // calculate updated stats based on selected mods
   const { ergonomics, recoilVertical, recoilHorizontal } =
-    calculateUpdatedStats(gun, mods, selections);
+    moddingUtils.calculateStats(selections);
 
-  const ergonomicsDiff = formatDifference(ergonomics, gun.ergonomics);
-  const recoilVerticalDiff = formatDifference(
-    recoilVertical,
-    gun.recoilVertical,
-  );
-  const recoilHorizontalDiff = formatDifference(
-    recoilHorizontal,
-    gun.recoilHorizontal,
-  );
+  // format the diff between the base gun stats and the stats with the selected mods applied
+  const ergonomicsDiff = formatDiff(ergonomics, gun.ergonomics);
+  const verticalDiff = formatDiff(recoilVertical, gun.recoilVertical);
+  const horizontalDiff = formatDiff(recoilHorizontal, gun.recoilHorizontal);
 
   return (
     <Card variant="classic" size={"3"} className="max-w-max">
@@ -103,9 +49,9 @@ export default function GunStats() {
             <Text className="min-w-[110px] text-gray-11" size={"2"}>
               Vertical Recoil
             </Text>
-            <Flex align="baseline" gap="2" className="font-mono">
+            <Flex align={"center"} gap={"2"} className="font-mono">
               <Text size={"2"}>{recoilVertical}</Text>
-              {recoilVerticalDiff !== null && (
+              {verticalDiff !== null && (
                 <Text
                   size={"2"}
                   className={
@@ -114,7 +60,7 @@ export default function GunStats() {
                       : "text-tomato-11"
                   }
                 >
-                  ({recoilVerticalDiff})
+                  ({verticalDiff})
                 </Text>
               )}
             </Flex>
@@ -123,9 +69,9 @@ export default function GunStats() {
             <Text className="min-w-[110px] text-gray-11" size={"2"}>
               Horizontal Recoil
             </Text>
-            <Flex align="baseline" gap="2" className="font-mono">
+            <Flex align={"center"} gap={"2"} className="font-mono">
               <Text size={"2"}>{recoilHorizontal}</Text>
-              {recoilHorizontalDiff !== null && (
+              {horizontalDiff !== null && (
                 <Text
                   size={"2"}
                   className={
@@ -134,7 +80,7 @@ export default function GunStats() {
                       : "text-tomato-11"
                   }
                 >
-                  ({recoilHorizontalDiff})
+                  ({horizontalDiff})
                 </Text>
               )}
             </Flex>

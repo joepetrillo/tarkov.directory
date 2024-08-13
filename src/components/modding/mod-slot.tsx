@@ -26,27 +26,28 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
         justify={"between"}
         className="w-[155px]"
       >
-        <Badge variant="soft" color="gold" highContrast size={"1"}>
+        <Badge variant="soft" color="gray" highContrast size={"1"}>
           {slot.name}:
         </Badge>
-        <ModSelector slot={slot} selection={selection} path={path} />
+        <ModSelector slot={slot} selectedMod={selectedMod} path={path} />
       </Flex>
       {!!selectedMod?.slots.length && (
         <>
-          {selectedMod.slots.map((subSlot) => {
-            const subSelection = selection.slots.find(
-              (s) => s.slotNameId === subSlot.nameId,
+          {selectedMod.slots.map((childSlot) => {
+            const childSelection = selection.slots.find(
+              (s) => s.slotNameId === childSlot.nameId,
             );
-
-            return subSelection ? (
-              <div key={subSlot.nameId} className="ml-10">
-                <ModSlot
-                  slot={subSlot}
-                  selection={subSelection}
-                  path={[...path, subSlot.nameId]}
-                />
-              </div>
-            ) : null;
+            return (
+              childSelection && (
+                <div key={childSlot.nameId} className="ml-8">
+                  <ModSlot
+                    slot={childSlot}
+                    selection={childSelection}
+                    path={[...path, childSlot.nameId]}
+                  />
+                </div>
+              )
+            );
           })}
         </>
       )}
