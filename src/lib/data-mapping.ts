@@ -7,15 +7,12 @@ import { Gun, Mod, ProcessedData, Slot } from "@/types";
 // Process slot
 function processSlot(
   slot: {
-    __typename: "ItemSlot";
     id: string;
     required: boolean | null;
     name: string;
     nameId: string;
     filters: {
-      __typename: "ItemFilters";
       allowedItems: Array<{
-        __typename: "Item";
         id: string;
       } | null>;
     } | null;
@@ -71,6 +68,7 @@ export function processAllGunsAndMods(
         gun.properties.recoilHorizontal === null ||
         gun.properties.recoilVertical === null ||
         gun.properties.ergonomics === null ||
+        !gun.buyFor ||
         !gun.properties.slots
       ) {
         if (gun?.name && gun?.id) {
@@ -100,6 +98,15 @@ export function processAllGunsAndMods(
         ergonomics: gun.properties.ergonomics,
         defaultPresetImageUrl:
           gun.properties.defaultPreset?.baseImageLink ?? null,
+        avgFleaMarketPrice: gun.buyFor.reduce(
+          (acc, offer) => {
+            if (offer.vendor.normalizedName === "flea-market") {
+              return offer.priceRUB;
+            }
+            return acc;
+          },
+          null as number | null,
+        ),
         slots: gun.properties.slots
           .map(processSlot)
           .filter((slot): slot is Slot => slot !== null),
@@ -139,6 +146,7 @@ export function processAllGunsAndMods(
           mod.properties.__typename !== "ItemPropertiesBarrel" &&
           mod.properties.__typename !== "ItemPropertiesMagazine" &&
           mod.properties.__typename !== "ItemPropertiesScope") ||
+        !mod.buyFor ||
         !mod.properties.slots
       ) {
         if (mod?.name && mod?.id) {
@@ -167,6 +175,15 @@ export function processAllGunsAndMods(
         conflictingModIds: mod.conflictingItems
           .map((item) => item?.id ?? null)
           .filter((id): id is string => id !== null),
+        avgFleaMarketPrice: mod.buyFor.reduce(
+          (acc, offer) => {
+            if (offer.vendor.normalizedName === "flea-market") {
+              return offer.priceRUB;
+            }
+            return acc;
+          },
+          null as number | null,
+        ),
         slots: mod.properties.slots
           .map(processSlot)
           .filter((slot): slot is Slot => slot !== null),

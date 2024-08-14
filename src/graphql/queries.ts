@@ -26,6 +26,13 @@ export const GetAllGunsAndMods = graphql(`
         name
         normalizedName
       }
+      buyFor {
+        vendor {
+          name
+          normalizedName
+        }
+        priceRUB
+      }
       properties {
         __typename
         ... on ItemPropertiesWeapon {
@@ -61,6 +68,13 @@ export const GetAllGunsAndMods = graphql(`
       conflictingSlotIds
       conflictingItems {
         id
+      }
+      buyFor {
+        vendor {
+          name
+          normalizedName
+        }
+        priceRUB
       }
       properties {
         __typename

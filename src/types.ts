@@ -18,6 +18,7 @@ export type Gun = {
   recoilVertical: number;
   ergonomics: number;
   defaultPresetImageUrl: string | null;
+  avgFleaMarketPrice: number | null;
   slots: Slot[];
 };
 
@@ -39,6 +40,7 @@ export type Mod = {
   ergonomicsModifier: number;
   conflictingSlotIds: string[];
   conflictingModIds: string[];
+  avgFleaMarketPrice: number | null;
   slots: Slot[];
 };
 

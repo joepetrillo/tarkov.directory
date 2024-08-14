@@ -7,7 +7,7 @@ const config: CodegenConfig = {
     "src/gql/": {
       preset: "client",
       config: {
-        nonOptionalTypename: true,
+        skipTypename: true,
         avoidOptionals: true,
       },
       presetConfig: {

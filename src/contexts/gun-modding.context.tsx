@@ -76,6 +76,8 @@ export function GunModdingProvider({
   };
 
   console.log("SELECTIONS: ", state.selections);
+  // console.log("GUN: ", gun);
+  // console.log("MODS: ", mods);
 
   return (
     <GunModdingContext.Provider value={value}>

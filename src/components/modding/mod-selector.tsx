@@ -80,7 +80,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
         enableSorting: false,
       }),
       columnHelper.accessor("ergonomicsModifier", {
-        header: "Ergo",
+        header: "Ergonomics",
         cell: (info) => {
           const value = info.getValue();
           const formattedValue = value > 0 ? `+${value}` : value;
@@ -104,6 +104,22 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
             <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
               {formattedValue}
             </Text>
+          );
+        },
+      }),
+      columnHelper.accessor("avgFleaMarketPrice", {
+        header: "Flea Price (RUB)",
+        cell: (info) => {
+          const value = info.getValue();
+          return value ? (
+            <Flex gap="2" align={"center"} wrap={"nowrap"}>
+              <Text size={"1"} className="text-gray-11">
+                ₽
+              </Text>
+              <Text className="font-mono">{value.toLocaleString()}</Text>
+            </Flex>
+          ) : (
+            <Text className="font-mono">N/A</Text>
           );
         },
       }),

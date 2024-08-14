@@ -17,7 +17,6 @@ export type Scalars = {
 };
 
 export type Achievement = {
-  __typename: 'Achievement';
   adjustedPlayersCompletedPercent: Maybe<Scalars['Float']['output']>;
   description: Maybe<Scalars['String']['output']>;
   hidden: Scalars['Boolean']['output'];
@@ -31,7 +30,6 @@ export type Achievement = {
 };
 
 export type Ammo = {
-  __typename: 'Ammo';
   /** @deprecated Use accuracyModifier instead. */
   accuracy: Maybe<Scalars['Int']['output']>;
   accuracyModifier: Maybe<Scalars['Float']['output']>;
@@ -60,7 +58,6 @@ export type Ammo = {
 };
 
 export type ArmorMaterial = {
-  __typename: 'ArmorMaterial';
   destructibility: Maybe<Scalars['Float']['output']>;
   explosionDestructibility: Maybe<Scalars['Float']['output']>;
   id: Maybe<Scalars['String']['output']>;
@@ -72,13 +69,11 @@ export type ArmorMaterial = {
 };
 
 export type AttributeThreshold = {
-  __typename: 'AttributeThreshold';
   name: Scalars['String']['output'];
   requirement: NumberCompare;
 };
 
 export type Barter = {
-  __typename: 'Barter';
   buyLimit: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   level: Scalars['Int']['output'];
@@ -95,7 +90,6 @@ export type Barter = {
 };
 
 export type BossEscort = {
-  __typename: 'BossEscort';
   amount: Maybe<Array<Maybe<BossEscortAmount>>>;
   boss: MobInfo;
   /** @deprecated Use boss.name instead. */
@@ -105,13 +99,11 @@ export type BossEscort = {
 };
 
 export type BossEscortAmount = {
-  __typename: 'BossEscortAmount';
   chance: Scalars['Float']['output'];
   count: Scalars['Int']['output'];
 };
 
 export type BossSpawn = {
-  __typename: 'BossSpawn';
   boss: MobInfo;
   escorts: Array<Maybe<BossEscort>>;
   /** @deprecated Use boss.name instead. */
@@ -131,14 +123,12 @@ export type BossSpawn = {
  * very rough estimates and may be incaccurate
  */
 export type BossSpawnLocation = {
-  __typename: 'BossSpawnLocation';
   chance: Scalars['Float']['output'];
   name: Scalars['String']['output'];
   spawnKey: Scalars['String']['output'];
 };
 
 export type ContainedItem = {
-  __typename: 'ContainedItem';
   attributes: Maybe<Array<Maybe<ItemAttribute>>>;
   count: Scalars['Float']['output'];
   item: Item;
@@ -146,7 +136,6 @@ export type ContainedItem = {
 };
 
 export type Craft = {
-  __typename: 'Craft';
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   level: Scalars['Int']['output'];
@@ -164,7 +153,6 @@ export type Craft = {
 };
 
 export type FleaMarket = Vendor & {
-  __typename: 'FleaMarket';
   enabled: Scalars['Boolean']['output'];
   foundInRaidRequired: Maybe<Scalars['Boolean']['output']>;
   minPlayerLevel: Scalars['Int']['output'];
@@ -176,7 +164,6 @@ export type FleaMarket = Vendor & {
 };
 
 export type FleaMarketReputationLevel = {
-  __typename: 'FleaMarketReputationLevel';
   maxRep: Scalars['Float']['output'];
   minRep: Scalars['Float']['output'];
   offers: Scalars['Int']['output'];
@@ -189,7 +176,6 @@ export enum GameMode {
 }
 
 export type GameProperty = {
-  __typename: 'GameProperty';
   arrayValue: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   key: Scalars['String']['output'];
   numericValue: Maybe<Scalars['Float']['output']>;
@@ -198,7 +184,6 @@ export type GameProperty = {
 };
 
 export type GoonReport = {
-  __typename: 'GoonReport';
   map: Maybe<Map>;
   timestamp: Maybe<Scalars['String']['output']>;
 };
@@ -292,14 +277,12 @@ export enum HandbookCategoryName {
 }
 
 export type HealthEffect = {
-  __typename: 'HealthEffect';
   bodyParts: Array<Maybe<Scalars['String']['output']>>;
   effects: Array<Maybe<Scalars['String']['output']>>;
   time: Maybe<NumberCompare>;
 };
 
 export type HealthPart = {
-  __typename: 'HealthPart';
   bodyPart: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   max: Scalars['Int']['output'];
@@ -307,7 +290,6 @@ export type HealthPart = {
 
 /** HideoutModule has been replaced with HideoutStation. */
 export type HideoutModule = {
-  __typename: 'HideoutModule';
   /** @deprecated Use HideoutStation type instead. */
   id: Maybe<Scalars['Int']['output']>;
   itemRequirements: Array<Maybe<ContainedItem>>;
@@ -318,7 +300,6 @@ export type HideoutModule = {
 };
 
 export type HideoutStation = {
-  __typename: 'HideoutStation';
   /** crafts is only available via the hideoutStations query. */
   crafts: Array<Maybe<Craft>>;
   id: Scalars['ID']['output'];
@@ -330,7 +311,6 @@ export type HideoutStation = {
 };
 
 export type HideoutStationBonus = {
-  __typename: 'HideoutStationBonus';
   name: Scalars['String']['output'];
   passive: Maybe<Scalars['Boolean']['output']>;
   production: Maybe<Scalars['Boolean']['output']>;
@@ -341,7 +321,6 @@ export type HideoutStationBonus = {
 };
 
 export type HideoutStationLevel = {
-  __typename: 'HideoutStationLevel';
   bonuses: Maybe<Array<Maybe<HideoutStationBonus>>>;
   constructionTime: Scalars['Int']['output'];
   /** crafts is only available via the hideoutStations query. */
@@ -357,7 +336,6 @@ export type HideoutStationLevel = {
 };
 
 export type Item = {
-  __typename: 'Item';
   accuracyModifier: Maybe<Scalars['Float']['output']>;
   avg24hPrice: Maybe<Scalars['Int']['output']>;
   backgroundColor: Scalars['String']['output'];
@@ -449,7 +427,6 @@ export type ItemArmorSlot = {
 };
 
 export type ItemArmorSlotLocked = ItemArmorSlot & {
-  __typename: 'ItemArmorSlotLocked';
   armorType: Maybe<Scalars['String']['output']>;
   baseValue: Maybe<Scalars['Int']['output']>;
   bluntThroughput: Maybe<Scalars['Float']['output']>;
@@ -466,7 +443,6 @@ export type ItemArmorSlotLocked = ItemArmorSlot & {
 };
 
 export type ItemArmorSlotOpen = ItemArmorSlot & {
-  __typename: 'ItemArmorSlotOpen';
   allowedPlates: Maybe<Array<Maybe<Item>>>;
   name: Maybe<Scalars['String']['output']>;
   nameId: Maybe<Scalars['String']['output']>;
@@ -474,14 +450,12 @@ export type ItemArmorSlotOpen = ItemArmorSlot & {
 };
 
 export type ItemAttribute = {
-  __typename: 'ItemAttribute';
   name: Scalars['String']['output'];
   type: Scalars['String']['output'];
   value: Maybe<Scalars['String']['output']>;
 };
 
 export type ItemCategory = {
-  __typename: 'ItemCategory';
   children: Maybe<Array<Maybe<ItemCategory>>>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -592,7 +566,6 @@ export enum ItemCategoryName {
 }
 
 export type ItemFilters = {
-  __typename: 'ItemFilters';
   allowedCategories: Array<Maybe<ItemCategory>>;
   allowedItems: Array<Maybe<Item>>;
   excludedCategories: Array<Maybe<ItemCategory>>;
@@ -600,7 +573,6 @@ export type ItemFilters = {
 };
 
 export type ItemPrice = {
-  __typename: 'ItemPrice';
   currency: Maybe<Scalars['String']['output']>;
   currencyItem: Maybe<Item>;
   price: Maybe<Scalars['Int']['output']>;
@@ -615,7 +587,6 @@ export type ItemPrice = {
 export type ItemProperties = ItemPropertiesAmmo | ItemPropertiesArmor | ItemPropertiesArmorAttachment | ItemPropertiesBackpack | ItemPropertiesBarrel | ItemPropertiesChestRig | ItemPropertiesContainer | ItemPropertiesFoodDrink | ItemPropertiesGlasses | ItemPropertiesGrenade | ItemPropertiesHeadphone | ItemPropertiesHeadwear | ItemPropertiesHelmet | ItemPropertiesKey | ItemPropertiesMagazine | ItemPropertiesMedKit | ItemPropertiesMedicalItem | ItemPropertiesMelee | ItemPropertiesNightVision | ItemPropertiesPainkiller | ItemPropertiesPreset | ItemPropertiesResource | ItemPropertiesScope | ItemPropertiesStim | ItemPropertiesSurgicalKit | ItemPropertiesWeapon | ItemPropertiesWeaponMod;
 
 export type ItemPropertiesAmmo = {
-  __typename: 'ItemPropertiesAmmo';
   /** @deprecated Use accuracyModifier instead. */
   accuracy: Maybe<Scalars['Int']['output']>;
   accuracyModifier: Maybe<Scalars['Float']['output']>;
@@ -649,7 +620,6 @@ export type ItemPropertiesAmmo = {
 };
 
 export type ItemPropertiesArmor = {
-  __typename: 'ItemPropertiesArmor';
   armorSlots: Maybe<Array<Maybe<ItemArmorSlot>>>;
   armorType: Maybe<Scalars['String']['output']>;
   bluntThroughput: Maybe<Scalars['Float']['output']>;
@@ -664,7 +634,6 @@ export type ItemPropertiesArmor = {
 };
 
 export type ItemPropertiesArmorAttachment = {
-  __typename: 'ItemPropertiesArmorAttachment';
   armorType: Maybe<Scalars['String']['output']>;
   blindnessProtection: Maybe<Scalars['Float']['output']>;
   bluntThroughput: Maybe<Scalars['Float']['output']>;
@@ -682,7 +651,6 @@ export type ItemPropertiesArmorAttachment = {
 };
 
 export type ItemPropertiesBackpack = {
-  __typename: 'ItemPropertiesBackpack';
   capacity: Maybe<Scalars['Int']['output']>;
   ergoPenalty: Maybe<Scalars['Float']['output']>;
   grids: Maybe<Array<Maybe<ItemStorageGrid>>>;
@@ -693,7 +661,6 @@ export type ItemPropertiesBackpack = {
 };
 
 export type ItemPropertiesBarrel = {
-  __typename: 'ItemPropertiesBarrel';
   /** @deprecated Use centerOfImpact, deviationCurve, and deviationMax instead. */
   accuracyModifier: Maybe<Scalars['Float']['output']>;
   centerOfImpact: Maybe<Scalars['Float']['output']>;
@@ -707,7 +674,6 @@ export type ItemPropertiesBarrel = {
 };
 
 export type ItemPropertiesChestRig = {
-  __typename: 'ItemPropertiesChestRig';
   armorSlots: Maybe<Array<Maybe<ItemArmorSlot>>>;
   armorType: Maybe<Scalars['String']['output']>;
   bluntThroughput: Maybe<Scalars['Float']['output']>;
@@ -726,13 +692,11 @@ export type ItemPropertiesChestRig = {
 };
 
 export type ItemPropertiesContainer = {
-  __typename: 'ItemPropertiesContainer';
   capacity: Maybe<Scalars['Int']['output']>;
   grids: Maybe<Array<Maybe<ItemStorageGrid>>>;
 };
 
 export type ItemPropertiesFoodDrink = {
-  __typename: 'ItemPropertiesFoodDrink';
   energy: Maybe<Scalars['Int']['output']>;
   hydration: Maybe<Scalars['Int']['output']>;
   stimEffects: Array<Maybe<StimEffect>>;
@@ -740,7 +704,6 @@ export type ItemPropertiesFoodDrink = {
 };
 
 export type ItemPropertiesGlasses = {
-  __typename: 'ItemPropertiesGlasses';
   blindnessProtection: Maybe<Scalars['Float']['output']>;
   bluntThroughput: Maybe<Scalars['Float']['output']>;
   class: Maybe<Scalars['Int']['output']>;
@@ -750,7 +713,6 @@ export type ItemPropertiesGlasses = {
 };
 
 export type ItemPropertiesGrenade = {
-  __typename: 'ItemPropertiesGrenade';
   contusionRadius: Maybe<Scalars['Int']['output']>;
   fragments: Maybe<Scalars['Int']['output']>;
   fuse: Maybe<Scalars['Float']['output']>;
@@ -760,7 +722,6 @@ export type ItemPropertiesGrenade = {
 };
 
 export type ItemPropertiesHeadphone = {
-  __typename: 'ItemPropertiesHeadphone';
   ambientVolume: Maybe<Scalars['Int']['output']>;
   compressorAttack: Maybe<Scalars['Int']['output']>;
   compressorGain: Maybe<Scalars['Int']['output']>;
@@ -776,12 +737,10 @@ export type ItemPropertiesHeadphone = {
 };
 
 export type ItemPropertiesHeadwear = {
-  __typename: 'ItemPropertiesHeadwear';
   slots: Maybe<Array<Maybe<ItemSlot>>>;
 };
 
 export type ItemPropertiesHelmet = {
-  __typename: 'ItemPropertiesHelmet';
   armorSlots: Maybe<Array<Maybe<ItemArmorSlot>>>;
   armorType: Maybe<Scalars['String']['output']>;
   blindnessProtection: Maybe<Scalars['Float']['output']>;
@@ -803,12 +762,10 @@ export type ItemPropertiesHelmet = {
 };
 
 export type ItemPropertiesKey = {
-  __typename: 'ItemPropertiesKey';
   uses: Maybe<Scalars['Int']['output']>;
 };
 
 export type ItemPropertiesMagazine = {
-  __typename: 'ItemPropertiesMagazine';
   allowedAmmo: Maybe<Array<Maybe<Item>>>;
   ammoCheckModifier: Maybe<Scalars['Float']['output']>;
   capacity: Maybe<Scalars['Int']['output']>;
@@ -822,7 +779,6 @@ export type ItemPropertiesMagazine = {
 };
 
 export type ItemPropertiesMedKit = {
-  __typename: 'ItemPropertiesMedKit';
   cures: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   hitpoints: Maybe<Scalars['Int']['output']>;
   hpCostHeavyBleeding: Maybe<Scalars['Int']['output']>;
@@ -832,21 +788,18 @@ export type ItemPropertiesMedKit = {
 };
 
 export type ItemPropertiesMedicalItem = {
-  __typename: 'ItemPropertiesMedicalItem';
   cures: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   useTime: Maybe<Scalars['Int']['output']>;
   uses: Maybe<Scalars['Int']['output']>;
 };
 
 export type ItemPropertiesMelee = {
-  __typename: 'ItemPropertiesMelee';
   hitRadius: Maybe<Scalars['Float']['output']>;
   slashDamage: Maybe<Scalars['Int']['output']>;
   stabDamage: Maybe<Scalars['Int']['output']>;
 };
 
 export type ItemPropertiesNightVision = {
-  __typename: 'ItemPropertiesNightVision';
   diffuseIntensity: Maybe<Scalars['Float']['output']>;
   intensity: Maybe<Scalars['Float']['output']>;
   noiseIntensity: Maybe<Scalars['Float']['output']>;
@@ -854,7 +807,6 @@ export type ItemPropertiesNightVision = {
 };
 
 export type ItemPropertiesPainkiller = {
-  __typename: 'ItemPropertiesPainkiller';
   cures: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   energyImpact: Maybe<Scalars['Int']['output']>;
   hydrationImpact: Maybe<Scalars['Int']['output']>;
@@ -864,7 +816,6 @@ export type ItemPropertiesPainkiller = {
 };
 
 export type ItemPropertiesPreset = {
-  __typename: 'ItemPropertiesPreset';
   baseItem: Item;
   default: Maybe<Scalars['Boolean']['output']>;
   ergonomics: Maybe<Scalars['Float']['output']>;
@@ -874,12 +825,10 @@ export type ItemPropertiesPreset = {
 };
 
 export type ItemPropertiesResource = {
-  __typename: 'ItemPropertiesResource';
   units: Maybe<Scalars['Int']['output']>;
 };
 
 export type ItemPropertiesScope = {
-  __typename: 'ItemPropertiesScope';
   ergonomics: Maybe<Scalars['Float']['output']>;
   /** @deprecated Use recoilModifier instead. */
   recoil: Maybe<Scalars['Float']['output']>;
@@ -891,14 +840,12 @@ export type ItemPropertiesScope = {
 };
 
 export type ItemPropertiesStim = {
-  __typename: 'ItemPropertiesStim';
   cures: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   stimEffects: Array<Maybe<StimEffect>>;
   useTime: Maybe<Scalars['Int']['output']>;
 };
 
 export type ItemPropertiesSurgicalKit = {
-  __typename: 'ItemPropertiesSurgicalKit';
   cures: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   maxLimbHealth: Maybe<Scalars['Float']['output']>;
   minLimbHealth: Maybe<Scalars['Float']['output']>;
@@ -907,7 +854,6 @@ export type ItemPropertiesSurgicalKit = {
 };
 
 export type ItemPropertiesWeapon = {
-  __typename: 'ItemPropertiesWeapon';
   allowedAmmo: Maybe<Array<Maybe<Item>>>;
   caliber: Maybe<Scalars['String']['output']>;
   cameraRecoil: Maybe<Scalars['Float']['output']>;
@@ -940,7 +886,6 @@ export type ItemPropertiesWeapon = {
 };
 
 export type ItemPropertiesWeaponMod = {
-  __typename: 'ItemPropertiesWeaponMod';
   accuracyModifier: Maybe<Scalars['Float']['output']>;
   ergonomics: Maybe<Scalars['Float']['output']>;
   /** @deprecated Use recoilModifier instead. */
@@ -950,7 +895,6 @@ export type ItemPropertiesWeaponMod = {
 };
 
 export type ItemSlot = {
-  __typename: 'ItemSlot';
   filters: Maybe<ItemFilters>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -972,7 +916,6 @@ export enum ItemSourceName {
 }
 
 export type ItemStorageGrid = {
-  __typename: 'ItemStorageGrid';
   filters: ItemFilters;
   height: Scalars['Int']['output'];
   width: Scalars['Int']['output'];
@@ -983,7 +926,6 @@ export type ItemStorageGrid = {
  * ItemTranslation has been replaced with the lang argument on all queries
  */
 export type ItemTranslation = {
-  __typename: 'ItemTranslation';
   /** @deprecated Use the lang argument on queries instead. */
   description: Maybe<Scalars['String']['output']>;
   /** @deprecated Use the lang argument on queries instead. */
@@ -1039,7 +981,6 @@ export enum LanguageCode {
 }
 
 export type Lock = {
-  __typename: 'Lock';
   bottom: Maybe<Scalars['Float']['output']>;
   key: Maybe<Item>;
   lockType: Maybe<Scalars['String']['output']>;
@@ -1050,20 +991,17 @@ export type Lock = {
 };
 
 export type LootContainer = {
-  __typename: 'LootContainer';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   normalizedName: Scalars['String']['output'];
 };
 
 export type LootContainerPosition = {
-  __typename: 'LootContainerPosition';
   lootContainer: Maybe<LootContainer>;
   position: Maybe<MapPosition>;
 };
 
 export type Map = {
-  __typename: 'Map';
   accessKeys: Array<Maybe<Item>>;
   accessKeysMinPlayerLevel: Maybe<Scalars['Int']['output']>;
   bosses: Array<Maybe<BossSpawn>>;
@@ -1089,7 +1027,6 @@ export type Map = {
 };
 
 export type MapExtract = {
-  __typename: 'MapExtract';
   bottom: Maybe<Scalars['Float']['output']>;
   faction: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1101,7 +1038,6 @@ export type MapExtract = {
 };
 
 export type MapHazard = {
-  __typename: 'MapHazard';
   bottom: Maybe<Scalars['Float']['output']>;
   hazardType: Maybe<Scalars['String']['output']>;
   name: Maybe<Scalars['String']['output']>;
@@ -1111,14 +1047,12 @@ export type MapHazard = {
 };
 
 export type MapPosition = {
-  __typename: 'MapPosition';
   x: Scalars['Float']['output'];
   y: Scalars['Float']['output'];
   z: Scalars['Float']['output'];
 };
 
 export type MapSpawn = {
-  __typename: 'MapSpawn';
   categories: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   position: MapPosition;
   sides: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -1126,7 +1060,6 @@ export type MapSpawn = {
 };
 
 export type MapSwitch = {
-  __typename: 'MapSwitch';
   activatedBy: Maybe<MapSwitch>;
   activates: Maybe<Array<Maybe<MapSwitchOperation>>>;
   id: Scalars['ID']['output'];
@@ -1136,7 +1069,6 @@ export type MapSwitch = {
 };
 
 export type MapSwitchOperation = {
-  __typename: 'MapSwitchOperation';
   operation: Maybe<Scalars['String']['output']>;
   target: Maybe<MapSwitchTarget>;
 };
@@ -1144,13 +1076,11 @@ export type MapSwitchOperation = {
 export type MapSwitchTarget = MapExtract | MapSwitch;
 
 export type MapWithPosition = {
-  __typename: 'MapWithPosition';
   map: Maybe<Map>;
   positions: Maybe<Array<Maybe<MapPosition>>>;
 };
 
 export type Mastering = {
-  __typename: 'Mastering';
   id: Scalars['ID']['output'];
   level2: Maybe<Scalars['Int']['output']>;
   level3: Maybe<Scalars['Int']['output']>;
@@ -1158,7 +1088,6 @@ export type Mastering = {
 };
 
 export type MobInfo = {
-  __typename: 'MobInfo';
   /** equipment and items are estimates and may be inaccurate. */
   equipment: Array<Maybe<ContainedItem>>;
   health: Maybe<Array<Maybe<HealthPart>>>;
@@ -1171,13 +1100,11 @@ export type MobInfo = {
 };
 
 export type NumberCompare = {
-  __typename: 'NumberCompare';
   compareMethod: Scalars['String']['output'];
   value: Scalars['Float']['output'];
 };
 
 export type OfferUnlock = {
-  __typename: 'OfferUnlock';
   id: Scalars['ID']['output'];
   item: Item;
   level: Scalars['Int']['output'];
@@ -1185,20 +1112,17 @@ export type OfferUnlock = {
 };
 
 export type PlayerLevel = {
-  __typename: 'PlayerLevel';
   exp: Scalars['Int']['output'];
   level: Scalars['Int']['output'];
 };
 
 export type PriceRequirement = {
-  __typename: 'PriceRequirement';
   stringValue: Maybe<Scalars['String']['output']>;
   type: RequirementType;
   value: Maybe<Scalars['Int']['output']>;
 };
 
 export type Query = {
-  __typename: 'Query';
   achievements: Array<Maybe<Achievement>>;
   ammo: Maybe<Array<Maybe<Ammo>>>;
   armorMaterials: Array<Maybe<ArmorMaterial>>;
@@ -1449,7 +1373,6 @@ export type QueryTradersArgs = {
 
 /** Quest has been replaced with Task. */
 export type Quest = {
-  __typename: 'Quest';
   /** @deprecated Use Task type instead. */
   exp: Scalars['Int']['output'];
   /** @deprecated Use Task type instead. */
@@ -1473,7 +1396,6 @@ export type Quest = {
 };
 
 export type QuestItem = {
-  __typename: 'QuestItem';
   baseImageLink: Maybe<Scalars['String']['output']>;
   description: Maybe<Scalars['String']['output']>;
   gridImageLink: Maybe<Scalars['String']['output']>;
@@ -1491,7 +1413,6 @@ export type QuestItem = {
 
 /** QuestObjective has been replaced with TaskObjective. */
 export type QuestObjective = {
-  __typename: 'QuestObjective';
   /** @deprecated Use Task type instead. */
   id: Maybe<Scalars['String']['output']>;
   /** @deprecated Use Task type instead. */
@@ -1508,7 +1429,6 @@ export type QuestObjective = {
 
 /** QuestRequirement has been replaced with TaskRequirement. */
 export type QuestRequirement = {
-  __typename: 'QuestRequirement';
   /** @deprecated Use Task type instead. */
   level: Maybe<Scalars['Int']['output']>;
   /** @deprecated Use Task type instead. */
@@ -1518,7 +1438,6 @@ export type QuestRequirement = {
 };
 
 export type QuestRewardReputation = {
-  __typename: 'QuestRewardReputation';
   /** @deprecated Use Task type instead. */
   amount: Scalars['Float']['output'];
   /** @deprecated Use Task type instead. */
@@ -1526,14 +1445,12 @@ export type QuestRewardReputation = {
 };
 
 export type RequirementHideoutStationLevel = {
-  __typename: 'RequirementHideoutStationLevel';
   id: Maybe<Scalars['ID']['output']>;
   level: Scalars['Int']['output'];
   station: HideoutStation;
 };
 
 export type RequirementItem = {
-  __typename: 'RequirementItem';
   attributes: Maybe<Array<Maybe<ItemAttribute>>>;
   count: Scalars['Int']['output'];
   id: Maybe<Scalars['ID']['output']>;
@@ -1542,7 +1459,6 @@ export type RequirementItem = {
 };
 
 export type RequirementSkill = {
-  __typename: 'RequirementSkill';
   id: Maybe<Scalars['ID']['output']>;
   level: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -1550,13 +1466,11 @@ export type RequirementSkill = {
 };
 
 export type RequirementTask = {
-  __typename: 'RequirementTask';
   id: Maybe<Scalars['ID']['output']>;
   task: Task;
 };
 
 export type RequirementTrader = {
-  __typename: 'RequirementTrader';
   compareMethod: Maybe<Scalars['String']['output']>;
   id: Maybe<Scalars['ID']['output']>;
   /** @deprecated Use value instead. */
@@ -1574,40 +1488,34 @@ export enum RequirementType {
 }
 
 export type ServerStatus = {
-  __typename: 'ServerStatus';
   currentStatuses: Maybe<Array<Maybe<Status>>>;
   generalStatus: Maybe<Status>;
   messages: Maybe<Array<Maybe<StatusMessage>>>;
 };
 
 export type Skill = {
-  __typename: 'Skill';
   id: Maybe<Scalars['ID']['output']>;
   name: Maybe<Scalars['String']['output']>;
 };
 
 export type SkillLevel = {
-  __typename: 'SkillLevel';
   level: Scalars['Float']['output'];
   name: Scalars['String']['output'];
   skill: Skill;
 };
 
 export type StationaryWeapon = {
-  __typename: 'StationaryWeapon';
   id: Maybe<Scalars['ID']['output']>;
   name: Maybe<Scalars['String']['output']>;
   shortName: Maybe<Scalars['String']['output']>;
 };
 
 export type StationaryWeaponPosition = {
-  __typename: 'StationaryWeaponPosition';
   position: Maybe<MapPosition>;
   stationaryWeapon: Maybe<StationaryWeapon>;
 };
 
 export type Status = {
-  __typename: 'Status';
   message: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   status: Scalars['Int']['output'];
@@ -1622,7 +1530,6 @@ export enum StatusCode {
 }
 
 export type StatusMessage = {
-  __typename: 'StatusMessage';
   content: Scalars['String']['output'];
   solveTime: Maybe<Scalars['String']['output']>;
   statusCode: Scalars['String']['output'];
@@ -1631,7 +1538,6 @@ export type StatusMessage = {
 };
 
 export type StimEffect = {
-  __typename: 'StimEffect';
   chance: Scalars['Float']['output'];
   delay: Scalars['Int']['output'];
   duration: Scalars['Int']['output'];
@@ -1643,7 +1549,6 @@ export type StimEffect = {
 };
 
 export type Task = {
-  __typename: 'Task';
   descriptionMessageId: Maybe<Scalars['String']['output']>;
   experience: Scalars['Int']['output'];
   factionName: Maybe<Scalars['String']['output']>;
@@ -1676,7 +1581,6 @@ export type Task = {
 };
 
 export type TaskKey = {
-  __typename: 'TaskKey';
   keys: Array<Maybe<Item>>;
   map: Maybe<Map>;
 };
@@ -1690,7 +1594,6 @@ export type TaskObjective = {
 };
 
 export type TaskObjectiveBasic = TaskObjective & {
-  __typename: 'TaskObjectiveBasic';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   maps: Array<Maybe<Map>>;
@@ -1701,7 +1604,6 @@ export type TaskObjectiveBasic = TaskObjective & {
 };
 
 export type TaskObjectiveBuildItem = TaskObjective & {
-  __typename: 'TaskObjectiveBuildItem';
   attributes: Array<Maybe<AttributeThreshold>>;
   containsAll: Array<Maybe<Item>>;
   containsCategory: Array<Maybe<ItemCategory>>;
@@ -1716,7 +1618,6 @@ export type TaskObjectiveBuildItem = TaskObjective & {
 };
 
 export type TaskObjectiveExperience = TaskObjective & {
-  __typename: 'TaskObjectiveExperience';
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
   healthEffect: HealthEffect;
@@ -1727,7 +1628,6 @@ export type TaskObjectiveExperience = TaskObjective & {
 };
 
 export type TaskObjectiveExtract = TaskObjective & {
-  __typename: 'TaskObjectiveExtract';
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
   exitName: Maybe<Scalars['String']['output']>;
@@ -1741,7 +1641,6 @@ export type TaskObjectiveExtract = TaskObjective & {
 };
 
 export type TaskObjectiveItem = TaskObjective & {
-  __typename: 'TaskObjectiveItem';
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
   dogTagLevel: Maybe<Scalars['Int']['output']>;
@@ -1759,7 +1658,6 @@ export type TaskObjectiveItem = TaskObjective & {
 };
 
 export type TaskObjectiveMark = TaskObjective & {
-  __typename: 'TaskObjectiveMark';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   maps: Array<Maybe<Map>>;
@@ -1771,7 +1669,6 @@ export type TaskObjectiveMark = TaskObjective & {
 };
 
 export type TaskObjectivePlayerLevel = TaskObjective & {
-  __typename: 'TaskObjectivePlayerLevel';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   maps: Array<Maybe<Map>>;
@@ -1781,7 +1678,6 @@ export type TaskObjectivePlayerLevel = TaskObjective & {
 };
 
 export type TaskObjectiveQuestItem = TaskObjective & {
-  __typename: 'TaskObjectiveQuestItem';
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
@@ -1795,7 +1691,6 @@ export type TaskObjectiveQuestItem = TaskObjective & {
 };
 
 export type TaskObjectiveShoot = TaskObjective & {
-  __typename: 'TaskObjectiveShoot';
   bodyParts: Array<Maybe<Scalars['String']['output']>>;
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
@@ -1822,7 +1717,6 @@ export type TaskObjectiveShoot = TaskObjective & {
 };
 
 export type TaskObjectiveSkill = TaskObjective & {
-  __typename: 'TaskObjectiveSkill';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   maps: Array<Maybe<Map>>;
@@ -1832,7 +1726,6 @@ export type TaskObjectiveSkill = TaskObjective & {
 };
 
 export type TaskObjectiveTaskStatus = TaskObjective & {
-  __typename: 'TaskObjectiveTaskStatus';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   maps: Array<Maybe<Map>>;
@@ -1843,7 +1736,6 @@ export type TaskObjectiveTaskStatus = TaskObjective & {
 };
 
 export type TaskObjectiveTraderLevel = TaskObjective & {
-  __typename: 'TaskObjectiveTraderLevel';
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
   level: Scalars['Int']['output'];
@@ -1854,7 +1746,6 @@ export type TaskObjectiveTraderLevel = TaskObjective & {
 };
 
 export type TaskObjectiveTraderStanding = TaskObjective & {
-  __typename: 'TaskObjectiveTraderStanding';
   compareMethod: Scalars['String']['output'];
   description: Scalars['String']['output'];
   id: Maybe<Scalars['ID']['output']>;
@@ -1866,7 +1757,6 @@ export type TaskObjectiveTraderStanding = TaskObjective & {
 };
 
 export type TaskObjectiveUseItem = TaskObjective & {
-  __typename: 'TaskObjectiveUseItem';
   compareMethod: Scalars['String']['output'];
   count: Scalars['Int']['output'];
   description: Scalars['String']['output'];
@@ -1881,7 +1771,6 @@ export type TaskObjectiveUseItem = TaskObjective & {
 };
 
 export type TaskRewards = {
-  __typename: 'TaskRewards';
   craftUnlock: Array<Maybe<Craft>>;
   items: Array<Maybe<ContainedItem>>;
   offerUnlock: Array<Maybe<OfferUnlock>>;
@@ -1891,13 +1780,11 @@ export type TaskRewards = {
 };
 
 export type TaskStatusRequirement = {
-  __typename: 'TaskStatusRequirement';
   status: Array<Maybe<Scalars['String']['output']>>;
   task: Task;
 };
 
 export type TaskZone = {
-  __typename: 'TaskZone';
   bottom: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   map: Maybe<Map>;
@@ -1907,7 +1794,6 @@ export type TaskZone = {
 };
 
 export type Trader = {
-  __typename: 'Trader';
   /** barters and cashOffers are only available via the traders query. */
   barters: Array<Maybe<Barter>>;
   cashOffers: Array<Maybe<TraderCashOffer>>;
@@ -1926,7 +1812,6 @@ export type Trader = {
 };
 
 export type TraderCashOffer = {
-  __typename: 'TraderCashOffer';
   buyLimit: Maybe<Scalars['Int']['output']>;
   currency: Maybe<Scalars['String']['output']>;
   currencyItem: Maybe<Item>;
@@ -1938,7 +1823,6 @@ export type TraderCashOffer = {
 };
 
 export type TraderLevel = {
-  __typename: 'TraderLevel';
   /** barters and cashOffers are only available via the traders query. */
   barters: Array<Maybe<Barter>>;
   cashOffers: Array<Maybe<TraderCashOffer>>;
@@ -1967,7 +1851,6 @@ export enum TraderName {
 }
 
 export type TraderOffer = Vendor & {
-  __typename: 'TraderOffer';
   buyLimit: Maybe<Scalars['Int']['output']>;
   minTraderLevel: Maybe<Scalars['Int']['output']>;
   name: Scalars['String']['output'];
@@ -1978,7 +1861,6 @@ export type TraderOffer = Vendor & {
 
 /** TraderPrice is deprecated and replaced with ItemPrice. */
 export type TraderPrice = {
-  __typename: 'TraderPrice';
   /** @deprecated Use item.buyFor instead. */
   currency: Scalars['String']['output'];
   /** @deprecated Use item.buyFor instead. */
@@ -1992,7 +1874,6 @@ export type TraderPrice = {
 export type TraderReputationLevel = TraderReputationLevelFence;
 
 export type TraderReputationLevelFence = {
-  __typename: 'TraderReputationLevelFence';
   availableScavExtracts: Maybe<Scalars['Int']['output']>;
   btrCoveringFireDiscount: Maybe<Scalars['Int']['output']>;
   btrDeliveryDiscount: Maybe<Scalars['Int']['output']>;
@@ -2013,7 +1894,6 @@ export type TraderReputationLevelFence = {
 
 /** TraderResetTime is deprecated and replaced with Trader. */
 export type TraderResetTime = {
-  __typename: 'TraderResetTime';
   /** @deprecated Use Trader.name type instead. */
   name: Maybe<Scalars['String']['output']>;
   /** @deprecated Use Trader.resetTime type instead. */
@@ -2021,7 +1901,6 @@ export type TraderResetTime = {
 };
 
 export type TraderStanding = {
-  __typename: 'TraderStanding';
   standing: Scalars['Float']['output'];
   trader: Trader;
 };
@@ -2032,7 +1911,6 @@ export type Vendor = {
 };
 
 export type HistoricalPricePoint = {
-  __typename: 'historicalPricePoint';
   price: Maybe<Scalars['Int']['output']>;
   priceMin: Maybe<Scalars['Int']['output']>;
   timestamp: Maybe<Scalars['String']['output']>;
@@ -2041,7 +1919,7 @@ export type HistoricalPricePoint = {
 export type GetAllGunsAndModsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllGunsAndModsQuery = { __typename: 'Query', gunData: Array<{ __typename: 'Item', id: string, name: string | null, normalizedName: string | null, shortName: string | null, handbookCategories: Array<{ __typename: 'ItemCategory', name: string, normalizedName: string } | null>, properties: { __typename: 'ItemPropertiesAmmo' } | { __typename: 'ItemPropertiesArmor' } | { __typename: 'ItemPropertiesArmorAttachment' } | { __typename: 'ItemPropertiesBackpack' } | { __typename: 'ItemPropertiesBarrel' } | { __typename: 'ItemPropertiesChestRig' } | { __typename: 'ItemPropertiesContainer' } | { __typename: 'ItemPropertiesFoodDrink' } | { __typename: 'ItemPropertiesGlasses' } | { __typename: 'ItemPropertiesGrenade' } | { __typename: 'ItemPropertiesHeadphone' } | { __typename: 'ItemPropertiesHeadwear' } | { __typename: 'ItemPropertiesHelmet' } | { __typename: 'ItemPropertiesKey' } | { __typename: 'ItemPropertiesMagazine' } | { __typename: 'ItemPropertiesMedKit' } | { __typename: 'ItemPropertiesMedicalItem' } | { __typename: 'ItemPropertiesMelee' } | { __typename: 'ItemPropertiesNightVision' } | { __typename: 'ItemPropertiesPainkiller' } | { __typename: 'ItemPropertiesPreset' } | { __typename: 'ItemPropertiesResource' } | { __typename: 'ItemPropertiesScope' } | { __typename: 'ItemPropertiesStim' } | { __typename: 'ItemPropertiesSurgicalKit' } | { __typename: 'ItemPropertiesWeapon', caliber: string | null, recoilHorizontal: number | null, recoilVertical: number | null, ergonomics: number | null, defaultPreset: { __typename: 'Item', baseImageLink: string | null } | null, slots: Array<{ __typename: 'ItemSlot', id: string, required: boolean | null, name: string, nameId: string, filters: { __typename: 'ItemFilters', allowedItems: Array<{ __typename: 'Item', id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesWeaponMod' } | null } | null>, modData: Array<{ __typename: 'Item', id: string, name: string | null, normalizedName: string | null, shortName: string | null, iconLink: string | null, recoilModifier: number | null, ergonomicsModifier: number | null, conflictingSlotIds: Array<string | null> | null, conflictingItems: Array<{ __typename: 'Item', id: string } | null> | null, properties: { __typename: 'ItemPropertiesAmmo' } | { __typename: 'ItemPropertiesArmor' } | { __typename: 'ItemPropertiesArmorAttachment' } | { __typename: 'ItemPropertiesBackpack' } | { __typename: 'ItemPropertiesBarrel', slots: Array<{ __typename: 'ItemSlot', id: string, required: boolean | null, name: string, nameId: string, filters: { __typename: 'ItemFilters', allowedItems: Array<{ __typename: 'Item', id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesChestRig' } | { __typename: 'ItemPropertiesContainer' } | { __typename: 'ItemPropertiesFoodDrink' } | { __typename: 'ItemPropertiesGlasses' } | { __typename: 'ItemPropertiesGrenade' } | { __typename: 'ItemPropertiesHeadphone' } | { __typename: 'ItemPropertiesHeadwear' } | { __typename: 'ItemPropertiesHelmet' } | { __typename: 'ItemPropertiesKey' } | { __typename: 'ItemPropertiesMagazine', slots: Array<{ __typename: 'ItemSlot', id: string, required: boolean | null, name: string, nameId: string, filters: { __typename: 'ItemFilters', allowedItems: Array<{ __typename: 'Item', id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesMedKit' } | { __typename: 'ItemPropertiesMedicalItem' } | { __typename: 'ItemPropertiesMelee' } | { __typename: 'ItemPropertiesNightVision' } | { __typename: 'ItemPropertiesPainkiller' } | { __typename: 'ItemPropertiesPreset' } | { __typename: 'ItemPropertiesResource' } | { __typename: 'ItemPropertiesScope', slots: Array<{ __typename: 'ItemSlot', id: string, required: boolean | null, name: string, nameId: string, filters: { __typename: 'ItemFilters', allowedItems: Array<{ __typename: 'Item', id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesStim' } | { __typename: 'ItemPropertiesSurgicalKit' } | { __typename: 'ItemPropertiesWeapon' } | { __typename: 'ItemPropertiesWeaponMod', slots: Array<{ __typename: 'ItemSlot', id: string, required: boolean | null, name: string, nameId: string, filters: { __typename: 'ItemFilters', allowedItems: Array<{ __typename: 'Item', id: string } | null> } | null } | null> | null } | null } | null> };
+export type GetAllGunsAndModsQuery = { gunData: Array<{ id: string, name: string | null, normalizedName: string | null, shortName: string | null, handbookCategories: Array<{ name: string, normalizedName: string } | null>, buyFor: Array<{ priceRUB: number | null, vendor: { name: string, normalizedName: string } | { name: string, normalizedName: string } }> | null, properties: { __typename: 'ItemPropertiesAmmo' } | { __typename: 'ItemPropertiesArmor' } | { __typename: 'ItemPropertiesArmorAttachment' } | { __typename: 'ItemPropertiesBackpack' } | { __typename: 'ItemPropertiesBarrel' } | { __typename: 'ItemPropertiesChestRig' } | { __typename: 'ItemPropertiesContainer' } | { __typename: 'ItemPropertiesFoodDrink' } | { __typename: 'ItemPropertiesGlasses' } | { __typename: 'ItemPropertiesGrenade' } | { __typename: 'ItemPropertiesHeadphone' } | { __typename: 'ItemPropertiesHeadwear' } | { __typename: 'ItemPropertiesHelmet' } | { __typename: 'ItemPropertiesKey' } | { __typename: 'ItemPropertiesMagazine' } | { __typename: 'ItemPropertiesMedKit' } | { __typename: 'ItemPropertiesMedicalItem' } | { __typename: 'ItemPropertiesMelee' } | { __typename: 'ItemPropertiesNightVision' } | { __typename: 'ItemPropertiesPainkiller' } | { __typename: 'ItemPropertiesPreset' } | { __typename: 'ItemPropertiesResource' } | { __typename: 'ItemPropertiesScope' } | { __typename: 'ItemPropertiesStim' } | { __typename: 'ItemPropertiesSurgicalKit' } | { __typename: 'ItemPropertiesWeapon', caliber: string | null, recoilHorizontal: number | null, recoilVertical: number | null, ergonomics: number | null, defaultPreset: { baseImageLink: string | null } | null, slots: Array<{ id: string, required: boolean | null, name: string, nameId: string, filters: { allowedItems: Array<{ id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesWeaponMod' } | null } | null>, modData: Array<{ id: string, name: string | null, normalizedName: string | null, shortName: string | null, iconLink: string | null, recoilModifier: number | null, ergonomicsModifier: number | null, conflictingSlotIds: Array<string | null> | null, conflictingItems: Array<{ id: string } | null> | null, buyFor: Array<{ priceRUB: number | null, vendor: { name: string, normalizedName: string } | { name: string, normalizedName: string } }> | null, properties: { __typename: 'ItemPropertiesAmmo' } | { __typename: 'ItemPropertiesArmor' } | { __typename: 'ItemPropertiesArmorAttachment' } | { __typename: 'ItemPropertiesBackpack' } | { __typename: 'ItemPropertiesBarrel', slots: Array<{ id: string, required: boolean | null, name: string, nameId: string, filters: { allowedItems: Array<{ id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesChestRig' } | { __typename: 'ItemPropertiesContainer' } | { __typename: 'ItemPropertiesFoodDrink' } | { __typename: 'ItemPropertiesGlasses' } | { __typename: 'ItemPropertiesGrenade' } | { __typename: 'ItemPropertiesHeadphone' } | { __typename: 'ItemPropertiesHeadwear' } | { __typename: 'ItemPropertiesHelmet' } | { __typename: 'ItemPropertiesKey' } | { __typename: 'ItemPropertiesMagazine', slots: Array<{ id: string, required: boolean | null, name: string, nameId: string, filters: { allowedItems: Array<{ id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesMedKit' } | { __typename: 'ItemPropertiesMedicalItem' } | { __typename: 'ItemPropertiesMelee' } | { __typename: 'ItemPropertiesNightVision' } | { __typename: 'ItemPropertiesPainkiller' } | { __typename: 'ItemPropertiesPreset' } | { __typename: 'ItemPropertiesResource' } | { __typename: 'ItemPropertiesScope', slots: Array<{ id: string, required: boolean | null, name: string, nameId: string, filters: { allowedItems: Array<{ id: string } | null> } | null } | null> | null } | { __typename: 'ItemPropertiesStim' } | { __typename: 'ItemPropertiesSurgicalKit' } | { __typename: 'ItemPropertiesWeapon' } | { __typename: 'ItemPropertiesWeaponMod', slots: Array<{ id: string, required: boolean | null, name: string, nameId: string, filters: { allowedItems: Array<{ id: string } | null> } | null } | null> | null } | null } | null> };
 
 
-export const GetAllGunsAndModsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllGunsAndMods"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"gunData"},"name":{"kind":"Name","value":"items"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"handbookCategoryNames"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"AssaultCarbines"},{"kind":"EnumValue","value":"AssaultRifles"},{"kind":"EnumValue","value":"BoltActionRifles"},{"kind":"EnumValue","value":"GrenadeLaunchers"},{"kind":"EnumValue","value":"MachineGuns"},{"kind":"EnumValue","value":"MarksmanRifles"},{"kind":"EnumValue","value":"Pistols"},{"kind":"EnumValue","value":"SMGs"},{"kind":"EnumValue","value":"Shotguns"}]}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"gun"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"handbookCategories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesWeapon"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"caliber"}},{"kind":"Field","name":{"kind":"Name","value":"recoilHorizontal"}},{"kind":"Field","name":{"kind":"Name","value":"recoilVertical"}},{"kind":"Field","name":{"kind":"Name","value":"ergonomics"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"baseImageLink"}}]}},{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"modData"},"name":{"kind":"Name","value":"items"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"types"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"mods"}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"iconLink"}},{"kind":"Field","name":{"kind":"Name","value":"recoilModifier"}},{"kind":"Field","name":{"kind":"Name","value":"ergonomicsModifier"}},{"kind":"Field","name":{"kind":"Name","value":"conflictingSlotIds"}},{"kind":"Field","name":{"kind":"Name","value":"conflictingItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesWeaponMod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesBarrel"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesMagazine"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesScope"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetAllGunsAndModsQuery, GetAllGunsAndModsQueryVariables>;
+export const GetAllGunsAndModsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllGunsAndMods"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"gunData"},"name":{"kind":"Name","value":"items"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"handbookCategoryNames"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"AssaultCarbines"},{"kind":"EnumValue","value":"AssaultRifles"},{"kind":"EnumValue","value":"BoltActionRifles"},{"kind":"EnumValue","value":"GrenadeLaunchers"},{"kind":"EnumValue","value":"MachineGuns"},{"kind":"EnumValue","value":"MarksmanRifles"},{"kind":"EnumValue","value":"Pistols"},{"kind":"EnumValue","value":"SMGs"},{"kind":"EnumValue","value":"Shotguns"}]}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"EnumValue","value":"gun"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"handbookCategories"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"buyFor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"vendor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"priceRUB"}}]}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesWeapon"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"caliber"}},{"kind":"Field","name":{"kind":"Name","value":"recoilHorizontal"}},{"kind":"Field","name":{"kind":"Name","value":"recoilVertical"}},{"kind":"Field","name":{"kind":"Name","value":"ergonomics"}},{"kind":"Field","name":{"kind":"Name","value":"defaultPreset"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"baseImageLink"}}]}},{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"modData"},"name":{"kind":"Name","value":"items"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"types"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"mods"}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"iconLink"}},{"kind":"Field","name":{"kind":"Name","value":"recoilModifier"}},{"kind":"Field","name":{"kind":"Name","value":"ergonomicsModifier"}},{"kind":"Field","name":{"kind":"Name","value":"conflictingSlotIds"}},{"kind":"Field","name":{"kind":"Name","value":"conflictingItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"buyFor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"vendor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"normalizedName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"priceRUB"}}]}},{"kind":"Field","name":{"kind":"Name","value":"properties"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesWeaponMod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesBarrel"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesMagazine"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ItemPropertiesScope"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slots"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"required"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"nameId"}},{"kind":"Field","name":{"kind":"Name","value":"filters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allowedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetAllGunsAndModsQuery, GetAllGunsAndModsQueryVariables>;
