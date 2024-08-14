@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
 
   return (
-    <GunModdingProvider gun={gun} mods={allMods} preset={undefined}>
+    <GunModdingProvider gun={gun} mods={allMods}>
       <GunModding />
     </GunModdingProvider>
   );
