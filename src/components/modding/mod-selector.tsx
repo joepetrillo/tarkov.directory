@@ -108,7 +108,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
         },
       }),
       columnHelper.accessor("avgFleaMarketPrice", {
-        header: "Flea Price (RUB)",
+        header: "Price (RUB)",
         cell: (info) => {
           const value = info.getValue();
           return value ? (
@@ -265,7 +265,11 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
                             }
                             className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
                           >
-                            <Flex align="center" gap="2">
+                            <Flex
+                              align="center"
+                              gap="2"
+                              className="whitespace-nowrap"
+                            >
                               {flexRender(
                                 header.column.columnDef.header,
                                 header.getContext(),
