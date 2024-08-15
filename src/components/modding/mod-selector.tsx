@@ -55,7 +55,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
       columnHelper.accessor("shortName", {
         header: "Mod",
         cell: (info) => (
-          <Flex align="center" gap="4" className="min-w-[235px]">
+          <Flex align="center" gap="4" className="min-w-[250px]">
             <ModIcon
               iconImageUrl={info.row.original.iconImageUrl}
               shortName={info.getValue()}
@@ -80,14 +80,18 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
         enableSorting: false,
       }),
       columnHelper.accessor("ergonomicsModifier", {
-        header: "Ergonomics",
+        header: "Ergo",
+        size: 100,
         cell: (info) => {
           const value = info.getValue();
           const formattedValue = value > 0 ? `+${value}` : value;
           const textColorClass =
             value < 0 ? "text-tomato-11" : value > 0 ? "text-jade-11" : "";
           return (
-            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
+            <Text
+              weight={"bold"}
+              className={`block font-mono ${textColorClass} whitespace-nowrap`}
+            >
               {formattedValue}
             </Text>
           );
@@ -95,13 +99,18 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
       }),
       columnHelper.accessor("recoilModifier", {
         header: "Recoil",
+        size: 100,
+        invertSorting: true,
         cell: (info) => {
           const value = info.getValue();
           const formattedValue = value > 0 ? `+${value}` : value;
           const textColorClass =
             value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
           return (
-            <Text weight={"bold"} className={`font-mono ${textColorClass}`}>
+            <Text
+              weight={"bold"}
+              className={`block font-mono ${textColorClass} whitespace-nowrap`}
+            >
               {formattedValue}
             </Text>
           );
@@ -109,10 +118,11 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
       }),
       columnHelper.accessor("avgFleaMarketPrice", {
         header: "Price (RUB)",
+        size: 150,
         cell: (info) => {
           const value = info.getValue();
           return value ? (
-            <Flex gap="2" align={"center"} wrap={"nowrap"}>
+            <Flex gap="1" align={"center"} wrap={"nowrap"}>
               <Text size={"1"} className="text-gray-11">
                 ₽
               </Text>
@@ -263,6 +273,16 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
                                 ? header.column.getToggleSortingHandler()
                                 : undefined
                             }
+                            style={{
+                              width:
+                                header.id === "shortName"
+                                  ? "100%"
+                                  : header.column.getSize(),
+                              minWidth:
+                                header.id === "shortName"
+                                  ? ""
+                                  : header.column.getSize(),
+                            }}
                             className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
                           >
                             <Flex
