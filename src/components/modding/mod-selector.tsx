@@ -202,6 +202,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
       dispatch({ type: "updated_selection", path, modId: mod.id });
       setIsOpen(false);
       setSearchInput("");
+      setSorting([]);
     }
 
     // We are requesting to remove the mod
@@ -209,6 +210,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
       dispatch({ type: "updated_selection", path, modId: null });
       setIsOpen(false);
       setSearchInput("");
+      setSorting([]);
     }
   };
 
