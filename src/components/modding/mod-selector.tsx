@@ -21,9 +21,9 @@ import {
 import { ModIcon } from "@/components/modding/mod-icon";
 import { useMemo, useState } from "react";
 import {
-  CaretDownIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
   CaretSortIcon,
-  CaretUpIcon,
 } from "@radix-ui/react-icons";
 import { useGunModding } from "@/contexts/gun-modding.context";
 import SearchInput from "@/components/ui/search-input";
@@ -189,6 +189,7 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
   const table = useReactTable({
     data: filteredTableData,
     columns,
+    enableMultiSort: true,
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -294,16 +295,12 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
                                 header.column.columnDef.header,
                                 header.getContext(),
                               )}
-                              {header.column.getCanSort() &&
-                                (header.column.getIsSorted() ? (
-                                  header.column.getIsSorted() === "asc" ? (
-                                    <CaretUpIcon />
-                                  ) : (
-                                    <CaretDownIcon />
-                                  )
-                                ) : (
-                                  <CaretSortIcon />
-                                ))}
+                              {{
+                                asc: <ArrowUpIcon />,
+                                desc: <ArrowDownIcon />,
+                              }[header.column.getIsSorted() as string] ?? (
+                                <CaretSortIcon />
+                              )}
                             </Flex>
                           </Table.ColumnHeaderCell>
                         ))}

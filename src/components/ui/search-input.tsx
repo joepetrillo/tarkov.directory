@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon, TrashIcon } from "@radix-ui/react-icons";
 import { TextField, IconButton } from "@radix-ui/themes";
+import { useRef } from "react";
 
 export default function SearchInput({
   searchInput,
@@ -10,8 +11,19 @@ export default function SearchInput({
   setSearchInput: (value: string) => void;
   placeholder: string;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      inputRef.current?.blur();
+    }
+  }
+
   return (
     <TextField.Root
+      ref={inputRef}
+      onKeyDown={handleKeyDown}
       size={"3"}
       placeholder={placeholder}
       value={searchInput}
