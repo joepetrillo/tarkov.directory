@@ -197,17 +197,9 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
   });
 
   const handleSelectMod = (mod: ModWithConflicting | null) => {
-    // We are selecting a valid mod and it is not conflicting
-    if (mod && !mod.isConflicting) {
-      dispatch({ type: "updated_selection", path, modId: mod.id });
-      setIsOpen(false);
-      setSearchInput("");
-      setSorting([]);
-    }
-
-    // We are requesting to remove the mod
-    if (mod === null) {
-      dispatch({ type: "updated_selection", path, modId: null });
+    // We are selecting or removing a valid mod and it is not conflicting
+    if (!mod?.isConflicting) {
+      dispatch({ type: "updated_selection", path, modId: mod?.id ?? null });
       setIsOpen(false);
       setSearchInput("");
       setSorting([]);
@@ -300,9 +292,10 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
                               {{
                                 asc: <ArrowUpIcon />,
                                 desc: <ArrowDownIcon />,
-                              }[header.column.getIsSorted() as string] ?? (
-                                <CaretSortIcon />
-                              )}
+                              }[header.column.getIsSorted() as string] ??
+                                (header.column.getCanSort() && (
+                                  <CaretSortIcon />
+                                ))}
                             </Flex>
                           </Table.ColumnHeaderCell>
                         ))}
