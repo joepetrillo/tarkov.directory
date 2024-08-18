@@ -28,10 +28,16 @@ export const GetAllGunsAndMods = graphql(`
       }
       buyFor {
         vendor {
+          __typename
           name
           normalizedName
+          ... on TraderOffer {
+            minTraderLevel
+          }
         }
         priceRUB
+        price
+        currency
       }
       properties {
         __typename
@@ -71,10 +77,16 @@ export const GetAllGunsAndMods = graphql(`
       }
       buyFor {
         vendor {
+          __typename
           name
           normalizedName
+          ... on TraderOffer {
+            minTraderLevel
+          }
         }
         priceRUB
+        price
+        currency
       }
       properties {
         __typename

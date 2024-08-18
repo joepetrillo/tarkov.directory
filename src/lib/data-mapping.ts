@@ -100,7 +100,7 @@ export function processAllGunsAndMods(
           gun.properties.defaultPreset?.baseImageLink ?? null,
         avgFleaMarketPrice: gun.buyFor.reduce(
           (acc, offer) => {
-            if (offer.vendor.normalizedName === "flea-market") {
+            if (offer.vendor.__typename === "FleaMarket") {
               return offer.priceRUB;
             }
             return acc;
@@ -177,7 +177,7 @@ export function processAllGunsAndMods(
           .filter((id): id is string => id !== null),
         avgFleaMarketPrice: mod.buyFor.reduce(
           (acc, offer) => {
-            if (offer.vendor.normalizedName === "flea-market") {
+            if (offer.vendor.__typename === "FleaMarket") {
               return offer.priceRUB;
             }
             return acc;
