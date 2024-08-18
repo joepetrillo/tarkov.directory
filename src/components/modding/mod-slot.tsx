@@ -1,5 +1,5 @@
 import { Slot, SlotSelectionNode } from "@/types";
-import { Badge, Flex } from "@radix-ui/themes";
+import { Badge, Box, Flex, Text } from "@radix-ui/themes";
 import { ModSelector } from "@/components/modding/mod-selector";
 import { useGunModding } from "@/contexts/gun-modding.context";
 
@@ -24,33 +24,41 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
         align="center"
         direction={"row"}
         justify={"between"}
-        className="w-[155px]"
+        className={`w-[155px]`}
       >
-        <Badge variant="soft" color="gray" highContrast size={"1"}>
-          {slot.name}:
-        </Badge>
-        <ModSelector slot={slot} selectedMod={selectedMod} path={path} />
+        <Flex direction={"column"} gap={"1"}>
+          <Badge variant="soft" highContrast size={"2"}>
+            {slot.name}
+          </Badge>
+          {slot.required && (
+            <Text size={"1"} className="pl-[6px]">
+              Required
+            </Text>
+          )}
+        </Flex>
+        <Box
+          className={`p-1 ${slot.required && !selectedMod ? "border border-tomato-8" : ""}`}
+        >
+          <ModSelector slot={slot} selectedMod={selectedMod} path={path} />
+        </Box>
       </Flex>
-      {!!selectedMod?.slots.length && (
-        <>
-          {selectedMod.slots.map((childSlot) => {
-            const childSelection = selection.slots.find(
-              (s) => s.slotNameId === childSlot.nameId,
-            );
-            return (
-              childSelection && (
-                <div key={childSlot.nameId} className="ml-8">
-                  <ModSlot
-                    slot={childSlot}
-                    selection={childSelection}
-                    path={[...path, childSlot.nameId]}
-                  />
-                </div>
-              )
-            );
-          })}
-        </>
-      )}
+      {!!selectedMod?.slots.length &&
+        selectedMod.slots.map((childSlot) => {
+          const childSelection = selection.slots.find(
+            (s) => s.slotNameId === childSlot.nameId,
+          );
+          return (
+            childSelection && (
+              <div key={childSlot.nameId} className="ml-[30px]">
+                <ModSlot
+                  slot={childSlot}
+                  selection={childSelection}
+                  path={[...path, childSlot.nameId]}
+                />
+              </div>
+            )
+          );
+        })}
     </Flex>
   );
 }

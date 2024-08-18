@@ -18,6 +18,9 @@ export default function GunStats() {
   const verticalDiff = formatDiff(recoilVertical, gun.recoilVertical);
   const horizontalDiff = formatDiff(recoilHorizontal, gun.recoilHorizontal);
 
+  const showDiffs =
+    ergonomicsDiff !== null || verticalDiff !== null || horizontalDiff !== null;
+
   return (
     <Card variant="classic" size={"3"} className="max-w-max">
       <div className="overflow-x-auto">
@@ -30,7 +33,9 @@ export default function GunStats() {
               Ergonomics
             </Text>
             <Flex align="center" gap="2" className="font-mono">
-              <Text size={"2"}>{ergonomics}</Text>
+              <Text size={"2"} className={showDiffs ? "min-w-[45px]" : ""}>
+                {ergonomics}
+              </Text>
               {ergonomicsDiff !== null && (
                 <Text
                   size={"2"}
@@ -40,7 +45,7 @@ export default function GunStats() {
                       : "text-tomato-11"
                   }
                 >
-                  ({ergonomicsDiff})
+                  [{ergonomicsDiff}]
                 </Text>
               )}
             </Flex>
@@ -50,7 +55,9 @@ export default function GunStats() {
               Vertical Recoil
             </Text>
             <Flex align={"center"} gap={"2"} className="font-mono">
-              <Text size={"2"}>{recoilVertical}</Text>
+              <Text size={"2"} className={showDiffs ? "min-w-[45px]" : ""}>
+                {recoilVertical}
+              </Text>
               {verticalDiff !== null && (
                 <Text
                   size={"2"}
@@ -60,7 +67,7 @@ export default function GunStats() {
                       : "text-tomato-11"
                   }
                 >
-                  ({verticalDiff})
+                  [{verticalDiff}]
                 </Text>
               )}
             </Flex>
@@ -70,7 +77,9 @@ export default function GunStats() {
               Horizontal Recoil
             </Text>
             <Flex align={"center"} gap={"2"} className="font-mono">
-              <Text size={"2"}>{recoilHorizontal}</Text>
+              <Text size={"2"} className={showDiffs ? "min-w-[45px]" : ""}>
+                {recoilHorizontal}
+              </Text>
               {horizontalDiff !== null && (
                 <Text
                   size={"2"}
@@ -80,7 +89,7 @@ export default function GunStats() {
                       : "text-tomato-11"
                   }
                 >
-                  ({horizontalDiff})
+                  [{horizontalDiff}]
                 </Text>
               )}
             </Flex>
