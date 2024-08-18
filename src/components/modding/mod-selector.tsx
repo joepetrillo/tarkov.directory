@@ -117,13 +117,13 @@ export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
         },
       }),
       columnHelper.accessor("avgFleaMarketPrice", {
-        header: "Price (RUB)",
-        size: 150,
+        header: "Avg Flea Price",
+        size: 155,
         cell: (info) => {
           const value = info.getValue();
           return value ? (
             <Flex gap="1" align={"center"} wrap={"nowrap"}>
-              <Text size={"1"} className="text-gray-11">
+              <Text size={"3"} className="text-gray-11">
                 ₽
               </Text>
               <Text className="font-mono">{value.toLocaleString()}</Text>
