@@ -1,8 +1,9 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
-import { GetAllGunsAndModsQuery } from "@/gql/graphql";
 import { extractCaliber } from "@/lib/utils";
 import { Gun, Mod, ProcessedData, Slot } from "@/types";
+import { ResultOf } from "gql.tada";
+import { GetAllGunsAndMods } from "@/graphql/queries";
 
 // Process slot
 function processSlot(
@@ -50,7 +51,7 @@ function processSlot(
 }
 
 export function processAllGunsAndMods(
-  data: GetAllGunsAndModsQuery,
+  data: ResultOf<typeof GetAllGunsAndMods>,
 ): ProcessedData {
   const gunsByCategory: Record<string, string[]> = {};
 

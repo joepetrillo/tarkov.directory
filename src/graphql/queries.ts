@@ -1,6 +1,5 @@
 // This file contains all the GraphQL queries that are used in the application.
-
-import { graphql } from "@/gql";
+import { graphql } from "gql.tada";
 
 export const GetAllGunsAndMods = graphql(`
   query GetAllGunsAndMods {
