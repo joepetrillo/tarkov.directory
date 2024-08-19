@@ -15,7 +15,7 @@ export function isMobileDevice() {
 export function formatDiff(calculated: number, base: number) {
   const diff = calculated - base;
   if (diff === 0) return null;
-  return diff > 0 ? `+${diff}` : diff;
+  return diff > 0 ? `+${diff}` : `${diff}`;
 }
 
 // Function to round gun stats like BSG does

@@ -1,5 +1,5 @@
 import HeaderAuth from "@/components/header-auth";
-import { HeaderNav } from "@/components/header-nav";
+import HeaderNav from "@/components/header-nav";
 import { Container, Flex, Heading } from "@radix-ui/themes";
 import Link from "next/link";
 

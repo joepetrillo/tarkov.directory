@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { TabNav } from "@radix-ui/themes";
 
-export function HeaderNav() {
+export default function HeaderNav() {
   const pathname = usePathname();
 
   return (

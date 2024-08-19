@@ -1,6 +1,6 @@
 import { Slot, SlotSelectionNode } from "@/types";
 import { Badge, Box, Flex, Text } from "@radix-ui/themes";
-import { ModSelector } from "@/components/modding/mod-selector";
+import ModSelector from "@/components/modding/mod-selector";
 import { useGunModding } from "@/contexts/gun-modding.context";
 
 type ModSlotProps = {

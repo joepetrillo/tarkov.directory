@@ -18,7 +18,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ModIcon } from "@/components/modding/mod-icon";
+import ModIcon from "@/components/modding/mod-icon";
 import { useMemo, useState } from "react";
 import {
   ArrowDownIcon,
@@ -39,7 +39,11 @@ type ModWithConflicting = Mod & { isConflicting: boolean };
 
 const columnHelper = createColumnHelper<ModWithConflicting>();
 
-export function ModSelector({ slot, selectedMod, path }: ModSelectorProps) {
+export default function ModSelector({
+  slot,
+  selectedMod,
+  path,
+}: ModSelectorProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
