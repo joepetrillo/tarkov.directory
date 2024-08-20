@@ -8,6 +8,7 @@ import {
   ScrollArea,
   Card,
   Box,
+  Checkbox,
 } from "@radix-ui/themes";
 import { Mod, Slot } from "@/types";
 import {
@@ -54,6 +55,7 @@ export default function ModSelector({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [hideConflicting, setHideConflicting] = useState(false);
   const {
     state: { selections },
     dispatch,
@@ -247,13 +249,14 @@ export default function ModSelector({
   const filteredTableData = useMemo(() => {
     return tableData.filter((mod) => {
       const normalizedSearchInput = normalizeShortNameSearch(searchInput);
-      return (
+      const nameMatch =
         normalizeShortNameSearch(mod.shortName).includes(
           normalizedSearchInput,
-        ) || normalizeShortNameSearch(mod.name).includes(normalizedSearchInput)
-      );
+        ) || normalizeShortNameSearch(mod.name).includes(normalizedSearchInput);
+      const conflictingFilter = hideConflicting ? !mod.isConflicting : true;
+      return nameMatch && conflictingFilter;
     });
-  }, [tableData, searchInput]);
+  }, [tableData, searchInput, hideConflicting]);
 
   const table = useReactTable({
     data: filteredTableData,
@@ -308,12 +311,25 @@ export default function ModSelector({
               placeholder="Search by name"
             />
           </Box>
+          <Flex align="center" mb="4">
+            <Checkbox
+              size={"3"}
+              checked={hideConflicting}
+              onCheckedChange={(checked) =>
+                setHideConflicting(checked as boolean)
+              }
+              id="hide-conflicting"
+            />
+            <Text as="label" htmlFor="hide-conflicting" ml="2" size="2">
+              Hide Conflicting
+            </Text>
+          </Flex>
           <Inset side="x">
             <ScrollArea
               size="2"
               type="auto"
               style={{
-                height: "max(calc(100dvh - 325px), 370px)",
+                height: "max(calc(100dvh - 355px), 350px)",
                 width: "min(calc(100dvw - 32px), 1024px)",
               }}
             >
