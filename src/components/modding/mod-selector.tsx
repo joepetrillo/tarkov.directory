@@ -27,7 +27,12 @@ import {
 } from "@radix-ui/react-icons";
 import { useGunModding } from "@/contexts/gun-modding.context";
 import SearchInput from "@/components/ui/search-input";
-import { isMobileDevice, normalizeShortNameSearch } from "@/lib/utils";
+import {
+  getTraderImage,
+  isMobileDevice,
+  normalizeShortNameSearch,
+} from "@/lib/utils";
+import Image from "next/image";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -35,7 +40,9 @@ type ModSelectorProps = {
   path: string[];
 };
 
-type ModWithConflicting = Mod & { isConflicting: boolean };
+type ModWithConflicting = Mod & {
+  isConflicting: boolean;
+};
 
 const columnHelper = createColumnHelper<ModWithConflicting>();
 
@@ -120,9 +127,10 @@ export default function ModSelector({
           );
         },
       }),
-      columnHelper.accessor("avgFleaMarketPrice", {
+      columnHelper.accessor("avgFleaMarketRUBPrice", {
         header: "Avg Flea Price",
-        size: 155,
+        size: 145,
+        sortUndefined: "last",
         cell: (info) => {
           const value = info.getValue();
           return value ? (
@@ -130,10 +138,67 @@ export default function ModSelector({
               <Text size={"3"} className="text-gray-11">
                 ₽
               </Text>
-              <Text className="font-mono">{value.toLocaleString()}</Text>
+              <Text weight={"bold"} className="font-mono">
+                {value.toLocaleString()}
+              </Text>
             </Flex>
           ) : (
-            <Text className="font-mono">N/A</Text>
+            <Text>No Flea Price</Text>
+          );
+        },
+      }),
+      columnHelper.accessor("traderOffers", {
+        header: "Best Trader Price",
+        size: 180,
+        sortUndefined: "last",
+        sortingFn: (a, b) => {
+          const aPrice = a.original.traderOffers?.[0]?.priceRUB ?? -Infinity;
+          const bPrice = b.original.traderOffers?.[0]?.priceRUB ?? -Infinity;
+          return aPrice - bPrice;
+        },
+        cell: (info) => {
+          const bestOffer = info.getValue()?.[0];
+          const traderImage = bestOffer
+            ? getTraderImage(bestOffer.normalizedName)
+            : null;
+          return bestOffer ? (
+            <Flex direction="column" justify={"center"} className="relative">
+              <Flex justify={"between"} align={"center"} gap={"1"}>
+                <Flex direction="column">
+                  <Flex gap="1" align="center" wrap="nowrap">
+                    <Text size={"3"} className="text-gray-11">
+                      {bestOffer.currency === "RUB"
+                        ? "₽"
+                        : bestOffer.currency === "USD"
+                          ? "$"
+                          : bestOffer.currency === "EUR"
+                            ? "€"
+                            : bestOffer.currency}
+                    </Text>
+                    <Text
+                      weight={"bold"}
+                      className="whitespace-nowrap font-mono"
+                    >
+                      {bestOffer.price.toLocaleString()}
+                    </Text>
+                  </Flex>
+                  <Text size="1" className="whitespace-nowrap text-gray-11">
+                    {bestOffer.name} {bestOffer.minTraderLevel}
+                  </Text>
+                </Flex>
+                {traderImage !== null && (
+                  <Image
+                    src={traderImage}
+                    alt={bestOffer.name}
+                    width={24}
+                    height={24}
+                    unoptimized={true}
+                  />
+                )}
+              </Flex>
+            </Flex>
+          ) : (
+            <Text>No Trader Price</Text>
           );
         },
       }),

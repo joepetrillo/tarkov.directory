@@ -1,7 +1,7 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
 import { extractCaliber } from "@/lib/utils";
-import { Gun, Mod, ProcessedData, Slot } from "@/types";
+import { Gun, Mod, ProcessedData, Slot, TraderOffer } from "@/types";
 import { ResultOf } from "gql.tada";
 import { GetAllGunsAndMods } from "@/graphql/queries";
 
@@ -48,6 +48,56 @@ function processSlot(
       .map((item) => item?.id ?? null)
       .filter((id): id is string => id !== null),
   };
+}
+
+function processFleaMarketPrice(
+  item: NonNullable<
+    | ResultOf<typeof GetAllGunsAndMods>["gunData"][number]
+    | ResultOf<typeof GetAllGunsAndMods>["modData"][number]
+  >,
+): number | undefined {
+  return (
+    item.buyFor?.reduce((acc: number | null, offer) => {
+      if (offer.vendor.__typename === "FleaMarket") {
+        return offer.priceRUB;
+      }
+      return acc;
+    }, null) ?? undefined
+  );
+}
+
+function processTraderOffers(
+  item: NonNullable<
+    | ResultOf<typeof GetAllGunsAndMods>["gunData"][number]
+    | ResultOf<typeof GetAllGunsAndMods>["modData"][number]
+  >,
+): TraderOffer[] | undefined {
+  const offers =
+    item.buyFor
+      ?.map((offer): TraderOffer | null => {
+        if (
+          offer.vendor.__typename !== "TraderOffer" ||
+          offer.vendor.minTraderLevel === null ||
+          offer.price === null ||
+          offer.currency === null ||
+          offer.priceRUB === null
+        ) {
+          return null;
+        }
+
+        return {
+          name: offer.vendor.name,
+          normalizedName: offer.vendor.normalizedName,
+          minTraderLevel: offer.vendor.minTraderLevel,
+          price: offer.price,
+          currency: offer.currency,
+          priceRUB: offer.priceRUB,
+        };
+      })
+      .filter((offer): offer is TraderOffer => offer !== null)
+      .sort((a, b) => a.price - b.price) ?? [];
+
+  return offers.length > 0 ? offers : undefined;
 }
 
 export function processAllGunsAndMods(
@@ -99,15 +149,8 @@ export function processAllGunsAndMods(
         ergonomics: gun.properties.ergonomics,
         defaultPresetImageUrl:
           gun.properties.defaultPreset?.baseImageLink ?? null,
-        avgFleaMarketPrice: gun.buyFor.reduce(
-          (acc, offer) => {
-            if (offer.vendor.__typename === "FleaMarket") {
-              return offer.priceRUB;
-            }
-            return acc;
-          },
-          null as number | null,
-        ),
+        avgFleaMarketRUBPrice: processFleaMarketPrice(gun),
+        traderOffers: processTraderOffers(gun),
         slots: gun.properties.slots
           .map(processSlot)
           .filter((slot): slot is Slot => slot !== null),
@@ -176,15 +219,8 @@ export function processAllGunsAndMods(
         conflictingModIds: mod.conflictingItems
           .map((item) => item?.id ?? null)
           .filter((id): id is string => id !== null),
-        avgFleaMarketPrice: mod.buyFor.reduce(
-          (acc, offer) => {
-            if (offer.vendor.__typename === "FleaMarket") {
-              return offer.priceRUB;
-            }
-            return acc;
-          },
-          null as number | null,
-        ),
+        avgFleaMarketRUBPrice: processFleaMarketPrice(mod),
+        traderOffers: processTraderOffers(mod),
         slots: mod.properties.slots
           .map(processSlot)
           .filter((slot): slot is Slot => slot !== null),

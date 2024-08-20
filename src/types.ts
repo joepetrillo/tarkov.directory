@@ -4,6 +4,15 @@ export type ProcessedData = {
   allMods: Record<string, Mod>;
 };
 
+export type TraderOffer = {
+  name: string;
+  normalizedName: string;
+  minTraderLevel: number;
+  price: number; // displayed with proper currency symbol or directly as currency field value if not recognized
+  currency: string;
+  priceRUB: number; // used for sorting and calculations (standardized)
+};
+
 export type Gun = {
   id: string;
   name: string;
@@ -18,7 +27,8 @@ export type Gun = {
   recoilVertical: number;
   ergonomics: number;
   defaultPresetImageUrl: string | null;
-  avgFleaMarketPrice: number | null;
+  avgFleaMarketRUBPrice?: number;
+  traderOffers?: TraderOffer[];
   slots: Slot[];
 };
 
@@ -40,7 +50,8 @@ export type Mod = {
   ergonomicsModifier: number;
   conflictingSlotIds: string[];
   conflictingModIds: string[];
-  avgFleaMarketPrice: number | null;
+  avgFleaMarketRUBPrice?: number;
+  traderOffers?: TraderOffer[];
   slots: Slot[];
 };
 

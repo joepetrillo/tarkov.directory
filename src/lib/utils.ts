@@ -1,4 +1,12 @@
 // This file contains utility functions that are used throughout the application
+import prapor from "@/components/modding/images/prapor.webp";
+import therapist from "@/components/modding/images/therapist.webp";
+import skier from "@/components/modding/images/skier.webp";
+import peacekeeper from "@/components/modding/images/peacekeeper.webp";
+import mechanic from "@/components/modding/images/mechanic.webp";
+import ragman from "@/components/modding/images/ragman.webp";
+import jaeger from "@/components/modding/images/jaeger.webp";
+import { StaticImageData } from "next/image";
 
 // Function to easily check if the device is a mobile device
 export function isMobileDevice() {
@@ -9,6 +17,20 @@ export function isMobileDevice() {
     "ontouchstart" in window ||
     navigator.maxTouchPoints > 0
   );
+}
+
+// Function to get the trader image for a given normalized name
+export function getTraderImage(normalizedName: string) {
+  const traderImages: Record<string, StaticImageData> = {
+    prapor,
+    therapist,
+    skier,
+    peacekeeper,
+    mechanic,
+    ragman,
+    jaeger,
+  };
+  return traderImages[normalizedName] ?? null;
 }
 
 // Function to format a difference between two numbers
