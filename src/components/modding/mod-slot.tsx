@@ -31,7 +31,7 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
             {slot.name}
           </Badge>
           {slot.required && (
-            <Text size={"1"} className="pl-[6px]">
+            <Text size={"1"} className="pl-[8px]">
               Required
             </Text>
           )}
