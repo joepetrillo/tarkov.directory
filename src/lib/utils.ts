@@ -6,6 +6,9 @@ import peacekeeper from "@/components/modding/images/peacekeeper.webp";
 import mechanic from "@/components/modding/images/mechanic.webp";
 import ragman from "@/components/modding/images/ragman.webp";
 import jaeger from "@/components/modding/images/jaeger.webp";
+import fence from "@/components/modding/images/fence.webp";
+import lightkeeper from "@/components/modding/images/lightkeeper.webp";
+import unknown from "@/components/modding/images/unknown-trader.webp";
 import { StaticImageData } from "next/image";
 
 // Function to easily check if the device is a mobile device
@@ -29,8 +32,11 @@ export function getTraderImage(normalizedName: string) {
     mechanic,
     ragman,
     jaeger,
+    fence,
+    lightkeeper,
+    unknown,
   };
-  return traderImages[normalizedName] ?? null;
+  return traderImages[normalizedName] ?? traderImages["unknown"] ?? null;
 }
 
 // Function to format a difference between two numbers
