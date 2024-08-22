@@ -10,9 +10,9 @@ const redis = Redis.fromEnv();
 const MAX_CHUNK_SIZE = 900 * 1024; // 900KB
 
 async function getModsInChunks(): Promise<Record<string, Mod>> {
-  const allMods: Record<string, Mod> = {};
   let offset = 0;
   let chunk: string | null;
+  let allModsString = "";
 
   do {
     chunk = await redis.getrange(
@@ -21,13 +21,12 @@ async function getModsInChunks(): Promise<Record<string, Mod>> {
       offset + MAX_CHUNK_SIZE - 1,
     );
     if (chunk) {
-      const chunkMods = JSON.parse(chunk) as Record<string, Mod>;
-      Object.assign(allMods, chunkMods);
+      allModsString += chunk;
       offset += chunk.length;
     }
   } while (chunk && chunk.length === MAX_CHUNK_SIZE);
 
-  return allMods;
+  return JSON.parse(allModsString) as Record<string, Mod>;
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
