@@ -12,12 +12,8 @@ const redis = Redis.fromEnv();
 export default async function Page({ params }: { params: { id: string } }) {
   // const { allGuns, allMods } = await getProcessedGunAndModData();
 
-  const allGuns = JSON.parse(
-    (await redis.get<string>("allGuns")) ?? "{}",
-  ) as Record<string, Gun>;
-  const allMods = JSON.parse(
-    (await redis.get<string>("allMods")) ?? "{}",
-  ) as Record<string, Mod>;
+  const allGuns = (await redis.get<Record<string, Gun>>("allGuns")) ?? {};
+  const allMods = (await redis.get<Record<string, Mod>>("allMods")) ?? {};
 
   const gun = allGuns[params.id];
 
