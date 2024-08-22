@@ -9,12 +9,9 @@ const redis = Redis.fromEnv();
 export default async function Page() {
   // const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
 
-  const gunsByCategory = JSON.parse(
-    (await redis.get<string>("gunsByCategory")) ?? "{}",
-  ) as Record<string, string[]>;
-  const allGuns = JSON.parse(
-    (await redis.get<string>("allGuns")) ?? "{}",
-  ) as Record<string, Gun>;
+  const gunsByCategory =
+    (await redis.get<Record<string, string[]>>("gunsByCategory")) ?? {};
+  const allGuns = (await redis.get<Record<string, Gun>>("allGuns")) ?? {};
 
   const categorizedGunList = Object.entries(gunsByCategory)
     .map(([_, gunIds]) => {
