@@ -4,10 +4,11 @@ import { processAllGunsAndMods } from "@/lib/data-mapping";
 import request from "graphql-request";
 import { TARKOV_API_URL } from "@/lib/constants";
 import { GetAllGunsAndMods } from "@/graphql/queries";
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 
 const redis = Redis.fromEnv();
 
-export async function POST() {
+async function handler() {
   try {
     // Fetch the latest gun and mod data
     const data = await request(TARKOV_API_URL, GetAllGunsAndMods);
@@ -30,3 +31,5 @@ export async function POST() {
     );
   }
 }
+
+export const POST = verifySignatureAppRouter(handler);
