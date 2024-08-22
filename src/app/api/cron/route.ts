@@ -7,7 +7,7 @@ import { GetAllGunsAndMods } from "@/graphql/queries";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 
 const redis = Redis.fromEnv();
-const MAX_CHUNK_SIZE = 1024 * 1024; // 1MB
+const MAX_CHUNK_SIZE = 900 * 1024; // 900KB to account for headers
 
 async function appendDataInChunks(key: string, data: string) {
   await redis.del(key); // Clear existing data
