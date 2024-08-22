@@ -1,9 +1,21 @@
 import React from "react";
 import GunList from "@/components/gun-list";
 import { getProcessedGunAndModData } from "@/lib/data-layer";
+import { Redis } from "@upstash/redis";
+import { Gun } from "@/types";
+
+const redis = Redis.fromEnv();
 
 export default async function Page() {
-  const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
+  // const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
+
+  const gunsByCategory = JSON.parse(
+    (await redis.get<string>("gunsByCategory")) ?? "{}",
+  ) as Record<string, string[]>;
+  const allGuns = JSON.parse(
+    (await redis.get<string>("allGuns")) ?? "{}",
+  ) as Record<string, Gun>;
+
   const categorizedGunList = Object.entries(gunsByCategory)
     .map(([_, gunIds]) => {
       if (!gunIds[0]) return null;
