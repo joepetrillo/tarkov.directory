@@ -1,9 +1,9 @@
 import React from "react";
 import GunList from "@/components/gun-list";
-import { getProcessedGunAndModData } from "@/lib/data-layer";
+import { getProcessedGunData } from "@/lib/data-layer";
 
 export default async function Page() {
-  const { gunsByCategory, allGuns } = await getProcessedGunAndModData();
+  const { gunsByCategory, allGuns } = await getProcessedGunData();
   const categorizedGunList = Object.entries(gunsByCategory)
     .map(([_, gunIds]) => {
       if (!gunIds[0]) return null;
@@ -33,3 +33,5 @@ export default async function Page() {
 
   return <GunList categorizedGunList={categorizedGunList} />;
 }
+
+export const revalidate = 86400;

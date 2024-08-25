@@ -1,112 +1,110 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
 import { extractCaliber } from "@/lib/utils";
-import { Gun, Mod, ProcessedData, Slot, TraderOffer } from "@/types";
-import { ResultOf } from "gql.tada";
-import { GetAllGunsAndMods } from "@/graphql/queries";
+import { Gun, Mod, Slot, TraderOffer } from "@/types";
+import { FragmentOf, readFragment, ResultOf } from "gql.tada";
+import {
+  BuyForFragment,
+  type GetAllGuns,
+  type GetAllMods,
+  SlotFragment,
+} from "@/graphql/queries";
 
-// Process slot
-function processSlot(
-  slot: {
-    id: string;
-    required: boolean | null;
-    name: string;
-    nameId: string;
-    filters: {
-      allowedItems: Array<{
-        id: string;
-      } | null>;
-    } | null;
-  } | null,
-): Slot | null {
-  if (
-    !slot ||
-    !slot.id ||
-    slot.required === null ||
-    !slot.name ||
-    !slot.nameId ||
-    !slot.filters
-  ) {
-    if (slot?.name && slot?.id) {
-      console.warn(
-        `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`,
-      );
-    } else if (slot?.id) {
-      console.warn(`Skipped slot with id ${slot.id}`);
-    } else {
-      console.warn(`Skipped unknown slot`);
-    }
-    return null;
-  }
+// Processes slot data from the API into a more usable format
+function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
+  return slots
+    .map((currentSlot) => {
+      const slot = readFragment(SlotFragment, currentSlot);
 
-  return {
-    id: slot.id,
-    required: slot.required,
-    name: slot.name,
-    nameId: slot.nameId,
-    allowedModIds: slot.filters.allowedItems
-      .map((item) => item?.id ?? null)
-      .filter((id): id is string => id !== null),
-  };
+      if (
+        !slot ||
+        !slot.id ||
+        slot.required === null ||
+        !slot.name ||
+        !slot.nameId ||
+        !slot.filters
+      ) {
+        if (slot?.name && slot?.id) {
+          console.warn(
+            `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`,
+          );
+        } else if (slot?.id) {
+          console.warn(`Skipped slot with id ${slot.id}`);
+        } else {
+          console.warn(`Skipped unknown slot`);
+        }
+        return null;
+      }
+
+      return {
+        id: slot.id,
+        required: slot.required,
+        name: slot.name,
+        nameId: slot.nameId,
+        allowedModIds: slot.filters.allowedItems
+          .map((item) => item?.id ?? null)
+          .filter((id): id is string => id !== null),
+      };
+    })
+    .filter((slot): slot is Slot => slot !== null);
 }
 
+// Extracts the Flea Market RUB price from list of offers
 function processFleaMarketPrice(
-  item: NonNullable<
-    | ResultOf<typeof GetAllGunsAndMods>["gunData"][number]
-    | ResultOf<typeof GetAllGunsAndMods>["modData"][number]
-  >,
+  offers: FragmentOf<typeof BuyForFragment>[],
 ): number | undefined {
   return (
-    item.buyFor?.reduce((acc: number | null, offer) => {
-      if (offer.vendor.__typename === "FleaMarket") {
-        return offer.priceRUB;
+    offers.reduce((acc: number | null, offer) => {
+      const buyFor = readFragment(BuyForFragment, offer);
+      if (buyFor?.vendor.__typename === "FleaMarket") {
+        return buyFor.priceRUB;
       }
       return acc;
     }, null) ?? undefined
   );
 }
 
+// Extracts array of TraderOffer objects from list of offers
 function processTraderOffers(
-  item: NonNullable<
-    | ResultOf<typeof GetAllGunsAndMods>["gunData"][number]
-    | ResultOf<typeof GetAllGunsAndMods>["modData"][number]
-  >,
+  offers: FragmentOf<typeof BuyForFragment>[],
 ): TraderOffer[] | undefined {
-  const offers =
-    item.buyFor
-      ?.map((offer): TraderOffer | null => {
-        if (
-          offer.vendor.__typename !== "TraderOffer" ||
-          offer.vendor.minTraderLevel === null ||
-          offer.price === null ||
-          offer.currency === null ||
-          offer.priceRUB === null
-        ) {
-          return null;
-        }
+  const validOffers = offers
+    .map((offer): TraderOffer | null => {
+      const buyFor = readFragment(BuyForFragment, offer);
+      if (
+        !buyFor ||
+        buyFor.vendor.__typename !== "TraderOffer" ||
+        buyFor.vendor.minTraderLevel === null ||
+        buyFor.price === null ||
+        buyFor.currency === null ||
+        buyFor.priceRUB === null
+      ) {
+        return null;
+      }
 
-        return {
-          name: offer.vendor.name,
-          normalizedName: offer.vendor.normalizedName,
-          minTraderLevel: offer.vendor.minTraderLevel,
-          price: offer.price,
-          currency: offer.currency,
-          priceRUB: offer.priceRUB,
-        };
-      })
-      .filter((offer): offer is TraderOffer => offer !== null)
-      .sort((a, b) => a.price - b.price) ?? [];
+      return {
+        name: buyFor.vendor.name,
+        normalizedName: buyFor.vendor.normalizedName,
+        minTraderLevel: buyFor.vendor.minTraderLevel,
+        price: buyFor.price,
+        currency: buyFor.currency,
+        priceRUB: buyFor.priceRUB,
+      };
+    })
+    .filter((offer): offer is TraderOffer => offer !== null)
+    .sort((a, b) => a.price - b.price);
 
-  return offers.length > 0 ? offers : undefined;
+  return validOffers.length > 0 ? validOffers : undefined;
 }
 
-export function processAllGunsAndMods(
-  data: ResultOf<typeof GetAllGunsAndMods>,
-): ProcessedData {
+export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
+  gunsByCategory: Record<string, string[]>;
+  allGuns: Record<string, Gun>;
+} {
   const gunsByCategory: Record<string, string[]> = {};
 
   // Process guns
-  const allGuns: Record<string, Gun> = data.gunData.reduce(
+  const allGuns: Record<string, Gun> = gunData.items.reduce(
     (acc, gun) => {
       if (
         !gun ||
@@ -149,11 +147,13 @@ export function processAllGunsAndMods(
         ergonomics: gun.properties.ergonomics,
         defaultPresetImageUrl:
           gun.properties.defaultPreset?.baseImageLink ?? null,
-        avgFleaMarketRUBPrice: processFleaMarketPrice(gun),
-        traderOffers: processTraderOffers(gun),
-        slots: gun.properties.slots
-          .map(processSlot)
-          .filter((slot): slot is Slot => slot !== null),
+        avgFleaMarketRUBPrice: processFleaMarketPrice(gun.buyFor),
+        traderOffers: processTraderOffers(gun.buyFor),
+        slots: processSlots(
+          gun.properties.slots.filter(
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
+          ),
+        ),
       };
 
       acc[processedGun.id] = processedGun;
@@ -172,8 +172,14 @@ export function processAllGunsAndMods(
     {} as Record<string, Gun>,
   );
 
+  return { gunsByCategory, allGuns };
+}
+
+export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
+  allMods: Record<string, Mod>;
+} {
   // Process mods
-  const allMods: Record<string, Mod> = data.modData.reduce(
+  const allMods: Record<string, Mod> = modData.items.reduce(
     (acc, mod) => {
       if (
         !mod ||
@@ -219,11 +225,13 @@ export function processAllGunsAndMods(
         conflictingModIds: mod.conflictingItems
           .map((item) => item?.id ?? null)
           .filter((id): id is string => id !== null),
-        avgFleaMarketRUBPrice: processFleaMarketPrice(mod),
-        traderOffers: processTraderOffers(mod),
-        slots: mod.properties.slots
-          .map(processSlot)
-          .filter((slot): slot is Slot => slot !== null),
+        avgFleaMarketRUBPrice: processFleaMarketPrice(mod.buyFor),
+        traderOffers: processTraderOffers(mod.buyFor),
+        slots: processSlots(
+          mod.properties.slots.filter(
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
+          ),
+        ),
       };
 
       acc[processedMod.id] = processedMod;
@@ -233,5 +241,5 @@ export function processAllGunsAndMods(
     {} as Record<string, Mod>,
   );
 
-  return { gunsByCategory, allGuns, allMods };
+  return { allMods };
 }

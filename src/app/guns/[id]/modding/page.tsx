@@ -3,10 +3,11 @@
 import { notFound } from "next/navigation";
 import GunModding from "@/components/modding/gun-modding";
 import { GunModdingProvider } from "@/contexts/gun-modding.context";
-import { getProcessedGunAndModData } from "@/lib/data-layer";
+import { getProcessedGunData, getProcessedModData } from "@/lib/data-layer";
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const { allGuns, allMods } = await getProcessedGunAndModData();
+  const { allGuns } = await getProcessedGunData();
+  const { allMods } = await getProcessedModData();
   const gun = allGuns[params.id];
 
   if (!gun) {
