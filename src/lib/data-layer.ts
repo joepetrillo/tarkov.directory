@@ -6,6 +6,9 @@ import { GetAllGuns, GetAllMods } from "@/graphql/queries";
 
 export const getProcessedGunData = unstable_cache(
   async () => {
+    console.warn(
+      "unstable_cache MISS for gun data: attempting to make request and cache for 24 hours",
+    );
     const gunData = await request(TARKOV_API_URL, GetAllGuns);
     return processAllGuns(gunData);
   },
@@ -17,6 +20,9 @@ export const getProcessedGunData = unstable_cache(
 
 export const getProcessedModData = unstable_cache(
   async () => {
+    console.warn(
+      "unstable_cache MISS for mod data: attempting to make request and cache for 24 hours",
+    );
     const modData = await request(TARKOV_API_URL, GetAllMods);
     return processAllMods(modData);
   },
