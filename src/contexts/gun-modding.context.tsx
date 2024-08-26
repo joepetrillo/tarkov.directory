@@ -7,6 +7,7 @@ import React, {
   useCallback,
   ReactNode,
   useMemo,
+  useEffect,
 } from "react";
 import {
   Gun,
@@ -75,9 +76,9 @@ export function GunModdingProvider({
     moddingUtils,
   };
 
-  console.log("SELECTIONS: ", state.selections);
-  // console.log("GUN: ", gun);
-  // console.log("MODS: ", mods);
+  useEffect(() => {
+    console.log("SELECTIONS: ", state.selections);
+  }, [state.selections]);
 
   return (
     <GunModdingContext.Provider value={value}>
