@@ -4,6 +4,8 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Providers from "@/app/providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 // Base theme tokens
 import "@radix-ui/themes/tokens/base.css";
@@ -67,6 +69,8 @@ export default function RootLayout({
             </Flex>
           </Theme>
         </Providers>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
