@@ -34,9 +34,9 @@ export function getTraderImage(normalizedName: string) {
     jaeger,
     fence,
     lightkeeper,
-    unknown,
   };
-  return traderImages[normalizedName] ?? traderImages["unknown"] ?? null;
+
+  return traderImages[normalizedName] || unknown;
 }
 
 // Function to format a difference between two numbers
