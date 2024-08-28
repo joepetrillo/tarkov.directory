@@ -80,6 +80,10 @@ export function GunModdingProvider({
     console.log("SELECTIONS: ", state.selections);
   }, [state.selections]);
 
+  useEffect(() => {
+    console.log("MODS: ", mods);
+  }, [mods]);
+
   return (
     <GunModdingContext.Provider value={value}>
       {children}
