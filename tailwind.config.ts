@@ -8,6 +8,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["Bender", ...defaultTheme.fontFamily.sans],
+        mono: ["var(--font-geist-mono)", ...defaultTheme.fontFamily.mono],
       },
       screens: {
         xs: "320px",

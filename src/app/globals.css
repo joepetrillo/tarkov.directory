@@ -24,9 +24,9 @@
 }
 
 .radix-themes {
-  --default-font-family: Bender, -apple-system, BlinkMacSystemFont,
-    "Segoe UI (Custom)", Roboto, "Helvetica Neue", "Open Sans (Custom)",
-    system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --default-font-family: Bender, "ui-sans-serif", "system-ui", "sans-serif",
+    '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"',
+    '"Noto Color Emoji"';
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 700;

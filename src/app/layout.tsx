@@ -6,6 +6,7 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Providers from "@/app/providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
+import { GeistMono } from "geist/font/mono";
 
 // Base theme tokens
 import "@radix-ui/themes/tokens/base.css";
@@ -33,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistMono.variable}`}>
       <body className="overflow-y-scroll bg-[#111110] subpixel-antialiased">
         <Providers>
           <Theme

@@ -79,7 +79,7 @@ function StatRow({ label, value, diff, showDiffs, isPositive }: StatRowProps) {
             size="2"
             className={isPositive ? "text-jade-11" : "text-tomato-11"}
           >
-            [{diff}]
+            ({diff})
           </Text>
         )}
       </Flex>
