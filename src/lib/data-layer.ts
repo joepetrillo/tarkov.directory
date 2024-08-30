@@ -19,20 +19,6 @@ export const getProcessedGunData = unstable_cache(
   },
 );
 
-// export const getProcessedModData = unstable_cache(
-//   async () => {
-//     console.warn(
-//       "unstable_cache MISS for mod data: attempting to make request and cache for 24 hours",
-//     );
-//     const modData = await request(TARKOV_API_URL, GetAllMods);
-//     return processAllMods(modData);
-//   },
-//   ["processedModData"],
-//   {
-//     revalidate: 86400,
-//   },
-// );
-
 export const getProcessedModDataForGun = unstable_cache(
   async (gunId: string, gun: Gun) => {
     console.warn(
@@ -72,3 +58,17 @@ export const getProcessedModDataForGun = unstable_cache(
     revalidate: 86400,
   },
 );
+
+// export const getProcessedModData = unstable_cache(
+//   async () => {
+//     console.warn(
+//       "unstable_cache MISS for mod data: attempting to make request and cache for 24 hours",
+//     );
+//     const modData = await request(TARKOV_API_URL, GetAllMods);
+//     return processAllMods(modData);
+//   },
+//   ["processedModData"],
+//   {
+//     revalidate: 86400,
+//   },
+// );
