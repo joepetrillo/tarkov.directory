@@ -1,54 +1,82 @@
 import { Elysia } from "elysia";
 import request from "graphql-request";
-import { TARKOV_API_URL } from "../lib/constants";
+import { CacheKeys, TARKOV_API_URL } from "../lib/constants";
 import { GetAllGuns, GetAllMods } from "../graphql/queries";
-import { processAllGuns, processAllMods } from "../lib/data-mapping";
+import {
+  processAllGuns,
+  processAllMods,
+  processRelevantMods,
+} from "../lib/data-mapping";
 import type { Gun, Mod } from "../lib/types";
+import { dataCachePlugin } from "../services/cache-service";
 
 const ROUTE_PREFIX = "/guns";
 
+type GunData = {
+  gunsByCategory: Record<string, string[]>;
+  allGuns: Record<string, Gun>;
+};
+
 export const gunsRoutes = new Elysia({ prefix: ROUTE_PREFIX })
-  .get("/", async () => {
+  .use(dataCachePlugin)
+  .get("/", async ({ cache }) => {
+    // try to get cached data
+    const cachedGunData = cache.get<GunData>(CacheKeys.GUN_DATA);
+    if (cachedGunData) return cachedGunData;
+
+    // if not cached, get data from API
     const gunData = await request(TARKOV_API_URL, GetAllGuns);
-    return processAllGuns(gunData);
+    const processedGuns = cache.set<GunData>(
+      CacheKeys.GUN_DATA,
+      processAllGuns(gunData)
+    );
+
+    return processedGuns;
   })
-  .get("/:gunId/mods", async ({ params: { gunId } }) => {
-    const gunData = await request(TARKOV_API_URL, GetAllGuns);
-    const guns = processAllGuns(gunData);
-    const gun = guns.allGuns[gunId];
+  .get("/:gunId/mods", async ({ cache, params: { gunId }, set }) => {
+    let gun: Gun | undefined = undefined;
+
+    // try to get cached gun data
+    const cachedGunData = cache.get<GunData>(CacheKeys.GUN_DATA);
+    if (cachedGunData) {
+      gun = cachedGunData.allGuns[gunId];
+    } else {
+      // if not cached, get data from API
+      const gunData = await request(TARKOV_API_URL, GetAllGuns);
+      const processedGuns = processAllGuns(gunData);
+      cache.set<GunData>(CacheKeys.GUN_DATA, processedGuns);
+      gun = processedGuns.allGuns[gunId];
+    }
 
     if (!gun) {
+      set.status = 404;
       return {
         error: "Gun not found",
       };
     }
 
-    const allModData = await request(TARKOV_API_URL, GetAllMods);
-    const { allMods } = processAllMods(allModData);
-
-    const relevantModIds = new Set<string>();
-
-    function collectRelevantModIds(slots: Gun["slots"] | Mod["slots"]) {
-      for (const slot of slots) {
-        for (const modId of slot.allowedModIds) {
-          if (relevantModIds.has(modId)) continue;
-          relevantModIds.add(modId);
-          const mod = allMods[modId];
-          if (mod && mod.slots.length > 0) {
-            collectRelevantModIds(mod.slots);
-          }
-        }
-      }
+    // try to get cached relevant mod data for gun
+    const cacheKey = `gunMods:${gunId}`;
+    const cachedRelevantMods = cache.get<Record<string, Mod>>(cacheKey);
+    if (cachedRelevantMods) {
+      return { relevantMods: cachedRelevantMods, gun };
     }
 
-    collectRelevantModIds(gun.slots);
+    // if relevant mods not cached, try to get all mods cached to avoid api call
+    const cachedModData = cache.get<Record<string, Mod>>(CacheKeys.MOD_DATA);
+    if (cachedModData) {
+      const relevantMods = processRelevantMods(gun, cachedModData);
+      cache.set<Record<string, Mod>>(cacheKey, relevantMods);
+      return { relevantMods, gun };
+    }
 
-    const relevantMods: Record<string, Mod> = {};
-    relevantModIds.forEach((modId) => {
-      if (allMods[modId]) {
-        relevantMods[modId] = allMods[modId];
-      }
-    });
+    // if not cached, get data from API
+    const allModData = await request(TARKOV_API_URL, GetAllMods);
+    const { allMods } = processAllMods(allModData);
+    cache.set<Record<string, Mod>>(CacheKeys.MOD_DATA, allMods);
+
+    const relevantMods = processRelevantMods(gun, allMods);
+    cache.set<Record<string, Mod>>(cacheKey, relevantMods);
 
     return { relevantMods, gun };
   });

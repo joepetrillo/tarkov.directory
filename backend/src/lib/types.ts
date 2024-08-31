@@ -55,10 +55,6 @@ export type Mod = {
   slots: Slot[];
 };
 
-export type FullGun = Omit<Gun, "slots"> & { slots: FullSlot[] };
-export type FullSlot = Omit<Slot, "allowedModIds"> & { allowedMods: FullMod[] };
-export type FullMod = Omit<Mod, "slots"> & { slots: FullSlot[] };
-
 export type CategorizedGunListData = {
   categoryName: string;
   guns: Pick<

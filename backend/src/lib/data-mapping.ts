@@ -45,6 +45,38 @@ export function extractCaliber(input: string | null) {
   return caliberMapping[input] ?? input.replace("Caliber", "") ?? "Unknown";
 }
 
+// Processes relevant mods for a gun
+export function processRelevantMods(
+  gun: Gun,
+  allMods: Record<string, Mod>
+): Record<string, Mod> {
+  const relevantModIds = new Set<string>();
+
+  function collectRelevantModIds(slots: Gun["slots"] | Mod["slots"]) {
+    for (const slot of slots) {
+      for (const modId of slot.allowedModIds) {
+        if (relevantModIds.has(modId)) continue;
+        relevantModIds.add(modId);
+        const mod = allMods[modId];
+        if (mod && mod.slots.length > 0) {
+          collectRelevantModIds(mod.slots);
+        }
+      }
+    }
+  }
+
+  collectRelevantModIds(gun.slots);
+
+  const relevantMods: Record<string, Mod> = {};
+  relevantModIds.forEach((modId) => {
+    if (allMods[modId]) {
+      relevantMods[modId] = allMods[modId];
+    }
+  });
+
+  return relevantMods;
+}
+
 // Processes slot data from the API into a more usable format
 function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
   return slots
