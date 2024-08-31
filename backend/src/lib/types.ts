@@ -82,12 +82,12 @@ export type GunModdingContextType = {
     getUpdatedSelections: (
       selections: SlotSelectionNode[],
       path: string[],
-      modId: string | null,
+      modId: string | null
     ) => SlotSelectionNode[];
     isConflicting: (
       selections: SlotSelectionNode[],
       fullPathString: string,
-      modId: string,
+      modId: string
     ) => boolean;
   };
 };

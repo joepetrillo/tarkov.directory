@@ -22,6 +22,16 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": true,
+
+    "plugins": [
+      {
+        "name": "gql.tada/ts-plugin",
+        "schema": "https://api.tarkov.dev/graphql",
+        "tadaOutputLocation": "./src/graphql/graphql-env.d.ts",
+        "shouldCheckForColocatedFragments": false
+      }
+    ]
   }
 }

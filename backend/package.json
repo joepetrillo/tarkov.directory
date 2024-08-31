@@ -5,18 +5,23 @@
   "module": "src/index.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts",
-    "start": "NODE_ENV=production bun src/index.ts",
-    "test": "bun test"
+    "start": "NODE_ENV=production bun src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.1.0",
     "@elysiajs/cron": "^1.1.0",
     "@elysiajs/eden": "^1.1.2",
+    "@sinclair/typebox": "^0.33.7",
+    "@tqman/nice-logger": "^1.0.1",
     "elysia": "^1.1.9",
-    "graphql-request": "^7.1.0"
+    "gql.tada": "^1.8.6",
+    "graphql": "^16.9.0",
+    "graphql-request": "^7.1.0",
+    "picocolors": "^1.0.1"
   },
   "devDependencies": {
     "@types/bun": "^1.1.8"
+  },
+  "exports": {
+    ".": "./src/exports.ts"
   }
 }

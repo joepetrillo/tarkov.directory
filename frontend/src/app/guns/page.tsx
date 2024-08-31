@@ -1,9 +1,16 @@
 import React from "react";
 import GunList from "@/components/gun-list";
-import { getProcessedGunData } from "@/lib/data-layer";
+import { api } from "@/lib/api-client";
 
 export default async function Page() {
-  const { gunsByCategory, allGuns } = await getProcessedGunData();
+  const response = await api.guns.index.get();
+
+  if (!response.data) {
+    return <div>Error loading guns</div>;
+  }
+
+  const { allGuns, gunsByCategory } = response.data;
+
   const categorizedGunList = Object.entries(gunsByCategory)
     .map(([_, gunIds]) => {
       if (!gunIds[0]) return null;

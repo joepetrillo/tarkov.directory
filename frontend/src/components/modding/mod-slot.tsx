@@ -1,4 +1,4 @@
-import { Slot, SlotSelectionNode } from "@/types";
+import { Slot, SlotSelectionNode } from "backend";
 import { Badge, Box, Flex, Text } from "@radix-ui/themes";
 import ModSelector from "@/components/modding/mod-selector";
 import { useGunModding } from "@/contexts/gun-modding.context";

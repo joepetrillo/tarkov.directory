@@ -1,14 +1,49 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
-import { extractCaliber } from "@/lib/utils";
-import { Gun, Mod, Slot, TraderOffer } from "@/types";
-import { FragmentOf, readFragment, ResultOf } from "gql.tada";
+import type { Gun, Mod, Slot, TraderOffer } from "./types";
+import { type FragmentOf, readFragment, type ResultOf } from "gql.tada";
 import {
   BuyForFragment,
   type GetAllGuns,
   type GetAllMods,
   SlotFragment,
-} from "@/graphql/queries";
+} from "../graphql/queries";
+
+// Function to convert API caliber response to something more human readable
+export function extractCaliber(input: string | null) {
+  const caliberMapping: Record<string, string> = {
+    Caliber556x45NATO: "5.56x45",
+    Caliber9x18PM: "9x18",
+    Caliber12g: "12g",
+    Caliber762x54R: "7.62x54R",
+    Caliber545x39: "5.45x39",
+    Caliber9x19PARA: "9x19",
+    Caliber762x25TT: "7.62x25",
+    Caliber762x39: "7.62x39",
+    Caliber762x51: "7.62x51",
+    Caliber9x39: "9x39",
+    Caliber366TKM: ".366 TKM",
+    Caliber9x21: "9x21",
+    Caliber1143x23ACP: ".45 ACP",
+    Caliber40x46: "40x46",
+    Caliber23x75: "23x75",
+    Caliber46x30: "4.6x30",
+    Caliber127x55: "12.7x55",
+    Caliber57x28: "5.7x28",
+    Caliber762x35: ".300 Blackout",
+    Caliber86x70: ".338 Lapua",
+    Caliber9x33R: ".357 Magnum",
+    Caliber26x75: "26x75",
+    Caliber68x51: "6.8x51",
+    Caliber20x1mm: "Toy Disk",
+  };
+
+  if (!input) {
+    return "Unknown";
+  }
+
+  return caliberMapping[input] ?? input.replace("Caliber", "") ?? "Unknown";
+}
 
 // Processes slot data from the API into a more usable format
 function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
@@ -26,7 +61,7 @@ function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
       ) {
         if (slot?.name && slot?.id) {
           console.warn(
-            `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`,
+            `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`
           );
         } else if (slot?.id) {
           console.warn(`Skipped slot with id ${slot.id}`);
@@ -51,7 +86,7 @@ function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
 
 // Extracts the Flea Market RUB price from list of offers
 function processFleaMarketPrice(
-  offers: FragmentOf<typeof BuyForFragment>[],
+  offers: FragmentOf<typeof BuyForFragment>[]
 ): number | undefined {
   return (
     offers.reduce((acc: number | null, offer) => {
@@ -66,7 +101,7 @@ function processFleaMarketPrice(
 
 // Extracts array of TraderOffer objects from list of offers
 function processTraderOffers(
-  offers: FragmentOf<typeof BuyForFragment>[],
+  offers: FragmentOf<typeof BuyForFragment>[]
 ): TraderOffer[] | undefined {
   const validOffers = offers
     .map((offer): TraderOffer | null => {
@@ -122,7 +157,7 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
       ) {
         if (gun?.name && gun?.id) {
           console.warn(
-            `Skipped gun with name "${gun.name}"\nID equals "${gun.id}"\n`,
+            `Skipped gun with name "${gun.name}"\nID equals "${gun.id}"\n`
           );
         } else if (gun?.id) {
           console.warn(`Skipped gun with id ${gun.id}`);
@@ -151,8 +186,8 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
         traderOffers: processTraderOffers(gun.buyFor),
         slots: processSlots(
           gun.properties.slots.filter(
-            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
-          ),
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null
+          )
         ),
       };
 
@@ -169,7 +204,7 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
 
       return acc;
     },
-    {} as Record<string, Gun>,
+    {} as Record<string, Gun>
   );
 
   return { gunsByCategory, allGuns };
@@ -201,7 +236,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
       ) {
         if (mod?.name && mod?.id) {
           console.warn(
-            `Skipped mod with name "${mod.name}"\nID equals "${mod.id}"\n`,
+            `Skipped mod with name "${mod.name}"\nID equals "${mod.id}"\n`
           );
         } else if (mod?.id) {
           console.warn(`Skipped mod with id ${mod.id}`);
@@ -220,7 +255,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
         recoilModifier: mod.recoilModifier,
         ergonomicsModifier: mod.ergonomicsModifier,
         conflictingSlotIds: mod.conflictingSlotIds.filter(
-          (id): id is string => id !== null,
+          (id): id is string => id !== null
         ),
         conflictingModIds: mod.conflictingItems
           .map((item) => item?.id ?? null)
@@ -229,8 +264,8 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
         traderOffers: processTraderOffers(mod.buyFor),
         slots: processSlots(
           mod.properties.slots.filter(
-            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
-          ),
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null
+          )
         ),
       };
 
@@ -238,7 +273,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
 
       return acc;
     },
-    {} as Record<string, Mod>,
+    {} as Record<string, Mod>
   );
 
   return { allMods };

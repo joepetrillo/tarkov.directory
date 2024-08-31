@@ -10,7 +10,7 @@ import {
   Box,
   Checkbox,
 } from "@radix-ui/themes";
-import { Mod, Slot } from "@/types";
+import type { Mod, Slot } from "backend";
 import {
   createColumnHelper,
   flexRender,

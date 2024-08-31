@@ -1,19 +1,28 @@
-import { Elysia } from "elysia";
+import pc from "picocolors";
 
-const apiKeyAuth = (app: Elysia) =>
-  app.onBeforeHandle(({ request, set }) => {
-    const apiKey = request.headers.get("API-Key");
-    if (!apiKey || apiKey !== process.env.API_KEY) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-  });
+import { app } from "./app";
+import { env } from "./env";
 
-const app = new Elysia()
-  .use(apiKeyAuth)
-  .get("/", () => ({ message: "This is protected data" }))
-  .listen(3001);
+const ELYSIA_VERSION = import.meta.require("elysia/package.json").version;
 
-export type App = typeof app;
+const startTime = performance.now();
 
-console.log(`Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
+// clear screen
+process.stdout.write("\x1Bc\n");
+
+app.listen(
+  {
+    port: env.PORT,
+    hostname: env.HOSTNAME,
+  },
+  (server) => {
+    const duration = performance.now() - startTime;
+
+    console.log(
+      `🦊 ${pc.green(`${pc.bold("Elysia")} v${ELYSIA_VERSION}`)} ${pc.gray("started in")} ${pc.bold(duration.toFixed(2))} ms\n`
+    );
+    console.log(
+      `${pc.green(" ➜ ")} ${pc.bold("Server")}:   ${pc.cyan(String(server.url))}`
+    );
+  }
+);

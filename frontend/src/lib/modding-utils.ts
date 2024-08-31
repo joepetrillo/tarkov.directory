@@ -6,7 +6,7 @@ import {
   Mod,
   Slot,
   SlotSelectionNode,
-} from "@/types";
+} from "backend";
 
 export function createModdingUtils(
   gun: Gun,
