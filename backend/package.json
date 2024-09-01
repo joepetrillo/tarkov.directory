@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
-    "tada": "gql.tada generate output"
+    "tada": "gql.tada generate output",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@elysiajs/cron": "^1.1.0",
