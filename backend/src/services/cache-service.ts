@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 
 class CacheService {
-  private cache: Map<string, any>;
+  public cache: Map<string, any>;
 
   constructor() {
     this.cache = new Map();
