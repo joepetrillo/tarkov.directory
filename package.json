@@ -9,5 +9,6 @@
   "workspaces": [
     "frontend",
     "backend"
-  ]
+  ],
+  "packageManager": "bun@1.1.26"
 }
