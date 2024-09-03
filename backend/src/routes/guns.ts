@@ -7,14 +7,14 @@ import {
   processAllMods,
   processRelevantMods,
 } from "../lib/data-mapping";
-import type { Gun, Mod } from "../lib/types";
+import type { Gun, Mod, ProcessedData } from "@tarkov.directory/shared-types";
 import { dataCachePlugin } from "../services/cache-service";
 
 const ROUTE_PREFIX = "/guns";
 
 type GunData = {
-  gunsByCategory: Record<string, string[]>;
-  allGuns: Record<string, Gun>;
+  gunsByCategory: ProcessedData["gunsByCategory"];
+  allGuns: ProcessedData["allGuns"];
 };
 
 export const gunsRoutes = new Elysia({ prefix: ROUTE_PREFIX })

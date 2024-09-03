@@ -1,6 +1,7 @@
 import React from "react";
 import GunList from "@/components/gun-list";
 import { api } from "@/lib/api-client";
+import { CategorizedGunListData } from "@/types";
 
 export default async function Page() {
   const response = await api.guns.index.get();
@@ -11,7 +12,9 @@ export default async function Page() {
 
   const { allGuns, gunsByCategory } = response.data;
 
-  const categorizedGunList = Object.entries(gunsByCategory)
+  const categorizedGunList: CategorizedGunListData = Object.entries(
+    gunsByCategory,
+  )
     .map(([_, gunIds]) => {
       if (!gunIds[0]) return null;
       const gunId = gunIds[0];

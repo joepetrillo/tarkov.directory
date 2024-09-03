@@ -1,3 +1,5 @@
+# This dockerfile should run in the monorepo root context to work properly
+
 FROM oven/bun
 
 WORKDIR /app
@@ -10,7 +12,6 @@ RUN bun install --production --frozen-lockfile
 
 COPY backend/src backend/src
 
-# Set the working directory to the backend folder
 WORKDIR /app/backend
 
 ENV NODE_ENV=production

@@ -12,7 +12,7 @@ import {
   Section,
   Card,
 } from "@radix-ui/themes";
-import type { CategorizedGunListData } from "backend";
+import type { CategorizedGunListData } from "@/types";
 import { useQueryState } from "nuqs";
 import SearchInput from "@/components/ui/search-input";
 

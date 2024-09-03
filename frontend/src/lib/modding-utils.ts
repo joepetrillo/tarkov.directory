@@ -1,12 +1,10 @@
 import { customRound } from "@/lib/utils";
 import {
-  Gun,
   GunModdingContextType,
   GunModdingState,
-  Mod,
-  Slot,
   SlotSelectionNode,
-} from "backend";
+} from "@/types";
+import { Gun, Mod, Slot } from "@tarkov.directory/shared-types";
 
 export function createModdingUtils(
   gun: Gun,

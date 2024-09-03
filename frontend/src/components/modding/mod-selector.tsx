@@ -10,7 +10,7 @@ import {
   Box,
   Checkbox,
 } from "@radix-ui/themes";
-import type { Mod, Slot } from "backend";
+import type { Mod, Slot } from "@tarkov.directory/shared-types";
 import {
   createColumnHelper,
   flexRender,

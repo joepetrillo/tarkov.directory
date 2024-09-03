@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { App } from "backend";
+import type { App } from "@tarkov.directory/backend";
 import { treaty } from "@elysiajs/eden";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

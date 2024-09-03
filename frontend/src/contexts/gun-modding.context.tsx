@@ -9,14 +9,13 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
+import { Gun, Mod } from "@tarkov.directory/shared-types";
 import {
-  Gun,
-  Mod,
   SlotSelectionNode,
   GunModdingState,
   GunModdingAction,
   GunModdingContextType,
-} from "backend";
+} from "@/types";
 import { createModdingUtils } from "@/lib/modding-utils";
 
 type GunModdingProviderProps = {

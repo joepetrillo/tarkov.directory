@@ -9,3 +9,7 @@ The frontend of Tarkov Directory is built using Next.js 14 with the App Director
 ### Backend - Elysia
 
 The backend of Tarkov Directory is powered by Elysia running on the Bun runtime.
+
+### Types - TypeScript
+
+The types package exports shared types used in the frontend and backend.

@@ -1,14 +1,18 @@
 {
-  "name": "tarkov-directory",
+  "name": "tarkov.directory",
   "private": true,
   "trustedDependencies": [
     "@clerk/shared",
     "@vercel/speed-insights",
     "sharp"
   ],
+  "scripts": {
+    "sherif": "bunx sherif"
+  },
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "types"
   ],
   "packageManager": "bun@1.1.26"
 }
