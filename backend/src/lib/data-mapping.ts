@@ -1,7 +1,7 @@
 // This file contains functions that map raw data from the GraphQL API into a type safe format.
 
 import type { Gun, Mod, Slot, TraderOffer } from "./types";
-import { type FragmentOf, readFragment, type ResultOf } from "gql.tada";
+import { type FragmentOf, readFragment, type ResultOf } from "../graphql/tada";
 import {
   BuyForFragment,
   type GetAllGuns,

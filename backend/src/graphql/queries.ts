@@ -1,5 +1,5 @@
 // This file contains all the GraphQL queries that are used in the application.
-import { graphql } from "gql.tada";
+import { graphql } from "./tada";
 
 export const BuyForFragment = graphql(`
   fragment BuyFor on ItemPrice {
