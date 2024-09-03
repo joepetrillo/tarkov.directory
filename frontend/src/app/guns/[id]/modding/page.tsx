@@ -24,3 +24,5 @@ export default async function Page({ params }: { params: { id: string } }) {
     </GunModdingProvider>
   );
 }
+
+export const revalidate = 86400;
