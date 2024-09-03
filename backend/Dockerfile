@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package.json bun.lockb ./
 COPY backend/package.json backend/
 COPY frontend/package.json frontend/
+COPY shared-types/package.json shared-types/
 
 RUN bun install --production --frozen-lockfile
 
