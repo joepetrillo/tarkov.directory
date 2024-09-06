@@ -21,7 +21,6 @@ export const api = new Elysia()
       name: "update-cache",
       pattern: "0 0 * * *", // Run daily at midnight
       run() {
-        console.log("Updating cache");
         cacheUpdateService.updateAllCachedData();
       },
     })
