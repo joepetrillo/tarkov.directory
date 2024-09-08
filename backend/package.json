@@ -17,6 +17,7 @@
     "@tarkov.directory/shared-types": "workspace:*",
     "@tqman/nice-logger": "^1.0.1",
     "elysia": "^1.1.12",
+    "elysia-helmet": "^2.0.0",
     "gql.tada": "^1.8.7",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",

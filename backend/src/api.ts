@@ -2,6 +2,7 @@ import Elysia from "elysia";
 import { cron } from "@elysiajs/cron";
 import { gunsRoutes } from "./routes/guns";
 import { cacheUpdateService } from "./services/cache-update-service";
+import { helmet } from "elysia-helmet";
 
 const apiKeyAuth = (app: Elysia) => {
   return app.onBeforeHandle(({ request, set }) => {
@@ -14,6 +15,7 @@ const apiKeyAuth = (app: Elysia) => {
 };
 
 export const api = new Elysia()
+  .use(helmet())
   .use(apiKeyAuth)
   .use(gunsRoutes)
   .use(
