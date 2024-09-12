@@ -8,7 +8,6 @@ import {
   Heading,
   Separator,
 } from "@radix-ui/themes";
-import { toTitleCase } from "@/lib/utils";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
 import { useGunModding } from "@/contexts/gun-modding.context";
@@ -22,9 +21,6 @@ export default function GunModding() {
 
   return (
     <>
-      <Heading as="h3" size="5" mb="4" className="text-balance">
-        {toTitleCase(gun.name)}
-      </Heading>
       <Box mb="8">
         <GunStats />
       </Box>
