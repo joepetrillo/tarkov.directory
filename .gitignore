@@ -43,5 +43,5 @@ next-env.d.ts
 **/*.log
 **/*.bun
 
-# Ignore Drizzle metadata
+# drizzle metadata
 drizzle/meta/
