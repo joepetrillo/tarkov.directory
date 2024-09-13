@@ -1,4 +1,5 @@
 import "server-only";
+
 import { api } from "@/lib/api-client";
 import { CategorizedGunListData } from "@/types";
 import { notFound } from "next/navigation";
