@@ -42,6 +42,3 @@ next-env.d.ts
 **/*.tgz
 **/*.log
 **/*.bun
-
-# drizzle metadata
-drizzle/meta/
