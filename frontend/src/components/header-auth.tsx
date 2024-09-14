@@ -3,7 +3,6 @@ import { lucia } from "@/lib/lucia";
 import { Button, Flex, Text } from "@radix-ui/themes";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function HeaderAuth() {
   const { user } = await validateRequest();
