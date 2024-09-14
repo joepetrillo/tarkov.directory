@@ -1,7 +1,8 @@
+import Link from "@/components/ui/link";
 import { db } from "@/lib/db-client";
 import { lucia } from "@/lib/lucia";
 import { userTable } from "@/schema";
-import { Box, Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
+import { Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -9,14 +10,10 @@ import { Argon2id } from "oslo/password";
 
 export default function Page() {
   return (
-    <Flex
-      direction="column"
-      gap="4"
-      style={{ maxWidth: "300px", margin: "0 auto" }}
-    >
-      <Heading size="5">Create an account</Heading>
-      <form action={signup}>
-        <Flex direction="column" gap="3">
+    <Flex direction="column" gap="4" maxWidth={"300px"} className="mx-auto">
+      <Heading size="5">Create Account</Heading>
+      <form action={signUp} id="signup">
+        <Flex direction="column" gap="2">
           <label htmlFor="username">
             <Text size="2" weight="bold">
               Username
@@ -24,7 +21,7 @@ export default function Page() {
           </label>
           <TextField.Root
             size="3"
-            placeholder="Enter your desired username"
+            placeholder="Enter username"
             name="username"
             id="username"
           />
@@ -35,14 +32,19 @@ export default function Page() {
           </label>
           <TextField.Root
             size="3"
-            placeholder="Enter your password"
+            placeholder="Enter password"
             type="password"
             name="password"
             id="password"
           />
-          <Button type="submit">Continue</Button>
         </Flex>
       </form>
+      <Button variant="classic" type="submit" form="signup">
+        Sign Up
+      </Button>
+      <Text>
+        Already have an account? <Link href="/sign-in">Sign In</Link>
+      </Text>
     </Flex>
   );
 }
@@ -51,7 +53,7 @@ interface ActionResult {
   error: string;
 }
 
-async function signup(formData: FormData): Promise<ActionResult> {
+async function signUp(formData: FormData): Promise<ActionResult> {
   "use server";
 
   const username = formData.get("username");

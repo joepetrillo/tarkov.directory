@@ -1,9 +1,113 @@
 import Link from "@/components/ui/link";
+import { db } from "@/lib/db-client";
+import { lucia } from "@/lib/lucia";
+import { userTable } from "@/schema";
+import { Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
+import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Argon2id } from "oslo/password";
 
 export default function Page() {
   return (
-    <>
-      <Link href="/sign-up">Go to sign up</Link>
-    </>
+    <Flex direction="column" gap="4" maxWidth={"300px"} className="mx-auto">
+      <Heading size="5">Welcome Back</Heading>
+      <form action={signIn} id="signin">
+        <Flex direction="column" gap="2">
+          <label htmlFor="username">
+            <Text size="2" weight="bold">
+              Username
+            </Text>
+          </label>
+          <TextField.Root
+            size="3"
+            placeholder="Enter username"
+            name="username"
+            id="username"
+          />
+          <label htmlFor="password">
+            <Text size="2" weight="bold">
+              Password
+            </Text>
+          </label>
+          <TextField.Root
+            size="3"
+            placeholder="Enter password"
+            type="password"
+            name="password"
+            id="password"
+          />
+        </Flex>
+      </form>
+      <Button variant="classic" type="submit" form="signin">
+        Sign In
+      </Button>
+      <Text>
+        Don&apos;t have an account? <Link href="/sign-up">Sign Up</Link>
+      </Text>
+    </Flex>
   );
+}
+
+interface ActionResult {
+  error: string;
+}
+
+async function signIn(formData: FormData): Promise<ActionResult> {
+  "use server";
+
+  const username = formData.get("username");
+  // username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
+  // keep in mind some database (e.g. mysql) are case insensitive
+  if (
+    typeof username !== "string" ||
+    username.length < 3 ||
+    username.length > 31 ||
+    !/^[a-z0-9_-]+$/.test(username)
+  ) {
+    return {
+      error: "Invalid username",
+    };
+  }
+
+  const password = formData.get("password");
+  if (
+    typeof password !== "string" ||
+    password.length < 6 ||
+    password.length > 255
+  ) {
+    return {
+      error: "Invalid password",
+    };
+  }
+
+  const user = await db.query.userTable.findFirst({
+    where: eq(userTable.username, username),
+  });
+
+  if (!user) {
+    return {
+      error: "Username not found",
+    };
+  }
+
+  const argon2id = new Argon2id();
+  const validPassword = await argon2id.verify(user.passwordHash, password);
+
+  if (!validPassword) {
+    return {
+      error: "Incorrect password",
+    };
+  }
+
+  const session = await lucia.createSession(user.id, {
+    username: user.username,
+  });
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+  return redirect("/");
 }

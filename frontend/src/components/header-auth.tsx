@@ -1,30 +1,55 @@
-import { Button } from "@radix-ui/themes";
+import { validateRequest } from "@/data/auth";
+import { lucia } from "@/lib/lucia";
+import { Button, Flex, Text } from "@radix-ui/themes";
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function HeaderAuth() {
+export default async function HeaderAuth() {
+  const { user } = await validateRequest();
+
+  if (!user) {
+    return (
+      <Button variant="soft" asChild>
+        <Link href="/sign-in">Sign In</Link>
+      </Button>
+    );
+  }
+
   return (
-    <Button variant="soft" asChild>
-      <Link href="/sign-in">Sign In</Link>
-    </Button>
+    <Flex align={"center"} gap={"2"}>
+      <Text>{user.username}</Text>
+      <form action={signOut}>
+        <Button variant="soft" className="whitespace-nowrap" type="submit">
+          Sign Out
+        </Button>
+      </form>
+    </Flex>
   );
 }
 
-// if (!isSignedIn) {
-//   return (
-//     <Button variant="soft" asChild>
-//       <Link href="/sign-in">Sign In</Link>
-//     </Button>
-//   );
-// }
+interface ActionResult {
+  error: string;
+}
 
-// return (
-//   <div className="h-10 w-10">
-//     <UserButton
-//       appearance={{
-//         elements: {
-//           avatarBox: { height: "40px", width: "40px" },
-//         },
-//       }}
-//     />
-//   </div>
-// );
+async function signOut(): Promise<ActionResult> {
+  "use server";
+  const { session } = await validateRequest();
+  if (!session) {
+    return {
+      error: "No session found",
+    };
+  }
+
+  await lucia.invalidateSession(session.id);
+
+  const sessionCookie = lucia.createBlankSessionCookie();
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+  return {
+    error: "",
+  };
+}
