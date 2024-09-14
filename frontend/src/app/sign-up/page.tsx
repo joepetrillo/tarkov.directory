@@ -6,7 +6,7 @@ import { Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Argon2id } from "oslo/password";
+import { hash } from "@node-rs/argon2";
 
 export default function Page() {
   return (
@@ -81,8 +81,13 @@ async function signUp(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  const argon2id = new Argon2id();
-  const passwordHash = await argon2id.hash(password);
+  const passwordHash = await hash(password, {
+    // recommended minimum parameters
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1,
+  });
   const userId = generateIdFromEntropySize(10); // 16 characters long
 
   // Insert new user

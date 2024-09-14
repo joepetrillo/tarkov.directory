@@ -6,7 +6,7 @@ import { Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Argon2id } from "oslo/password";
+import { verify } from "@node-rs/argon2";
 
 export default function Page() {
   return (
@@ -81,18 +81,22 @@ async function signIn(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  const user = await db.query.userTable.findFirst({
+  const existingUser = await db.query.userTable.findFirst({
     where: eq(userTable.username, username),
   });
 
-  if (!user) {
+  if (!existingUser) {
     return {
       error: "Username not found",
     };
   }
 
-  const argon2id = new Argon2id();
-  const validPassword = await argon2id.verify(user.passwordHash, password);
+  const validPassword = await verify(existingUser.passwordHash, password, {
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1,
+  });
 
   if (!validPassword) {
     return {
@@ -100,8 +104,8 @@ async function signIn(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  const session = await lucia.createSession(user.id, {
-    username: user.username,
+  const session = await lucia.createSession(existingUser.id, {
+    username: existingUser.username,
   });
   const sessionCookie = lucia.createSessionCookie(session.id);
   cookies().set(

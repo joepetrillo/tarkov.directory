@@ -9,7 +9,7 @@ const nextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "assets.tarkov.dev" }],
   },
   experimental: {
-    serverComponentsExternalPackages: ["@node-rs/argon2", "@node-rs/bcrypt"],
+    serverComponentsExternalPackages: ["@node-rs/argon2"],
   },
 };
 
