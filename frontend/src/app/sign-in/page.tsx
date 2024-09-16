@@ -1,117 +1,65 @@
+"use client";
+
+import { signIn } from "@/app/sign-in/actions";
 import Link from "@/components/ui/link";
-import { db } from "@/lib/db-client";
-import { lucia } from "@/lib/lucia";
-import { userTable } from "@/schema";
 import { Button, Flex, Heading, Text, TextField } from "@radix-ui/themes";
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { verify } from "@node-rs/argon2";
+import { useFormState, useFormStatus } from "react-dom";
+
+function SignInForm() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Flex direction="column" gap="2">
+      <label htmlFor="username">
+        <Text size="2" weight="bold">
+          Username
+        </Text>
+      </label>
+      <TextField.Root
+        size="3"
+        placeholder="Enter username"
+        name="username"
+        id="username"
+        disabled={pending}
+      />
+      <label htmlFor="password">
+        <Text size="2" weight="bold">
+          Password
+        </Text>
+      </label>
+      <TextField.Root
+        size="3"
+        placeholder="Enter password"
+        type="password"
+        name="password"
+        id="password"
+        disabled={pending}
+      />
+      <Button
+        variant="classic"
+        type="submit"
+        loading={pending}
+        className="w-full"
+      >
+        Sign In
+      </Button>
+    </Flex>
+  );
+}
 
 export default function Page() {
+  const [state, formAction] = useFormState(signIn, undefined);
+
   return (
     <Flex direction="column" gap="4" maxWidth={"300px"} className="mx-auto">
       <Heading size="5">Welcome Back</Heading>
-      <form action={signIn} id="signin">
-        <Flex direction="column" gap="2">
-          <label htmlFor="username">
-            <Text size="2" weight="bold">
-              Username
-            </Text>
-          </label>
-          <TextField.Root
-            size="3"
-            placeholder="Enter username"
-            name="username"
-            id="username"
-          />
-          <label htmlFor="password">
-            <Text size="2" weight="bold">
-              Password
-            </Text>
-          </label>
-          <TextField.Root
-            size="3"
-            placeholder="Enter password"
-            type="password"
-            name="password"
-            id="password"
-          />
-        </Flex>
+      <form action={formAction} id="signin">
+        <SignInForm />
       </form>
-      <Button variant="classic" type="submit" form="signin">
-        Sign In
-      </Button>
+      {state?.error && <Text color="tomato">{state.error}</Text>}
       <Text>
         Don&apos;t have an account? <Link href="/sign-up">Sign Up</Link>
       </Text>
     </Flex>
   );
-}
-
-interface ActionResult {
-  error: string;
-}
-
-async function signIn(formData: FormData): Promise<ActionResult> {
-  "use server";
-
-  const username = formData.get("username");
-  // username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
-  // keep in mind some database (e.g. mysql) are case insensitive
-  if (
-    typeof username !== "string" ||
-    username.length < 3 ||
-    username.length > 31 ||
-    !/^[a-z0-9_-]+$/.test(username)
-  ) {
-    return {
-      error: "Invalid username",
-    };
-  }
-
-  const password = formData.get("password");
-  if (
-    typeof password !== "string" ||
-    password.length < 6 ||
-    password.length > 255
-  ) {
-    return {
-      error: "Invalid password",
-    };
-  }
-
-  const existingUser = await db.query.userTable.findFirst({
-    where: eq(userTable.username, username),
-  });
-
-  if (!existingUser) {
-    return {
-      error: "Username not found",
-    };
-  }
-
-  const validPassword = await verify(existingUser.passwordHash, password, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1,
-  });
-
-  if (!validPassword) {
-    return {
-      error: "Incorrect password",
-    };
-  }
-
-  const session = await lucia.createSession(existingUser.id, {
-    username: existingUser.username,
-  });
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-  return redirect("/");
 }
