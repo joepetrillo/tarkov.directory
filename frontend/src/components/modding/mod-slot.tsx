@@ -2,7 +2,7 @@ import { Slot } from "@tarkov.directory/shared-types";
 import { SlotSelectionNode } from "@/types";
 import { Badge, Box, Flex, Text } from "@radix-ui/themes";
 import ModSelector from "@/components/modding/mod-selector";
-import { useGunModding } from "@/contexts/gun-modding.context";
+import { useGunModding } from "@/components/modding/gun-modding.context";
 
 type ModSlotProps = {
   slot: Slot;

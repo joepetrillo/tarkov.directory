@@ -1,4 +1,4 @@
-import { useGunModding } from "@/contexts/gun-modding.context";
+import { useGunModding } from "@/components/modding/gun-modding.context";
 import { formatDiff } from "@/lib/utils";
 import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 
@@ -23,7 +23,7 @@ export default function GunStats() {
     ergonomicsDiff !== null || verticalDiff !== null || horizontalDiff !== null;
 
   return (
-    <Card variant="classic" size="3" className="max-w-max">
+    <Card size="3" className="max-w-max">
       <div className="overflow-x-auto">
         <Heading size="3" mb="4" as="h4">
           Gun Stats

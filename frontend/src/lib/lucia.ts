@@ -3,7 +3,7 @@ import "server-only";
 import { Lucia } from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { sessionTable, userTable } from "@/schema";
-import { db } from "@/lib/db-client";
+import { db } from "@/lib/db";
 
 const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 

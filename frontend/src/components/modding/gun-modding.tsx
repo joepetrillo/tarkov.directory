@@ -10,7 +10,7 @@ import {
 } from "@radix-ui/themes";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
-import { useGunModding } from "@/contexts/gun-modding.context";
+import { useGunModding } from "@/components/modding/gun-modding.context";
 
 export default function GunModding() {
   const {

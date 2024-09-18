@@ -1,8 +1,8 @@
 "use server";
 
 import { validateRequest } from "@/data/auth";
-import { actionClient, AuthError } from "@/lib/action-client";
-import { db } from "@/lib/db-client";
+import { actionClient, AuthError } from "@/lib/action.client";
+import { db } from "@/lib/db";
 import { lucia } from "@/lib/lucia";
 import { userTable } from "@/schema";
 import { hash, verify } from "@node-rs/argon2";
@@ -24,7 +24,7 @@ const schema = zfd.formData({
           "Username can only contain letters, numbers, underscores, and hyphens",
       }),
   ),
-  password: zfd.text(z.string().min(6).max(225)),
+  password: zfd.text(z.string().min(8).max(225)),
 });
 
 export const signInAction = actionClient

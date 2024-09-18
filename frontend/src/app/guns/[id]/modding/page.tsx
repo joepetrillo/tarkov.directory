@@ -1,5 +1,5 @@
 import GunModding from "@/components/modding/gun-modding";
-import { GunModdingProvider } from "@/contexts/gun-modding.context";
+import { GunModdingProvider } from "@/components/modding/gun-modding.context";
 import { getGun } from "@/data/guns";
 
 export default async function Page({ params }: { params: { id: string } }) {

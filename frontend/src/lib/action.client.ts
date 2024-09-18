@@ -13,12 +13,13 @@ export const actionClient = createSafeActionClient({
     if (error instanceof AuthError) {
       return error.message;
     }
+
     if (error instanceof DatabaseError) {
       if (
         error.code === "23505" &&
         error.constraint === "user_username_unique"
       ) {
-        return "Username already exists";
+        return "Username taken";
       }
     }
 

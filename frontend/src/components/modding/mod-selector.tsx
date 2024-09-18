@@ -26,7 +26,7 @@ import {
   ArrowUpIcon,
   CaretSortIcon,
 } from "@radix-ui/react-icons";
-import { useGunModding } from "@/contexts/gun-modding.context";
+import { useGunModding } from "@/components/modding/gun-modding.context";
 import SearchInput from "@/components/ui/search-input";
 import {
   getTraderImage,

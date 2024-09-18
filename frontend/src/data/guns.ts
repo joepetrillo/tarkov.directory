@@ -1,8 +1,8 @@
 import "server-only";
 
-import { api } from "@/lib/api-client";
 import { CategorizedGunListData } from "@/types";
 import { notFound } from "next/navigation";
+import { api } from "@/lib/api";
 
 export async function getCategorizedGunList() {
   const response = await api.guns.index.get();
