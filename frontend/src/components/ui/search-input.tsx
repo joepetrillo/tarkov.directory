@@ -1,15 +1,18 @@
+import { isMobileDevice } from "@/lib/utils";
 import { MagnifyingGlassIcon, TrashIcon } from "@radix-ui/react-icons";
 import { TextField, IconButton } from "@radix-ui/themes";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function SearchInput({
   searchInput,
   setSearchInput,
   placeholder,
+  autofocus,
 }: {
   searchInput: string;
   setSearchInput: (value: string) => void;
   placeholder: string;
+  autofocus?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -19,6 +22,12 @@ export default function SearchInput({
       inputRef.current?.blur();
     }
   }
+
+  useEffect(() => {
+    if (autofocus && !isMobileDevice() && searchInput === "") {
+      inputRef.current?.focus();
+    }
+  }, [autofocus, searchInput]);
 
   return (
     <TextField.Root

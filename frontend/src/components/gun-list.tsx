@@ -45,6 +45,7 @@ export default function GunList({
         searchInput={searchInput}
         setSearchInput={setSearchInput}
         placeholder="Search by name"
+        autofocus
       />
       {filteredList.length === 0 && (
         <Flex align={"center"} justify={"center"} mt={"7"}>
