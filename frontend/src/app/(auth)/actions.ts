@@ -1,7 +1,7 @@
 "use server";
 
 import { validateRequest } from "@/data/auth";
-import { actionClient } from "@/lib/action-client";
+import { actionClient, AuthError } from "@/lib/action-client";
 import { db } from "@/lib/db-client";
 import { lucia } from "@/lib/lucia";
 import { userTable } from "@/schema";
@@ -19,7 +19,10 @@ const schema = zfd.formData({
       .string()
       .min(3)
       .max(31)
-      .regex(/^[a-z0-9_-]+$/),
+      .regex(/^[A-Za-z0-9_-]+$/, {
+        message:
+          "Username can only contain letters, numbers, underscores, and hyphens",
+      }),
   ),
   password: zfd.text(z.string().min(6).max(225)),
 });
@@ -32,10 +35,7 @@ export const signInAction = actionClient
     });
 
     if (!existingUser) {
-      throw new Error("Username not found");
-      // return {
-      //   error: "Username not found",
-      // };
+      throw new AuthError("Username not found");
     }
 
     const validPassword = await verify(
@@ -50,10 +50,7 @@ export const signInAction = actionClient
     );
 
     if (!validPassword) {
-      throw new Error("Incorrect password");
-      // return {
-      //   error: "Incorrect password",
-      // };
+      throw new AuthError("Incorrect password");
     }
 
     const session = await lucia.createSession(existingUser.id, {
@@ -102,10 +99,7 @@ export const signOutAction = actionClient.action(async () => {
   const { session } = await validateRequest();
 
   if (!session) {
-    throw new Error("No session found");
-    // return {
-    //   error: "No session found",
-    // };
+    throw new AuthError("No session found");
   }
 
   await lucia.invalidateSession(session.id);
