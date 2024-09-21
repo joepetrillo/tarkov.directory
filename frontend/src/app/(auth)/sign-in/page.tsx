@@ -17,10 +17,12 @@ export default function Page() {
   const { execute, isPending, result } = useAction(signInAction);
 
   return (
-    <Box maxWidth={"350px"} className="mx-auto">
+    <Box maxWidth={{ xs: "400px" }} className="mx-auto">
       <Card size={"4"}>
         <Flex direction="column" gap="5">
-          <Heading size="5">Welcome Back</Heading>
+          <Heading size="5" className="font-mono">
+            Welcome Back
+          </Heading>
           <form action={execute} id="signin">
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
@@ -34,6 +36,7 @@ export default function Page() {
                   name="username"
                   id="username"
                   disabled={isPending}
+                  autoFocus
                 />
                 {result?.validationErrors?.username && (
                   <Text color="tomato" size={"2"} className="text-balance">
@@ -64,6 +67,11 @@ export default function Page() {
               </Flex>
             </Flex>
           </form>
+          {result?.serverError && (
+            <Text color="tomato" className="text-balance">
+              {result.serverError}
+            </Text>
+          )}
           <Button
             variant="classic"
             type="submit"
@@ -73,12 +81,7 @@ export default function Page() {
           >
             Sign In
           </Button>
-          {result?.serverError && (
-            <Text color="tomato" className="text-balance">
-              {result.serverError}
-            </Text>
-          )}
-          <Text>
+          <Text className="font-mono" size={"2"}>
             Don&apos;t have an account? <Link href="/sign-up">Sign Up</Link>
           </Text>
         </Flex>
