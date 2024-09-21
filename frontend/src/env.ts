@@ -8,7 +8,8 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    API_KEY: z.string().min(1),
+    VPS_API_KEY: z.string().min(1),
+    UNKEY_API_KEY: z.string().min(1),
   },
   /*
    * Environment variables available on the client (and server).
@@ -26,7 +27,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
-    API_KEY: process.env.API_KEY,
+    VPS_API_KEY: process.env.VPS_API_KEY,
+    UNKEY_API_KEY: process.env.UNKEY_API_KEY,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 });

@@ -1,7 +1,7 @@
 "use server";
 
 import { validateRequest } from "@/data/auth";
-import { actionClient, AuthError } from "@/lib/action.client";
+import { ActionError, rateLimitedActionClient } from "@/lib/action.client";
 import { db } from "@/lib/db";
 import { lucia } from "@/lib/lucia";
 import { userTable } from "@/schema";
@@ -27,7 +27,8 @@ const schema = zfd.formData({
   password: zfd.text(z.string().min(8).max(225)),
 });
 
-export const signInAction = actionClient
+export const signInAction = rateLimitedActionClient
+  .metadata({ actionName: "signIn" })
   .schema(schema)
   .action(async ({ parsedInput }) => {
     const existingUser = await db.query.userTable.findFirst({
@@ -35,7 +36,7 @@ export const signInAction = actionClient
     });
 
     if (!existingUser) {
-      throw new AuthError("Username not found");
+      throw new ActionError("Username not found");
     }
 
     const validPassword = await verify(
@@ -50,7 +51,7 @@ export const signInAction = actionClient
     );
 
     if (!validPassword) {
-      throw new AuthError("Incorrect password");
+      throw new ActionError("Incorrect password");
     }
 
     const session = await lucia.createSession(existingUser.id, {
@@ -65,7 +66,8 @@ export const signInAction = actionClient
     redirect("/");
   });
 
-export const signUpAction = actionClient
+export const signUpAction = rateLimitedActionClient
+  .metadata({ actionName: "signUp" })
   .schema(schema)
   .action(async ({ parsedInput }) => {
     const passwordHash = await hash(parsedInput.password, {
@@ -95,19 +97,21 @@ export const signUpAction = actionClient
     redirect("/");
   });
 
-export const signOutAction = actionClient.action(async () => {
-  const { session } = await validateRequest();
+export const signOutAction = rateLimitedActionClient
+  .metadata({ actionName: "signOut" })
+  .action(async () => {
+    const { session } = await validateRequest();
 
-  if (!session) {
-    throw new AuthError("No session found");
-  }
+    if (!session) {
+      throw new ActionError("No session found");
+    }
 
-  await lucia.invalidateSession(session.id);
+    await lucia.invalidateSession(session.id);
 
-  const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-});
+    const sessionCookie = lucia.createBlankSessionCookie();
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes,
+    );
+  });

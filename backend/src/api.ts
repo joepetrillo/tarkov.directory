@@ -7,7 +7,7 @@ import { helmet } from "elysia-helmet";
 const apiKeyAuth = (app: Elysia) => {
   return app.onBeforeHandle(({ request, set }) => {
     const apiKey = request.headers.get("API-Key");
-    if (!apiKey || apiKey !== process.env.API_KEY) {
+    if (!apiKey || apiKey !== process.env.VPS_API_KEY) {
       set.status = 401;
       return { error: "Unauthorized" };
     }
