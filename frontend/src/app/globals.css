@@ -10,30 +10,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Bender";
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/Bender.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "Bender";
-  font-style: normal;
-  font-weight: 700;
-  src: url(/fonts/Bender-Bold.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "Bender";
-  font-style: normal;
-  font-weight: 300;
-  src: url(/fonts/Bender-Light.woff2) format("woff2");
-}
-
 .radix-themes {
-  --default-font-family: Bender, "ui-sans-serif", "system-ui", "sans-serif",
-    '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"',
+  --default-font-family: var(--font-bender), "ui-sans-serif", "system-ui",
+    "sans-serif", '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"',
     '"Noto Color Emoji"';
   --font-weight-light: 300;
   --font-weight-regular: 400;
