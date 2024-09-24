@@ -26,6 +26,26 @@ export default function Page() {
           <form action={execute} id="signup">
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
+                <label htmlFor="email">
+                  <Text size="2" weight="bold">
+                    Email Address
+                  </Text>
+                </label>
+                <TextField.Root
+                  size="3"
+                  name="email"
+                  id="email"
+                  disabled={isPending}
+                  autoFocus
+                />
+                {result?.validationErrors?.email && (
+                  <Text color="tomato" size={"2"} className="text-balance">
+                    {result.validationErrors.email._errors?.[0] ??
+                      "Invalid Email"}
+                  </Text>
+                )}
+              </Flex>
+              <Flex direction="column" gap="2">
                 <label htmlFor="username">
                   <Text size="2" weight="bold">
                     Username
@@ -36,7 +56,6 @@ export default function Page() {
                   name="username"
                   id="username"
                   disabled={isPending}
-                  autoFocus
                 />
                 {result?.validationErrors?.username && (
                   <Text color="tomato" size={"2"} className="text-balance">
@@ -61,6 +80,26 @@ export default function Page() {
                 {result?.validationErrors?.password && (
                   <Text color="tomato" size={"2"} className="text-balance">
                     {result.validationErrors.password._errors?.[0] ??
+                      "Invalid Password"}
+                  </Text>
+                )}
+              </Flex>
+              <Flex direction="column" gap="2">
+                <label htmlFor="confirmPassword">
+                  <Text size="2" weight="bold">
+                    Confirm Password
+                  </Text>
+                </label>
+                <TextField.Root
+                  size="3"
+                  type="password"
+                  name="confirmPassword"
+                  id="confirmPassword"
+                  disabled={isPending}
+                />
+                {result?.validationErrors?.confirmPassword && (
+                  <Text color="tomato" size={"2"} className="text-balance">
+                    {result.validationErrors.confirmPassword._errors?.[0] ??
                       "Invalid Password"}
                   </Text>
                 )}

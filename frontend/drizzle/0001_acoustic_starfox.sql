@@ -1,0 +1,1 @@
+ALTER TABLE "email_verification" ALTER COLUMN "expires_at" DROP DEFAULT;

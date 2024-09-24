@@ -23,8 +23,8 @@ export const actionClient = createSafeActionClient({
     z.object({
       actionName: z.string(),
     }),
-  handleServerError: (error) => {
-    console.error(error.message);
+  handleServerError: (error, utils) => {
+    console.error(`${utils.metadata.actionName}: ${error.message}`);
 
     // handle custom error messages
     if (error instanceof ActionError) {
@@ -37,7 +37,7 @@ export const actionClient = createSafeActionClient({
         error.code === "23505" &&
         error.constraint === "user_username_unique"
       ) {
-        return "Username taken";
+        return "Username unavailable";
       }
     }
 
@@ -52,15 +52,13 @@ export const rateLimitedActionClient = actionClient.use(
     if (process.env.NODE_ENV === "development") return next();
 
     // get ip address - x-forwarded-for comes from vercel
-    const ip = headers().get("x-forwarded-for") ?? `no-ip-address-found`;
+    const ip = headers().get("x-forwarded-for") ?? `no-ip-header`;
 
     // create a unique identifier for the rate limit, per action
     const identifier = `${metadata.actionName}-${ip}`;
 
     // limit requests to 10 per hour
     const rateLimitResult = await unkeyAuth.limit(identifier);
-
-    console.log(rateLimitResult);
 
     // if rate limit exceeded, throw an error
     if (!rateLimitResult.success) {

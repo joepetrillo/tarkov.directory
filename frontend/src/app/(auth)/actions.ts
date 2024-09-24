@@ -4,32 +4,52 @@ import { validateRequest } from "@/data/auth";
 import { ActionError, rateLimitedActionClient } from "@/lib/action.client";
 import { db } from "@/lib/db";
 import { lucia } from "@/lib/lucia";
-import { userTable } from "@/schema";
+import { emailVerificationTable, userTable } from "@/schema";
 import { hash, verify } from "@node-rs/argon2";
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-const schema = zfd.formData({
-  username: zfd.text(
-    z
-      .string()
-      .min(3)
-      .max(31)
-      .regex(/^[A-Za-z0-9_-]+$/, {
-        message:
-          "Username can only contain letters, numbers, underscores, and hyphens",
-      }),
-  ),
-  password: zfd.text(z.string().min(8).max(225)),
+const usernameSchema = z
+  .string()
+  .min(3)
+  .max(31)
+  .regex(/^[A-Za-z0-9_-]+$/, {
+    message:
+      "Username can only contain letters, numbers, underscores, and hyphens",
+  });
+const emailSchema = z.string().email();
+const passwordSchema = z.string().min(8).max(225);
+
+const signInSchema = zfd.formData({
+  // email: zfd.text(emailSchema),
+  username: zfd.text(usernameSchema),
+  password: zfd.text(passwordSchema),
 });
+
+const signUpSchema = zfd
+  .formData({
+    email: zfd.text(emailSchema),
+    username: zfd.text(usernameSchema),
+    password: zfd.text(passwordSchema),
+    confirmPassword: zfd.text(passwordSchema),
+  })
+  .refine(
+    ({ password, confirmPassword }) => {
+      return password === confirmPassword;
+    },
+    {
+      path: ["confirmPassword"],
+      message: "Passwords do not match",
+    },
+  );
 
 export const signInAction = rateLimitedActionClient
   .metadata({ actionName: "signIn" })
-  .schema(schema)
+  .schema(signInSchema)
   .action(async ({ parsedInput }) => {
     const existingUser = await db.query.userTable.findFirst({
       where: eq(userTable.username, parsedInput.username),
@@ -68,24 +88,65 @@ export const signInAction = rateLimitedActionClient
 
 export const signUpAction = rateLimitedActionClient
   .metadata({ actionName: "signUp" })
-  .schema(schema)
+  .schema(signUpSchema)
   .action(async ({ parsedInput }) => {
+    // check if email is already taken and verified (meaning we cannot use it)
+    // also check if username is already taken (enforced by database unique constraint)
+    const existingUser = await db.query.userTable.findFirst({
+      where: or(
+        and(
+          eq(userTable.email, parsedInput.email),
+          eq(userTable.emailVerified, true),
+        ),
+        eq(userTable.username, parsedInput.username),
+      ),
+    });
+
+    if (existingUser) {
+      if (
+        existingUser.email === parsedInput.email &&
+        existingUser.emailVerified
+      ) {
+        throw new ActionError("Email already in use by another user");
+      } else if (existingUser.username === parsedInput.username) {
+        throw new ActionError("Username unavailable");
+      } else {
+        throw new ActionError("User already exists");
+      }
+    }
+
+    // hash the password
     const passwordHash = await hash(parsedInput.password, {
-      // recommended minimum parameters
       memoryCost: 19456,
       timeCost: 2,
       outputLen: 32,
       parallelism: 1,
     });
 
-    const userId = generateIdFromEntropySize(10); // 16 characters long
+    // generate a random user ID and TOTP code
+    const userId = generateIdFromEntropySize(10);
+    const generatedVerficationCode = Array.from(
+      crypto.getRandomValues(new Uint8Array(6)),
+    )
+      .map((b) => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[b % 36])
+      .join("");
 
-    // Insert new user
-    await db.insert(userTable).values({
-      id: userId,
-      username: parsedInput.username,
-      passwordHash: passwordHash,
+    // insert user and email verification code into database
+    db.transaction(async (tx) => {
+      await tx.insert(userTable).values({
+        id: userId,
+        email: parsedInput.email,
+        username: parsedInput.username,
+        passwordHash: passwordHash,
+      });
+      await tx.insert(emailVerificationTable).values({
+        email: parsedInput.email,
+        userId: userId,
+        code: generatedVerficationCode,
+      });
     });
+
+    // TODO - send email with code
 
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
