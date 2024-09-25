@@ -4,7 +4,7 @@ import type { App } from "@tarkov.directory/backend";
 import { treaty } from "@elysiajs/eden";
 import { env } from "@/env";
 
-export const api = treaty<App>(env.NEXT_PUBLIC_API_URL, {
+export const api = treaty<App>(env.NEXT_PUBLIC_VPS_API_URL, {
   headers() {
     return {
       "API-Key": env.VPS_API_KEY,

@@ -1,10 +1,12 @@
 "use server";
 
 import { validateRequest } from "@/data/auth";
+import { env } from "@/env";
 import { ActionError, rateLimitedActionClient } from "@/lib/action.client";
 import { db } from "@/lib/db";
 import { lucia } from "@/lib/lucia";
 import { emailVerificationTable, userTable } from "@/schema";
+import { TurnstileServerValidationResponse } from "@marsidev/react-turnstile";
 import { hash, verify } from "@node-rs/argon2";
 import { and, eq, or } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
@@ -16,7 +18,7 @@ import { zfd } from "zod-form-data";
 const usernameSchema = z
   .string()
   .min(3)
-  .max(31)
+  .max(32)
   .regex(/^[A-Za-z0-9_-]+$/, {
     message:
       "Username can only contain letters, numbers, underscores, and hyphens",
@@ -25,9 +27,9 @@ const emailSchema = z.string().email();
 const passwordSchema = z.string().min(8).max(225);
 
 const signInSchema = zfd.formData({
-  // email: zfd.text(emailSchema),
   username: zfd.text(usernameSchema),
   password: zfd.text(passwordSchema),
+  "cf-turnstile-response": z.string(),
 });
 
 const signUpSchema = zfd
@@ -36,6 +38,7 @@ const signUpSchema = zfd
     username: zfd.text(usernameSchema),
     password: zfd.text(passwordSchema),
     confirmPassword: zfd.text(passwordSchema),
+    "cf-turnstile-response": z.string(),
   })
   .refine(
     ({ password, confirmPassword }) => {
@@ -47,10 +50,36 @@ const signUpSchema = zfd
     },
   );
 
+async function validateTurnstile(turnstileResponse: string) {
+  const turnstileRes = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      body: JSON.stringify({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: turnstileResponse,
+      }),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data: TurnstileServerValidationResponse = await turnstileRes.json();
+
+  if (!data.success) {
+    throw new ActionError(
+      "Could not verify that you are human. Please try again.",
+    );
+  }
+}
+
 export const signInAction = rateLimitedActionClient
   .metadata({ actionName: "signIn" })
   .schema(signInSchema)
   .action(async ({ parsedInput }) => {
+    await validateTurnstile(parsedInput["cf-turnstile-response"]);
+
     const existingUser = await db.query.userTable.findFirst({
       where: eq(userTable.username, parsedInput.username),
     });
@@ -90,6 +119,8 @@ export const signUpAction = rateLimitedActionClient
   .metadata({ actionName: "signUp" })
   .schema(signUpSchema)
   .action(async ({ parsedInput }) => {
+    await validateTurnstile(parsedInput["cf-turnstile-response"]);
+
     // check if email is already taken and verified (meaning we cannot use it)
     // also check if username is already taken (enforced by database unique constraint)
     const existingUser = await db.query.userTable.findFirst({

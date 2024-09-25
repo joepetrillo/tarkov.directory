@@ -10,6 +10,7 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     VPS_API_KEY: z.string().min(1),
     UNKEY_API_KEY: z.string().min(1),
+    TURNSTILE_SECRET_KEY: z.string().min(1),
   },
   /*
    * Environment variables available on the client (and server).
@@ -17,7 +18,8 @@ export const env = createEnv({
    * 💡 You'll get type errors if these are not prefixed with NEXT_PUBLIC_.
    */
   client: {
-    NEXT_PUBLIC_API_URL: z.string().min(1),
+    NEXT_PUBLIC_VPS_API_URL: z.string().min(1),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
   },
   /*
    * Due to how Next.js bundles environment variables on Edge and Client,
@@ -29,6 +31,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     VPS_API_KEY: process.env.VPS_API_KEY,
     UNKEY_API_KEY: process.env.UNKEY_API_KEY,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    NEXT_PUBLIC_VPS_API_URL: process.env.NEXT_PUBLIC_VPS_API_URL,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   },
 });

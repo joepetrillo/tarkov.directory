@@ -2,6 +2,7 @@
 
 import { signUpAction } from "@/app/(auth)/actions";
 import Link from "@/components/ui/link";
+import { env } from "@/env";
 import {
   Box,
   Button,
@@ -11,19 +12,33 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
+import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { useAction } from "next-safe-action/hooks";
+import { useRef, useState } from "react";
 
 export default function Page() {
-  const { execute, isPending, result } = useAction(signUpAction);
+  const { isPending, result, executeAsync } = useAction(signUpAction);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
+  const [turnstileStatus, setTurnstileStatus] = useState<
+    "success" | "error" | "expired" | "required"
+  >("required");
 
   return (
     <Box maxWidth={{ xs: "400px" }} className="mx-auto">
-      <Card size={"4"}>
+      <Card size={"4"} className="contain-none">
         <Flex direction="column" gap="5">
           <Heading size="5" className="font-mono">
             Create Account
           </Heading>
-          <form action={execute} id="signup">
+          <form
+            action={async (formData) => {
+              if (turnstileStatus !== "success") return;
+              await executeAsync(formData);
+              turnstileRef.current?.reset();
+              setTurnstileStatus("required");
+            }}
+            id="signup"
+          >
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
                 <label htmlFor="email">
@@ -37,8 +52,9 @@ export default function Page() {
                   id="email"
                   disabled={isPending}
                   autoFocus
+                  required
                 />
-                {result?.validationErrors?.email && (
+                {result?.validationErrors?.email && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">
                     {result.validationErrors.email._errors?.[0] ??
                       "Invalid Email"}
@@ -56,8 +72,9 @@ export default function Page() {
                   name="username"
                   id="username"
                   disabled={isPending}
+                  required
                 />
-                {result?.validationErrors?.username && (
+                {result?.validationErrors?.username && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">
                     {result.validationErrors.username._errors?.[0] ??
                       "Invalid Username"}
@@ -76,8 +93,9 @@ export default function Page() {
                   name="password"
                   id="password"
                   disabled={isPending}
+                  required
                 />
-                {result?.validationErrors?.password && (
+                {result?.validationErrors?.password && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">
                     {result.validationErrors.password._errors?.[0] ??
                       "Invalid Password"}
@@ -96,17 +114,38 @@ export default function Page() {
                   name="confirmPassword"
                   id="confirmPassword"
                   disabled={isPending}
+                  required
                 />
-                {result?.validationErrors?.confirmPassword && (
+                {result?.validationErrors?.confirmPassword && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">
                     {result.validationErrors.confirmPassword._errors?.[0] ??
                       "Invalid Password"}
                   </Text>
                 )}
               </Flex>
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                options={{
+                  action: "signup",
+                  theme: "dark",
+                  size: "flexible",
+                }}
+                onError={() => {
+                  setTurnstileStatus("error");
+                }}
+                onExpire={() => {
+                  setTurnstileStatus("expired");
+                  turnstileRef.current?.reset();
+                }}
+                onSuccess={() => {
+                  setTurnstileStatus("success");
+                }}
+                className="mt-2"
+              />
             </Flex>
           </form>
-          {result?.serverError && (
+          {result?.serverError && !isPending && (
             <Text color="tomato" className="text-balance">
               {result.serverError}
             </Text>
@@ -117,6 +156,7 @@ export default function Page() {
             loading={isPending}
             className="w-full"
             form="signup"
+            disabled={isPending || turnstileStatus !== "success"}
           >
             Sign Up
           </Button>
