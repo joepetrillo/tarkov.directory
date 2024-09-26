@@ -1,12 +1,26 @@
 "use client";
 
 import Link from "@/components/ui/link";
+import { Flex } from "@radix-ui/themes";
 
 export default function Error() {
   return (
-    <div>
-      <p>An error has occurred.</p>
-      <Link href="/">Go Home</Link>
-    </div>
+    <Flex
+      minHeight={"100dvh"}
+      justify={"center"}
+      align={"center"}
+      className="font-mono"
+    >
+      <Flex
+        direction={"column"}
+        align={"center"}
+        justify={"center"}
+        gap={"4"}
+        className="text-balance text-center"
+      >
+        <p>An unexpected error has occurred</p>
+        <Link href="/">Go Home</Link>
+      </Flex>
+    </Flex>
   );
 }

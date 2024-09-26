@@ -53,29 +53,7 @@ export default function RootLayout({
           radius="none"
           className="text-accent-12"
         >
-          <Flex minHeight="100dvh" direction="column">
-            <Container size="2" px="4" flexGrow={"0"}>
-              <Callout.Root
-                variant="surface"
-                color="tomato"
-                size={"1"}
-                className="mt-5"
-              >
-                <Callout.Icon>
-                  <InfoCircledIcon />
-                </Callout.Icon>
-                <Callout.Text>
-                  This site is a work in progress. Expect regular updates and
-                  improvements.
-                </Callout.Text>
-              </Callout.Root>
-            </Container>
-            <Header />
-            <Container size="2" px="4" asChild>
-              <main>{children}</main>
-            </Container>
-            <Footer />
-          </Flex>
+          {children}
         </Theme>
         <SpeedInsights />
         <Analytics />

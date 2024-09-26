@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <Container size={"2"} flexGrow={"0"} px="4" mb={"7"} mt={"5"} asChild>
+    <Container size={"2"} flexGrow={"0"} px={"4"} mb={"7"} mt={"5"} asChild>
       <header>
         <Flex
           justify={"between"}
