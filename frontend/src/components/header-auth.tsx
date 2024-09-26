@@ -6,6 +6,7 @@ import Link from "next/link";
 export default async function HeaderAuth() {
   const { user } = await validateRequest();
 
+  // user is not signed in
   if (!user) {
     return (
       <Button variant="soft" asChild>
@@ -14,6 +15,7 @@ export default async function HeaderAuth() {
     );
   }
 
+  // user is signed in
   return (
     <Flex align={"center"} gap={"2"}>
       <Text>{user.username}</Text>
