@@ -4,10 +4,9 @@ import { Button, Flex, Text } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default async function HeaderAuth() {
-  const { user } = await validateRequest();
+  const { session, user } = await validateRequest();
 
-  // user is not signed in
-  if (!user) {
+  if (!session) {
     return (
       <Button variant="soft" asChild>
         <Link href="/sign-in">Sign In</Link>
@@ -15,7 +14,6 @@ export default async function HeaderAuth() {
     );
   }
 
-  // user is signed in
   return (
     <Flex align={"center"} gap={"2"}>
       <Text>{user.username}</Text>

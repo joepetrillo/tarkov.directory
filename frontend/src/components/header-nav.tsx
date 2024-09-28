@@ -10,9 +10,6 @@ export default function HeaderNav() {
   return (
     <nav>
       <TabNav.Root size={"2"} className="font-bold">
-        <TabNav.Link active={pathname === "/"} asChild>
-          <Link href="/">Home</Link>
-        </TabNav.Link>
         <TabNav.Link active={pathname === "/guns"} asChild>
           <Link href="/guns">Guns</Link>
         </TabNav.Link>

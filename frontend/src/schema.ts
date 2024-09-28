@@ -3,7 +3,7 @@ import { text, pgTable, timestamp, boolean, uuid } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
-  email: text("email").notNull(),
+  email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   username: text("username").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
@@ -13,7 +13,9 @@ export const emailVerificationTable = pgTable("email_verification", {
   id: uuid("id")
     .default(sql`gen_random_uuid()`)
     .primaryKey(),
-  email: text("email").notNull(),
+  email: text("email")
+    .notNull()
+    .references(() => userTable.email),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),

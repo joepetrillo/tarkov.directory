@@ -1,4 +1,5 @@
 import {
+  createMiddleware,
   createSafeActionClient,
   DEFAULT_SERVER_ERROR_MESSAGE,
 } from "next-safe-action";
@@ -7,10 +8,11 @@ import { DatabaseError } from "pg";
 import { z } from "zod";
 import { Ratelimit } from "@unkey/ratelimit";
 import { env } from "@/env";
+import { validateRequest } from "@/data/auth";
 
-export const unkeyAuth = new Ratelimit({
+export const unkey = new Ratelimit({
   rootKey: env.UNKEY_API_KEY,
-  namespace: "tarkov-directory-auth",
+  namespace: "tarkov-directory-actions",
   limit: 10,
   duration: "1h",
   async: false,
@@ -46,7 +48,7 @@ export const actionClient = createSafeActionClient({
   },
 });
 
-export const rateLimitedActionClient = actionClient.use(
+export const rateLimit = createMiddleware().define(
   async ({ next, metadata }) => {
     // skip rate limiting in development
     if (process.env.NODE_ENV === "development") return next();
@@ -57,8 +59,8 @@ export const rateLimitedActionClient = actionClient.use(
     // create a unique identifier for the rate limit, per action
     const identifier = `${metadata.actionName}-${ip}`;
 
-    // limit requests to 10 per hour
-    const rateLimitResult = await unkeyAuth.limit(identifier);
+    // limit requests
+    const rateLimitResult = await unkey.limit(identifier);
 
     // if rate limit exceeded, throw an error
     if (!rateLimitResult.success) {
@@ -69,3 +71,16 @@ export const rateLimitedActionClient = actionClient.use(
     return next();
   },
 );
+
+export const authActionClient = actionClient.use(async ({ next }) => {
+  // validate the session and user
+  const { session, user } = await validateRequest();
+
+  // if session not found, throw an error
+  if (!session) {
+    throw new ActionError("Session not found");
+  }
+
+  // request is authenticated - continue to the next action
+  return next({ ctx: { session, user } });
+});
