@@ -15,6 +15,7 @@ import { signInAction } from "@/app/(auth)/actions";
 import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { env } from "@/env";
 import { useRef, useState } from "react";
+import PasswordInput from "@/components/ui/password-input";
 
 export default function Page() {
   const { executeAsync, isPending, result } = useAction(signInAction);
@@ -67,13 +68,11 @@ export default function Page() {
                     Password
                   </Text>
                 </label>
-                <TextField.Root
-                  size="3"
-                  type="password"
-                  name="password"
-                  id="password"
+                <PasswordInput
                   disabled={isPending}
                   required
+                  name="password"
+                  id="password"
                 />
                 {result?.validationErrors?.password && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">

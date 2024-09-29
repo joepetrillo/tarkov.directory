@@ -15,6 +15,7 @@ import {
 import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { useAction } from "next-safe-action/hooks";
 import { useRef, useState } from "react";
+import PasswordInput from "@/components/ui/password-input";
 
 export default function Page() {
   const { isPending, result, executeAsync } = useAction(signUpAction);
@@ -87,13 +88,11 @@ export default function Page() {
                     Password
                   </Text>
                 </label>
-                <TextField.Root
-                  size="3"
-                  type="password"
-                  name="password"
-                  id="password"
+                <PasswordInput
                   disabled={isPending}
                   required
+                  name="password"
+                  id="password"
                 />
                 {result?.validationErrors?.password && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">
@@ -108,13 +107,11 @@ export default function Page() {
                     Confirm Password
                   </Text>
                 </label>
-                <TextField.Root
-                  size="3"
-                  type="password"
-                  name="confirmPassword"
-                  id="confirmPassword"
+                <PasswordInput
                   disabled={isPending}
                   required
+                  name="confirmPassword"
+                  id="confirmPassword"
                 />
                 {result?.validationErrors?.confirmPassword && !isPending && (
                   <Text color="tomato" size={"2"} className="text-balance">

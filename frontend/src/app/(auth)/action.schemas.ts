@@ -32,7 +32,7 @@ export const signUpSchema = zfd
     },
     {
       path: ["confirmPassword"],
-      message: "Passwords do not match",
+      message: "Passwords must match",
     },
   );
 
