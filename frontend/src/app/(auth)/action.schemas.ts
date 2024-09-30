@@ -3,14 +3,23 @@ import { zfd } from "zod-form-data";
 
 const usernameSchema = z
   .string()
-  .min(3)
-  .max(32)
   .regex(/^[A-Za-z0-9_-]+$/, {
     message:
       "Username can only contain letters, numbers, underscores, and hyphens",
+  })
+  .refine((data) => data.length >= 3 && data.length <= 32, {
+    message: "Username must be between 3 and 32 characters",
   });
-const emailSchema = z.string().email();
-const passwordSchema = z.string().min(8).max(225);
+
+const emailSchema = z
+  .string()
+  .email({ message: "Please enter a valid email address" });
+
+const passwordSchema = z
+  .string()
+  .refine((data) => data.length >= 8 && data.length <= 64, {
+    message: "Password must be between 8 and 64 characters",
+  });
 
 export const signInSchema = zfd.formData({
   username: zfd.text(usernameSchema),
