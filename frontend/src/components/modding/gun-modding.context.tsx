@@ -16,7 +16,7 @@ import {
   GunModdingAction,
   GunModdingContextType,
 } from "@/types";
-import { createModdingUtils } from "@/lib/modding-utils";
+import { createModdingUtils } from "@/lib/utils";
 
 type GunModdingProviderProps = {
   gun: Gun;
