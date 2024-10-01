@@ -16,6 +16,8 @@ import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { env } from "@/env";
 import { useRef, useState } from "react";
 import PasswordInput from "@/components/ui/password-input";
+import ServerError from "@/components/forms/server-error";
+import ValidationError from "@/components/forms/validation-error";
 
 export default function Page() {
   const { executeAsync, isPending, result } = useAction(signInAction);
@@ -31,6 +33,9 @@ export default function Page() {
           <Heading size="5" className="font-mono">
             Welcome Back
           </Heading>
+          {result?.serverError && !isPending && (
+            <ServerError error={result.serverError} />
+          )}
           <form
             action={async (formData) => {
               if (turnstileStatus !== "success") return;
@@ -56,10 +61,7 @@ export default function Page() {
                   required
                 />
                 {result?.validationErrors?.username && !isPending && (
-                  <Text color="tomato" size={"2"} className="text-balance">
-                    {result.validationErrors.username._errors?.[0] ??
-                      "Invalid Username"}
-                  </Text>
+                  <ValidationError errors={result.validationErrors.username} />
                 )}
               </Flex>
               <Flex direction="column" gap="2">
@@ -75,10 +77,7 @@ export default function Page() {
                   id="password"
                 />
                 {result?.validationErrors?.password && !isPending && (
-                  <Text color="tomato" size={"2"} className="text-balance">
-                    {result.validationErrors.password._errors?.[0] ??
-                      "Invalid Password"}
-                  </Text>
+                  <ValidationError errors={result.validationErrors.password} />
                 )}
               </Flex>
               <Turnstile
@@ -103,11 +102,6 @@ export default function Page() {
               />
             </Flex>
           </form>
-          {result?.serverError && !isPending && (
-            <Text color="tomato" className="text-balance">
-              {result.serverError}
-            </Text>
-          )}
           <Button
             variant="classic"
             type="submit"

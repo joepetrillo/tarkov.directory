@@ -1,6 +1,9 @@
 "use client";
 
 import { verifyEmailAction } from "@/app/(auth)/actions";
+import VerificationCodeEmail from "@/app/(auth)/verify-email/email";
+import ServerError from "@/components/forms/server-error";
+import ValidationError from "@/components/forms/validation-error";
 import {
   Box,
   Button,
@@ -17,7 +20,7 @@ export default function VerifyEmailForm() {
 
   return (
     <Box maxWidth={{ xs: "400px" }} className="mx-auto">
-      <Card size={"4"} className="contain-none">
+      <Card size={"4"}>
         <Flex direction="column" gap="5">
           <Flex direction={"column"} gap={"2"}>
             <Heading size="5" className="font-mono">
@@ -28,6 +31,9 @@ export default function VerifyEmailForm() {
               below to proceed.
             </Text>
           </Flex>
+          {result?.serverError && !isPending && (
+            <ServerError error={result.serverError} />
+          )}
           <form action={execute} id="verify-email">
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
@@ -45,19 +51,11 @@ export default function VerifyEmailForm() {
                   required
                 />
                 {result?.validationErrors?.code && !isPending && (
-                  <Text color="tomato" size={"2"} className="text-balance">
-                    {result.validationErrors.code._errors?.[0] ??
-                      "Invalid Code"}
-                  </Text>
+                  <ValidationError errors={result.validationErrors.code} />
                 )}
               </Flex>
             </Flex>
           </form>
-          {result?.serverError && !isPending && (
-            <Text color="tomato" className="text-balance">
-              {result.serverError}
-            </Text>
-          )}
           <Button
             variant="classic"
             type="submit"

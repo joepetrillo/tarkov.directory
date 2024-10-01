@@ -21,6 +21,11 @@ import { and, eq, gt, or } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { render } from "@react-email/components";
+import nodemailer from "nodemailer";
+import VerificationCodeEmail from "@/app/(auth)/verify-email/email";
+import React from "react";
+import { returnValidationErrors } from "next-safe-action";
 
 async function validateTurnstile(turnstileResponse: string) {
   const turnstileRes = await fetch(
@@ -63,9 +68,17 @@ export const signUpAction = actionClient
 
     if (existingUser) {
       if (existingUser.email === parsedInput.email) {
-        throw new ActionError("Email already in use");
+        returnValidationErrors(signUpSchema, {
+          email: {
+            _errors: ["Email already in use"],
+          },
+        });
       } else if (existingUser.username === parsedInput.username) {
-        throw new ActionError("Username unavailable");
+        returnValidationErrors(signUpSchema, {
+          username: {
+            _errors: ["Username already in use"],
+          },
+        });
       } else {
         throw new ActionError("User already exists");
       }
@@ -100,10 +113,35 @@ export const signUpAction = actionClient
         userId: userId,
         code: generatedVerficationCode,
       });
+
+      const transporter = nodemailer.createTransport({
+        host: "smtp.zeptomail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "emailapikey",
+          pass: env.ZEPTO_MAIL_API_KEY,
+        },
+      });
+
+      const emailHtml = await render(
+        React.createElement(VerificationCodeEmail, {
+          code: generatedVerficationCode,
+        }),
+      );
+
+      const options = {
+        from: '"Tarkov Directory" <notifications@tarkov.directory>',
+        to: parsedInput.email,
+        subject: "Verify Your Email",
+        html: emailHtml,
+      };
+
+      // send email with code
+      await transporter.sendMail(options);
     });
 
-    // TODO - send email with code if rate limit checks pass
-
+    // TODO - investigate sign up error
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(
@@ -127,7 +165,11 @@ export const signInAction = actionClient
     });
 
     if (!existingUser) {
-      throw new ActionError("Username not found");
+      returnValidationErrors(signInSchema, {
+        username: {
+          _errors: ["Username not found"],
+        },
+      });
     }
 
     const validPassword = await verify(
@@ -142,7 +184,11 @@ export const signInAction = actionClient
     );
 
     if (!validPassword) {
-      throw new ActionError("Incorrect password");
+      returnValidationErrors(signInSchema, {
+        password: {
+          _errors: ["Incorrect password"],
+        },
+      });
     }
 
     const session = await lucia.createSession(existingUser.id, {
@@ -162,7 +208,6 @@ export const signOutAction = authActionClient
   .metadata({ actionName: "signOut" })
   .action(async ({ ctx: { session } }) => {
     await lucia.invalidateSession(session.id);
-
     const sessionCookie = lucia.createBlankSessionCookie();
     cookies().set(
       sessionCookie.name,
@@ -192,7 +237,11 @@ export const verifyEmailAction = authActionClient
     });
 
     if (!verification) {
-      throw new ActionError("Invalid code");
+      returnValidationErrors(verifyEmailSchema, {
+        code: {
+          _errors: ["Invalid code"],
+        },
+      });
     }
 
     await db.transaction(async (tx) => {
