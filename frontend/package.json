@@ -2,6 +2,7 @@
   "name": "@tarkov.directory/frontend",
   "private": true,
   "scripts": {
+    "email": "email dev --dir ./src/emails",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -1,7 +1,6 @@
 "use client";
 
 import { verifyEmailAction } from "@/app/(auth)/actions";
-import VerificationCodeEmail from "@/app/(auth)/verify-email/email";
 import ServerError from "@/components/forms/server-error";
 import ValidationError from "@/components/forms/validation-error";
 import {
@@ -14,9 +13,17 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import { useAction } from "next-safe-action/hooks";
+import { ChangeEvent, useState } from "react";
 
 export default function VerifyEmailForm() {
   const { isPending, result, execute } = useAction(verifyEmailAction);
+  const [code, setCode] = useState("");
+
+  const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    const sanitizedInput = input.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    setCode(sanitizedInput);
+  };
 
   return (
     <Box maxWidth={{ xs: "400px" }} className="mx-auto">
@@ -43,6 +50,8 @@ export default function VerifyEmailForm() {
                   </Text>
                 </label>
                 <TextField.Root
+                  onChange={handleCodeChange}
+                  value={code}
                   size="3"
                   name="code"
                   id="code"

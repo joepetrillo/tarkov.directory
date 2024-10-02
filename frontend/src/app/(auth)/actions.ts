@@ -21,9 +21,9 @@ import { and, eq, gt, or } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { render } from "@react-email/components";
+import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
-import VerificationCodeEmail from "@/app/(auth)/verify-email/email";
+import VerificationCodeEmail from "@/emails/verification-code";
 import React from "react";
 import { returnValidationErrors } from "next-safe-action";
 
@@ -101,7 +101,7 @@ export const signUpAction = actionClient
       .join("");
 
     // insert user and email verification code into database
-    db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       await tx.insert(userTable).values({
         id: userId,
         email: parsedInput.email,
@@ -141,7 +141,6 @@ export const signUpAction = actionClient
       await transporter.sendMail(options);
     });
 
-    // TODO - investigate sign up error
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(

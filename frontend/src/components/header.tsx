@@ -1,7 +1,8 @@
 import HeaderAuth from "@/components/header-auth";
 import HeaderNav from "@/components/header-nav";
-import { Container, Flex, Heading } from "@radix-ui/themes";
+import { Container, Flex, Heading, Spinner } from "@radix-ui/themes";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Header() {
   return (
@@ -21,7 +22,9 @@ export default function Header() {
               Tarkov Directory
             </Heading>
           </Link>
-          <HeaderAuth />
+          <Suspense fallback={<Spinner />}>
+            <HeaderAuth />
+          </Suspense>
         </Flex>
         <HeaderNav />
       </header>

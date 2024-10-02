@@ -1,6 +1,7 @@
-import { signOutAction } from "@/app/(auth)/actions";
+import SignOutButton from "@/components/header-auth.client";
 import { validateRequest } from "@/data/auth";
-import { Button, Flex, Text } from "@radix-ui/themes";
+import { sleep } from "@/lib/utils";
+import { Button } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default async function HeaderAuth() {
@@ -14,19 +15,5 @@ export default async function HeaderAuth() {
     );
   }
 
-  return (
-    <Flex align={"center"} gap={"2"}>
-      <Text>{user.username}</Text>
-      <form
-        action={async () => {
-          "use server";
-          await signOutAction();
-        }}
-      >
-        <Button variant="soft" className="whitespace-nowrap" type="submit">
-          Sign Out
-        </Button>
-      </form>
-    </Flex>
-  );
+  return <SignOutButton user={user} />;
 }
