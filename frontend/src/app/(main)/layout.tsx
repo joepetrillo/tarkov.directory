@@ -1,5 +1,5 @@
 import Footer from "@/components/footer";
-import Header from "@/components/header";
+import Header from "@/components/header/header";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Container, Callout, Flex } from "@radix-ui/themes";
 

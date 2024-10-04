@@ -5,7 +5,7 @@ import { Flex, Text, Button } from "@radix-ui/themes";
 import { User } from "lucia";
 import { useAction } from "next-safe-action/hooks";
 
-export default function SignOutButton({ user }: { user: User }) {
+export default function HeaderAuthClient({ user }: { user: User }) {
   const { isPending, execute } = useAction(signOutAction);
 
   return (

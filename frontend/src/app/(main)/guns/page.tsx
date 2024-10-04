@@ -1,5 +1,5 @@
 import React from "react";
-import GunList from "@/components/gun-list";
+import GunList from "@/components/modding/gun-list";
 import { getCategorizedGunList } from "@/data/guns";
 
 export default async function Page() {

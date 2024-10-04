@@ -1,5 +1,5 @@
-import HeaderAuth from "@/components/header-auth";
-import HeaderNav from "@/components/header-nav";
+import HeaderAuthAsync from "@/components/header/header-auth.async";
+import HeaderNav from "@/components/header/header-nav.client";
 import { Container, Flex, Heading, Spinner } from "@radix-ui/themes";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -23,7 +23,7 @@ export default function Header() {
             </Heading>
           </Link>
           <Suspense fallback={<Spinner />}>
-            <HeaderAuth />
+            <HeaderAuthAsync />
           </Suspense>
         </Flex>
         <HeaderNav />

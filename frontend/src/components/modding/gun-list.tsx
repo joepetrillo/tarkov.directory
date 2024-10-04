@@ -15,7 +15,7 @@ import {
 import type { CategorizedGunListData } from "@/types";
 import { useQueryState } from "nuqs";
 import SearchInput from "@/components/ui/search-input";
-import GunListItem from "@/components/gun-list-item";
+import GunListItem from "@/components/modding/gun-list-item";
 
 export default function GunList({
   categorizedGunList,
