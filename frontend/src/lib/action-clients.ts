@@ -6,15 +6,15 @@ import {
 import { headers } from "next/headers";
 import { DatabaseError } from "pg";
 import { z } from "zod";
-import { Ratelimit } from "@unkey/ratelimit";
 import { env } from "@/env";
 import { validateRequest } from "@/data/auth";
+import { Ratelimit as unkeyRateLimit } from "@unkey/ratelimit";
 
-export const unkey = new Ratelimit({
+export const unkeyRateLimiter = new unkeyRateLimit({
   rootKey: env.UNKEY_API_KEY,
   namespace: "tarkov-directory-actions",
-  limit: 10,
-  duration: "1h",
+  limit: 3,
+  duration: "10s",
   async: false,
 });
 
@@ -60,11 +60,13 @@ export const rateLimit = createMiddleware().define(
     const identifier = `${metadata.actionName}-${ip}`;
 
     // limit requests
-    const rateLimitResult = await unkey.limit(identifier);
+    const rateLimitResult = await unkeyRateLimiter.limit(identifier);
 
     // if rate limit exceeded, throw an error
     if (!rateLimitResult.success) {
-      throw new ActionError("You are going too fast. Please try again later.");
+      throw new ActionError(
+        "You are going too fast. Please try again in a bit.",
+      );
     }
 
     // if rate limit not exceeded, continue to the next action

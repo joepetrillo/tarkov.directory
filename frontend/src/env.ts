@@ -9,9 +9,9 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     VPS_API_KEY: z.string().min(1),
-    UNKEY_API_KEY: z.string().min(1),
     TURNSTILE_SECRET_KEY: z.string().min(1),
     ZEPTO_MAIL_API_KEY: z.string().min(1),
+    UNKEY_API_KEY: z.string().min(1),
   },
   /*
    * Environment variables available on the client (and server).
@@ -31,9 +31,9 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     VPS_API_KEY: process.env.VPS_API_KEY,
-    UNKEY_API_KEY: process.env.UNKEY_API_KEY,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
     ZEPTO_MAIL_API_KEY: process.env.ZEPTO_MAIL_API_KEY,
+    UNKEY_API_KEY: process.env.UNKEY_API_KEY,
     NEXT_PUBLIC_VPS_API_URL: process.env.NEXT_PUBLIC_VPS_API_URL,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   },
