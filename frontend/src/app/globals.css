@@ -11,9 +11,9 @@
 @tailwind utilities;
 
 .radix-themes {
-  --default-font-family: var(--font-bender), "ui-sans-serif", "system-ui",
-    "sans-serif", '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"',
-    '"Noto Color Emoji"';
+  --default-font-family: var(--font-bender), var(--font-geist-sans),
+    "ui-sans-serif", "system-ui", "sans-serif", '"Apple Color Emoji"',
+    '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"';
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 700;

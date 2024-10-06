@@ -7,7 +7,11 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-bender)", ...defaultTheme.fontFamily.sans],
+        sans: [
+          "var(--font-bender)",
+          "var(--font-geist-sans)",
+          ...defaultTheme.fontFamily.sans,
+        ],
         mono: ["var(--font-geist-mono)", ...defaultTheme.fontFamily.mono],
       },
       screens: {

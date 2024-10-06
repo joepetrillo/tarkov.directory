@@ -3,6 +3,7 @@ import { Theme } from "@radix-ui/themes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
 
 import "./globals.css";
@@ -40,7 +41,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${Bender.variable} ${GeistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${Bender.variable} ${GeistMono.variable} ${GeistSans.variable}`}
+    >
       <body className="overflow-y-scroll bg-[#111110] subpixel-antialiased">
         <Theme
           appearance="dark"
