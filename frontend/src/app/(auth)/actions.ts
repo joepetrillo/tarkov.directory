@@ -4,7 +4,7 @@ import {
   signInSchema,
   signUpSchema,
   verifyEmailSchema,
-} from "@/app/(auth)/action.schemas";
+} from "@/app/(auth)/actions.schema";
 import { env } from "@/env";
 import {
   actionClient,
@@ -19,13 +19,14 @@ import { TurnstileServerValidationResponse } from "@marsidev/react-turnstile";
 import { hash, verify } from "@node-rs/argon2";
 import { and, eq, gt, or } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import VerificationCodeEmail from "@/emails/verification-code";
 import React from "react";
 import { returnValidationErrors } from "next-safe-action";
+import { RateLimit } from "@/lib/rate-limit";
 
 async function validateTurnstile(turnstileResponse: string) {
   const turnstileRes = await fetch(
@@ -52,9 +53,9 @@ async function validateTurnstile(turnstileResponse: string) {
 }
 
 export const signUpAction = actionClient
-  .use(rateLimit)
   .metadata({ actionName: "signUp" })
   .schema(signUpSchema)
+  .use(rateLimit)
   .action(async ({ parsedInput }) => {
     await validateTurnstile(parsedInput["cf-turnstile-response"]);
 
@@ -82,6 +83,22 @@ export const signUpAction = actionClient
       } else {
         throw new ActionError("User already exists");
       }
+    }
+
+    const ip = headers().get("x-forwarded-for") ?? `no-ip-header`;
+    const identifier = `${"signUp"}-${ip}`;
+
+    const rateLimiter = new RateLimit({
+      window: 86400,
+      max: 3,
+    });
+
+    const rateLimitResult = await rateLimiter.limit(identifier);
+
+    if (!rateLimitResult.success) {
+      throw new ActionError(
+        `Too many sign up attempts. Try again in ${rateLimitResult.timeRemaining}.`,
+      );
     }
 
     // hash the password
@@ -138,7 +155,7 @@ export const signUpAction = actionClient
       };
 
       // send email with code
-      await transporter.sendMail(options);
+      // await transporter.sendMail(options);
     });
 
     const session = await lucia.createSession(userId, {});
@@ -148,13 +165,14 @@ export const signUpAction = actionClient
       sessionCookie.value,
       sessionCookie.attributes,
     );
+
     redirect("/verify-email");
   });
 
 export const signInAction = actionClient
-  .use(rateLimit)
   .metadata({ actionName: "signIn" })
   .schema(signInSchema)
+  .use(rateLimit)
   .action(async ({ parsedInput }) => {
     await validateTurnstile(parsedInput["cf-turnstile-response"]);
 
@@ -199,12 +217,13 @@ export const signInAction = actionClient
       sessionCookie.value,
       sessionCookie.attributes,
     );
-    redirect("/");
+
+    redirect("/guns");
   });
 
 export const signOutAction = authActionClient
-  .use(rateLimit)
   .metadata({ actionName: "signOut" })
+  .use(rateLimit)
   .action(async ({ ctx: { session } }) => {
     await lucia.invalidateSession(session.id);
     const sessionCookie = lucia.createBlankSessionCookie();
@@ -216,9 +235,9 @@ export const signOutAction = authActionClient
   });
 
 export const verifyEmailAction = authActionClient
-  .use(rateLimit)
   .metadata({ actionName: "verifyEmail" })
   .schema(verifyEmailSchema)
+  .use(rateLimit)
   .action(async ({ parsedInput, ctx: { user } }) => {
     if (user.emailVerified) {
       throw new ActionError("Email already verified");

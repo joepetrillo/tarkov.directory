@@ -1,4 +1,4 @@
-import VerifyEmailForm from "@/app/(auth)/verify-email/form";
+import VerifyEmail from "@/components/forms/verify-email";
 import { validateRequest } from "@/data/auth";
 import { redirect } from "next/navigation";
 
@@ -16,5 +16,5 @@ export default async function Page() {
     redirect("/");
   }
 
-  return <VerifyEmailForm />;
+  return <VerifyEmail />;
 }

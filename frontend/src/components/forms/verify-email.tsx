@@ -15,7 +15,7 @@ import {
 import { useAction } from "next-safe-action/hooks";
 import { ChangeEvent, useState } from "react";
 
-export default function VerifyEmailForm() {
+export default function VerifyEmail() {
   const { isPending, result, execute } = useAction(verifyEmailAction);
   const [code, setCode] = useState("");
 

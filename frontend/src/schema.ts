@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { text, pgTable, timestamp, boolean, uuid } from "drizzle-orm/pg-core";
+import {
+  text,
+  pgTable,
+  timestamp,
+  boolean,
+  uuid,
+  integer,
+} from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
@@ -37,4 +44,15 @@ export const sessionTable = pgTable("session", {
     withTimezone: true,
     mode: "date",
   }).notNull(),
+});
+
+export const rateLimitTable = pgTable("rate_limit", {
+  identifier: text("identifier").primaryKey(), // Unique identifier for each rate limit key
+  window: integer("window").notNull(), // Window duration in seconds
+  lastReset: timestamp("last_reset", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(), // Most recent window reset time
+  max: integer("max").notNull(), // Maximum number of requests allowed in the window
+  count: integer("count").notNull(), // Number of requests made in the window
 });

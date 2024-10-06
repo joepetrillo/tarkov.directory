@@ -13,7 +13,7 @@ import { Ratelimit as unkeyRateLimit } from "@unkey/ratelimit";
 export const unkeyRateLimiter = new unkeyRateLimit({
   rootKey: env.UNKEY_API_KEY,
   namespace: "tarkov-directory-actions",
-  limit: 3,
+  limit: 2,
   duration: "10s",
   async: false,
 });
@@ -48,31 +48,29 @@ export const actionClient = createSafeActionClient({
   },
 });
 
-export const rateLimit = createMiddleware().define(
-  async ({ next, metadata }) => {
-    // skip rate limiting in development
-    if (process.env.NODE_ENV === "development") return next();
+export const rateLimit = createMiddleware<{
+  metadata: { actionName: string };
+}>().define(async ({ next, metadata }) => {
+  // skip rate limiting in development
+  if (process.env.NODE_ENV === "development") return next();
 
-    // get ip address - x-forwarded-for comes from vercel
-    const ip = headers().get("x-forwarded-for") ?? `no-ip-header`;
+  // get ip address - x-forwarded-for comes from vercel
+  const ip = headers().get("x-forwarded-for") ?? `no-ip`;
 
-    // create a unique identifier for the rate limit, per action
-    const identifier = `${metadata.actionName}-${ip}`;
+  // create a unique identifier for the rate limit, per action
+  const identifier = `${metadata.actionName}-${ip}`;
 
-    // limit requests
-    const rateLimitResult = await unkeyRateLimiter.limit(identifier);
+  // limit requests
+  const rateLimitResult = await unkeyRateLimiter.limit(identifier);
 
-    // if rate limit exceeded, throw an error
-    if (!rateLimitResult.success) {
-      throw new ActionError(
-        "You are going too fast. Please try again in a bit.",
-      );
-    }
+  // if rate limit exceeded, throw an error
+  if (!rateLimitResult.success) {
+    throw new ActionError("You are going too fast. Please try again in a bit.");
+  }
 
-    // if rate limit not exceeded, continue to the next action
-    return next();
-  },
-);
+  // if rate limit not exceeded, continue to the next action
+  return next();
+});
 
 export const authActionClient = actionClient.use(async ({ next }) => {
   // validate the session and user
