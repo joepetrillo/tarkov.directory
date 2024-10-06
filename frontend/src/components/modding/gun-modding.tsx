@@ -35,7 +35,7 @@ export default function GunModding() {
         <AlertDialog.Content maxWidth="425px">
           <AlertDialog.Title>Reset Selections</AlertDialog.Title>
           <AlertDialog.Description>
-            Are you sure? All slots will be reset.
+            Are you sure? All slots will become empty.
           </AlertDialog.Description>
           <Flex gap="3" mt="4" justify="end">
             <AlertDialog.Cancel>
