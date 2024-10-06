@@ -155,7 +155,7 @@ export const signUpAction = actionClient
       };
 
       // send email with code
-      // await transporter.sendMail(options);
+      await transporter.sendMail(options);
     });
 
     const session = await lucia.createSession(userId, {});
