@@ -22,11 +22,11 @@ import { generateIdFromEntropySize } from "lucia";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { render } from "@react-email/render";
-import nodemailer from "nodemailer";
 import VerificationCodeEmail from "@/emails/verification-code";
 import React from "react";
 import { returnValidationErrors } from "next-safe-action";
 import { RateLimit } from "@/lib/rate-limit";
+import { zeptoTransporter } from "@/lib/transporter";
 
 async function validateTurnstile(turnstileResponse: string) {
   const turnstileRes = await fetch(
@@ -52,6 +52,7 @@ async function validateTurnstile(turnstileResponse: string) {
   }
 }
 
+// Create a new user and send a verification email
 export const signUpAction = actionClient
   .metadata({ actionName: "signUp" })
   .schema(signUpSchema)
@@ -60,31 +61,38 @@ export const signUpAction = actionClient
     await validateTurnstile(parsedInput["cf-turnstile-response"]);
 
     // check if email or username is already taken
-    const existingUser = await db.query.userTable.findFirst({
+    const existingUsers = await db.query.userTable.findMany({
       where: or(
         eq(userTable.email, parsedInput.email),
         eq(userTable.username, parsedInput.username),
       ),
+      limit: 2,
     });
 
-    if (existingUser) {
-      if (existingUser.email === parsedInput.email) {
-        returnValidationErrors(signUpSchema, {
-          email: {
-            _errors: ["Email already in use"],
-          },
-        });
-      } else if (existingUser.username === parsedInput.username) {
-        returnValidationErrors(signUpSchema, {
-          username: {
-            _errors: ["Username already in use"],
-          },
-        });
+    // if any matching users exist, check for conflicts and return validation errors
+    if (existingUsers.length > 0) {
+      const errors: {
+        email?: { _errors: string[] };
+        username?: { _errors: string[] };
+      } = {};
+
+      for (const existingUser of existingUsers) {
+        if (existingUser.email === parsedInput.email) {
+          errors.email = { _errors: ["Email already in use"] };
+        }
+        if (existingUser.username === parsedInput.username) {
+          errors.username = { _errors: ["Username already in use"] };
+        }
+      }
+
+      if (Object.keys(errors).length > 0) {
+        returnValidationErrors(signUpSchema, errors);
       } else {
         throw new ActionError("User already exists");
       }
     }
 
+    // check if the user has made too many sign up attempts
     const ip = headers().get("x-forwarded-for") ?? `no-ip-header`;
     const identifier = `${"signUp"}-${ip}`;
 
@@ -101,6 +109,7 @@ export const signUpAction = actionClient
       );
     }
 
+    // all checks have passed - proceed with creation
     // hash the password
     const passwordHash = await hash(parsedInput.password, {
       memoryCost: 19456,
@@ -118,6 +127,7 @@ export const signUpAction = actionClient
       .join("");
 
     // insert user and email verification code into database
+    // send the email with the code
     await db.transaction(async (tx) => {
       await tx.insert(userTable).values({
         id: userId,
@@ -129,16 +139,6 @@ export const signUpAction = actionClient
         email: parsedInput.email,
         userId: userId,
         code: generatedVerficationCode,
-      });
-
-      const transporter = nodemailer.createTransport({
-        host: "smtp.zeptomail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "emailapikey",
-          pass: env.ZEPTO_MAIL_API_KEY,
-        },
       });
 
       const emailHtml = await render(
@@ -155,9 +155,10 @@ export const signUpAction = actionClient
       };
 
       // send email with code
-      await transporter.sendMail(options);
+      await zeptoTransporter.sendMail(options);
     });
 
+    // set the session cookie
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(
@@ -169,6 +170,7 @@ export const signUpAction = actionClient
     redirect("/verify-email");
   });
 
+// Sign in to existing account
 export const signInAction = actionClient
   .metadata({ actionName: "signIn" })
   .schema(signInSchema)
@@ -176,19 +178,20 @@ export const signInAction = actionClient
   .action(async ({ parsedInput }) => {
     await validateTurnstile(parsedInput["cf-turnstile-response"]);
 
-    // TODO - DECIDE IF I WANT TO KEEP USERNAME OR EMAIL LOGIN
+    // check if the user exists (via email match)
     const existingUser = await db.query.userTable.findFirst({
-      where: eq(userTable.username, parsedInput.username),
+      where: eq(userTable.email, parsedInput.email),
     });
 
     if (!existingUser) {
       returnValidationErrors(signInSchema, {
-        username: {
-          _errors: ["Username not found"],
+        email: {
+          _errors: ["Email not found"],
         },
       });
     }
 
+    // check if the password is correct
     const validPassword = await verify(
       existingUser.passwordHash,
       parsedInput.password,
@@ -208,6 +211,7 @@ export const signInAction = actionClient
       });
     }
 
+    // set the session cookie
     const session = await lucia.createSession(existingUser.id, {
       username: existingUser.username,
     });
@@ -221,10 +225,12 @@ export const signInAction = actionClient
     redirect("/guns");
   });
 
+// Sign out of current session
 export const signOutAction = authActionClient
   .metadata({ actionName: "signOut" })
   .use(rateLimit)
   .action(async ({ ctx: { session } }) => {
+    // invalidate the session and set a new blank session cookie
     await lucia.invalidateSession(session.id);
     const sessionCookie = lucia.createBlankSessionCookie();
     cookies().set(
@@ -234,11 +240,13 @@ export const signOutAction = authActionClient
     );
   });
 
+// Verify email address with code
 export const verifyEmailAction = authActionClient
   .metadata({ actionName: "verifyEmail" })
   .schema(verifyEmailSchema)
   .use(rateLimit)
   .action(async ({ parsedInput, ctx: { user } }) => {
+    // check if the email is already verified
     if (user.emailVerified) {
       throw new ActionError("Email already verified");
     }
@@ -262,6 +270,7 @@ export const verifyEmailAction = authActionClient
       });
     }
 
+    // update email verified field and delete the verification codes (any that are expired as well)
     await db.transaction(async (tx) => {
       await tx
         .update(userTable)

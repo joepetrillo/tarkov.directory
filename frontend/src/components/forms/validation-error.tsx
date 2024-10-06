@@ -8,7 +8,7 @@ export default function ValidationError({
   errors: ValidationErrors<Schema>;
 }) {
   return (
-    <Text color="tomato" size={"2"} className="text-balance">
+    <Text color="tomato" size={"2"} className="text-balance font-mono">
       {errors._errors?.[0] ?? "Invalid"}
     </Text>
   );

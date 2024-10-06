@@ -24,10 +24,10 @@ export class RateLimit {
         if (!currentRecord) {
           await tx.insert(rateLimitTable).values({
             identifier,
-            window: this.window,
-            lastReset: now,
-            max: this.max,
             count: 1,
+            lastReset: now,
+            window: this.window,
+            max: this.max,
           });
           return { success: true };
         }
@@ -55,7 +55,8 @@ export class RateLimit {
             .update(rateLimitTable)
             .set({
               count: currentRecord.count + 1,
-              ...(needsUpdate && { window: this.window, max: this.max }),
+              window: this.window,
+              max: this.max,
             })
             .where(eq(rateLimitTable.identifier, identifier));
           return { success: true };

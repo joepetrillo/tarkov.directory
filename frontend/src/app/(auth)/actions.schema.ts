@@ -22,7 +22,7 @@ const passwordSchema = z
   });
 
 export const signInSchema = zfd.formData({
-  username: zfd.text(usernameSchema),
+  email: zfd.text(emailSchema),
   password: zfd.text(passwordSchema),
   "cf-turnstile-response": z.string(),
 });
