@@ -6,6 +6,14 @@ CREATE TABLE IF NOT EXISTS "email_verification" (
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "rate_limit" (
+	"identifier" text PRIMARY KEY NOT NULL,
+	"window" integer NOT NULL,
+	"last_reset" timestamp with time zone NOT NULL,
+	"max" integer NOT NULL,
+	"count" integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
