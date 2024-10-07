@@ -1,7 +1,9 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header/header";
+import VerifyEmailAlertAsync from "@/components/header/verify-email-alert.async";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Container, Callout, Flex } from "@radix-ui/themes";
+import { Suspense } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,6 +23,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             improvements.
           </Callout.Text>
         </Callout.Root>
+        <Suspense>
+          <VerifyEmailAlertAsync />
+        </Suspense>
       </Container>
       <Header />
       <Container size="2" px="4" asChild>
