@@ -98,7 +98,7 @@ export const signUpAction = actionClient
 
     const rateLimiter = new RateLimit({
       window: 86400,
-      max: 3,
+      max: 5,
     });
 
     const rateLimitResult = await rateLimiter.limit(identifier);
