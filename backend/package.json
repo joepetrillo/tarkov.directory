@@ -16,7 +16,7 @@
     "@sinclair/typebox": "^0.33.15",
     "@tarkov.directory/shared-types": "workspace:*",
     "@tqman/nice-logger": "^1.0.1",
-    "elysia": "^1.1.19",
+    "elysia": "^1.1.20",
     "elysia-helmet": "^2.0.0",
     "gql.tada": "^1.8.10",
     "graphql": "^16.9.0",
@@ -24,8 +24,8 @@
     "picocolors": "^1.1.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.10",
-    "typescript": "^5.6.2"
+    "@types/bun": "^1.1.11",
+    "typescript": "^5.6.3"
   },
   "exports": {
     ".": "./src/exports.ts"

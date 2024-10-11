@@ -5,8 +5,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "^1.1.10",
-    "typescript": "^5.6.2"
+    "@types/bun": "^1.1.11",
+    "typescript": "^5.6.3"
   },
   "exports": {
     ".": "./src/exports.ts"
