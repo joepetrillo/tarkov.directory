@@ -11,7 +11,8 @@ export default function HeaderAuthClient({ user }: { user: User }) {
   const router = useRouter();
 
   if (hasErrored && result.serverError === "Session not found") {
-    return router.refresh();
+    router.refresh();
+    return null;
   }
 
   return (

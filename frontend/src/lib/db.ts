@@ -1,9 +1,11 @@
 import "server-only";
 
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
 import { env } from "@/env";
 import * as schema from "@/schema";
 
-const pool = new Pool({ connectionString: env.DATABASE_URL });
-export const db = drizzle(pool, { schema, casing: "snake_case" });
+export const db = drizzle({
+  connection: env.DATABASE_URL,
+  schema: schema,
+  casing: "snake_case",
+});
