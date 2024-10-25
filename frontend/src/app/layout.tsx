@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Theme } from "@radix-ui/themes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Analytics } from "@vercel/analytics/react";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -54,7 +55,7 @@ export default function RootLayout({
           radius="none"
           className="text-accent-12"
         >
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
         </Theme>
         <SpeedInsights />
         <Analytics />

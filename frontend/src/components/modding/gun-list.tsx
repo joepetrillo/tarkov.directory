@@ -23,7 +23,6 @@ export default function GunList({
   categorizedGunList: CategorizedGunListData;
 }) {
   const [searchInput, setSearchInput] = useQueryState("search", {
-    clearOnDefault: true,
     defaultValue: "",
   });
 
