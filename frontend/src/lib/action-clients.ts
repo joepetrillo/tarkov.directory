@@ -55,7 +55,7 @@ export const rateLimit = createMiddleware<{
   if (process.env.NODE_ENV === "development") return next();
 
   // get ip address - x-forwarded-for comes from vercel
-  const ip = headers().get("x-forwarded-for") ?? `no-ip`;
+  const ip = (await headers()).get("x-forwarded-for") ?? `no-ip`;
 
   // create a unique identifier for the rate limit, per action
   const identifier = `${metadata.actionName}-${ip}`;

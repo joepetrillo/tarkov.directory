@@ -8,9 +8,7 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "assets.tarkov.dev" }],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@node-rs/argon2"],
-  },
+  serverExternalPackages: ["@node-rs/argon2"],
 };
 
 export default nextConfig;

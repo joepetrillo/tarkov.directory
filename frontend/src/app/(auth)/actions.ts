@@ -99,7 +99,7 @@ export const signUpAction = actionClient
     }
 
     // check if the user has made too many sign up attempts
-    const ip = headers().get("x-forwarded-for") ?? `no-ip-header`;
+    const ip = (await headers()).get("x-forwarded-for") ?? `no-ip`;
     const identifier = `${"signUp"}-${ip}`;
 
     const rateLimiter = new RateLimit({

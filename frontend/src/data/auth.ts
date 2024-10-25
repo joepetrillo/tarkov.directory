@@ -7,7 +7,7 @@ import { SessionValidationResult, validateSessionToken } from "@/lib/session";
 export const validateRequest = cache(
   async (): Promise<SessionValidationResult> => {
     // get the token from the session cookie
-    const token = cookies().get("session")?.value ?? null;
+    const token = (await cookies()).get("session")?.value ?? null;
 
     // if no token, request is not authenticated
     if (token === null) {

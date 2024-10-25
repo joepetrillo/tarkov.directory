@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Box, Button, Flex, Heading, Separator } from "@radix-ui/themes";
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return (
     <div>
       <Flex gap={"4"} align={"center"} mb={"8"}>
