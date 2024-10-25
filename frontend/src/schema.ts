@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", (t) => ({
@@ -58,3 +58,6 @@ export const rateLimitTable = pgTable("rate_limit", (t) => ({
   max: t.integer().notNull(), // Maximum number of requests allowed in the window
   count: t.integer().notNull(), // Number of requests made in the window
 }));
+
+export type User = InferSelectModel<typeof userTable>;
+export type Session = InferSelectModel<typeof sessionTable>;

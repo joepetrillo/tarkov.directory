@@ -13,13 +13,11 @@ import {
   rateLimit,
 } from "@/lib/action-clients";
 import { db } from "@/lib/db";
-import { lucia } from "@/lib/lucia";
 import { emailVerificationTable, userTable } from "@/schema";
 import { TurnstileServerValidationResponse } from "@marsidev/react-turnstile";
 import { hash, verify } from "@node-rs/argon2";
 import { and, eq, gt, or } from "drizzle-orm";
-import { generateIdFromEntropySize } from "lucia";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { render } from "@react-email/render";
 import VerificationCodeEmail from "@/emails/verification-code";
@@ -27,6 +25,14 @@ import React from "react";
 import { returnValidationErrors } from "next-safe-action";
 import { RateLimit } from "@/lib/rate-limit";
 import { zeptoTransporter } from "@/lib/transporter";
+import {
+  createSession,
+  deleteSessionTokenCookie,
+  generateIdFromEntropySize,
+  generateSessionToken,
+  invalidateSession,
+  setSessionTokenCookie,
+} from "@/lib/session";
 
 async function validateTurnstile(turnstileResponse: string) {
   const turnstileRes = await fetch(
@@ -158,14 +164,10 @@ export const signUpAction = actionClient
       await zeptoTransporter.sendMail(options);
     });
 
-    // set the session cookie
-    const session = await lucia.createSession(userId, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    // create the session and set the cookie
+    const token = generateSessionToken();
+    const session = await createSession(token, userId);
+    setSessionTokenCookie(token, session.expiresAt);
 
     redirect("/verify-email");
   });
@@ -211,16 +213,10 @@ export const signInAction = actionClient
       });
     }
 
-    // set the session cookie
-    const session = await lucia.createSession(existingUser.id, {
-      username: existingUser.username,
-    });
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    // create the session and set the cookie
+    const token = generateSessionToken();
+    const session = await createSession(token, existingUser.id);
+    setSessionTokenCookie(token, session.expiresAt);
 
     redirect("/guns");
   });
@@ -231,13 +227,8 @@ export const signOutAction = authActionClient
   .use(rateLimit)
   .action(async ({ ctx: { session } }) => {
     // invalidate the session and set a new blank session cookie
-    await lucia.invalidateSession(session.id);
-    const sessionCookie = lucia.createBlankSessionCookie();
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    await invalidateSession(session.id);
+    deleteSessionTokenCookie();
   });
 
 // Verify email address with code
