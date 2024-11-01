@@ -1,5 +1,5 @@
 import Link from "@/components/ui/link";
-import { Card, Flex } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 
 export default function Error() {
   return (
