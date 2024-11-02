@@ -167,7 +167,7 @@ export const signUpAction = actionClient
     // create the session and set the cookie
     const token = generateSessionToken();
     const session = await createSession(token, userId);
-    setSessionTokenCookie(token, session.expiresAt);
+    await setSessionTokenCookie(token, session.expiresAt);
 
     redirect("/verify-email");
   });
@@ -216,7 +216,7 @@ export const signInAction = actionClient
     // create the session and set the cookie
     const token = generateSessionToken();
     const session = await createSession(token, existingUser.id);
-    setSessionTokenCookie(token, session.expiresAt);
+    await setSessionTokenCookie(token, session.expiresAt);
 
     redirect("/guns");
   });
@@ -228,7 +228,7 @@ export const signOutAction = authActionClient
   .action(async ({ ctx: { session } }) => {
     // invalidate the session and set a new blank session cookie
     await invalidateSession(session.id);
-    deleteSessionTokenCookie();
+    await deleteSessionTokenCookie();
   });
 
 // Verify email address with code
