@@ -14,5 +14,5 @@
     "backend",
     "shared-types"
   ],
-  "packageManager": "bun@1.1.26"
+  "packageManager": "bun@1.1.34"
 }
