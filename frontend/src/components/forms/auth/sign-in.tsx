@@ -18,6 +18,7 @@ import {
 } from "@radix-ui/themes";
 import { useAction } from "next-safe-action/hooks";
 import { useRef, useState } from "react";
+import Form from "next/form";
 
 export default function SignIn() {
   const { isPending, result, executeAsync } = useAction(signInAction);
@@ -36,7 +37,7 @@ export default function SignIn() {
           {result?.serverError && !isPending && (
             <ServerError error={result.serverError} />
           )}
-          <form
+          <Form
             action={async (formData) => {
               if (turnstileStatus !== "success") return;
               await executeAsync(formData);
@@ -101,7 +102,7 @@ export default function SignIn() {
                 className="mt-2"
               />
             </Flex>
-          </form>
+          </Form>
           <Button
             variant="classic"
             type="submit"
