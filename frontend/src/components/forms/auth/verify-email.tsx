@@ -14,7 +14,6 @@ import {
 } from "@radix-ui/themes";
 import { useAction } from "next-safe-action/hooks";
 import { ChangeEvent, useState } from "react";
-import Form from "next/form";
 
 export default function VerifyEmail() {
   const { isPending, result, execute } = useAction(verifyEmailAction);
@@ -42,7 +41,7 @@ export default function VerifyEmail() {
           {result?.serverError && !isPending && (
             <ServerError error={result.serverError} />
           )}
-          <Form action={execute} id="verify-email">
+          <form action={execute} id="verify-email">
             <Flex direction="column" gap="4">
               <Flex direction="column" gap="2">
                 <label htmlFor="code">
@@ -65,7 +64,7 @@ export default function VerifyEmail() {
                 )}
               </Flex>
             </Flex>
-          </Form>
+          </form>
           <Button
             variant="classic"
             type="submit"

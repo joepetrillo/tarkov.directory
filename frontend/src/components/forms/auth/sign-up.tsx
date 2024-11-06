@@ -18,7 +18,6 @@ import {
 } from "@radix-ui/themes";
 import { useAction } from "next-safe-action/hooks";
 import { useRef, useState } from "react";
-import Form from "next/form";
 
 export default function SignUp() {
   const { isPending, result, executeAsync } = useAction(signUpAction);
@@ -37,10 +36,11 @@ export default function SignUp() {
           {result?.serverError && !isPending && (
             <ServerError error={result.serverError} />
           )}
-          <Form
-            action={async (formData) => {
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
               if (turnstileStatus !== "success") return;
-              await executeAsync(formData);
+              await executeAsync(new FormData(e.currentTarget));
               turnstileRef.current?.reset();
               setTurnstileStatus("required");
             }}
@@ -137,7 +137,7 @@ export default function SignUp() {
                 className="mt-2"
               />
             </Flex>
-          </Form>
+          </form>
           <Button
             variant="classic"
             type="submit"
