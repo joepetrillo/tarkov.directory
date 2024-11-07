@@ -7,5 +7,3 @@ export default async function Page() {
 
   return <GunList categorizedGunList={categorizedGunList} />;
 }
-
-export const revalidate = 86400;

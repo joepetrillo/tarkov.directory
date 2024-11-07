@@ -12,5 +12,3 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     </GunModdingProvider>
   );
 }
-
-export const revalidate = 86400;
