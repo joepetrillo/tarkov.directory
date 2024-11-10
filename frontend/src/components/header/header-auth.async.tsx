@@ -1,10 +1,10 @@
 import HeaderAuthClient from "@/components/header/header-auth.client";
-import { validateRequest } from "@/data/auth";
+import { getCurrentSession } from "@/data/auth";
 import { Button } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default async function HeaderAuthAsync() {
-  const { session, user } = await validateRequest();
+  const { session, user } = await getCurrentSession();
 
   if (!session) {
     return (

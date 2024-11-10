@@ -1,9 +1,9 @@
 import VerifyEmail from "@/components/forms/auth/verify-email";
-import { validateRequest } from "@/data/auth";
+import { getCurrentSession } from "@/data/auth";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-  const { session, user } = await validateRequest();
+  const { session, user } = await getCurrentSession();
 
   // need to be logged in to verify email
   if (!session) {

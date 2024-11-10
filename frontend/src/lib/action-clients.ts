@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { DatabaseError } from "pg";
 import { z } from "zod";
 import { env } from "@/env";
-import { validateRequest } from "@/data/auth";
+import { getCurrentSession } from "@/data/auth";
 import { Ratelimit as unkeyRateLimit } from "@unkey/ratelimit";
 
 export const unkeyRateLimiter = new unkeyRateLimit({
@@ -74,7 +74,7 @@ export const rateLimit = createMiddleware<{
 
 export const authActionClient = actionClient.use(async ({ next }) => {
   // validate the session and user
-  const { session, user } = await validateRequest();
+  const { session, user } = await getCurrentSession();
 
   // if session not found, throw an error
   if (!session) {

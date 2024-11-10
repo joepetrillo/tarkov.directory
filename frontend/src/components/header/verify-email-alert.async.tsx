@@ -1,10 +1,10 @@
-import { validateRequest } from "@/data/auth";
+import { getCurrentSession } from "@/data/auth";
 import { IdCardIcon } from "@radix-ui/react-icons";
 import { Callout } from "@radix-ui/themes";
 import Link from "next/link";
 
 export default async function VerifyEmailAlertAsync() {
-  const { user } = await validateRequest();
+  const { user } = await getCurrentSession();
 
   if (!user || user.emailVerified) {
     return null;

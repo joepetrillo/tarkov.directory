@@ -4,10 +4,11 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import { SessionValidationResult, validateSessionToken } from "@/lib/session";
 
-export const validateRequest = cache(
+export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
     // get the token from the session cookie
-    const token = (await cookies()).get("session")?.value ?? null;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("session")?.value ?? null;
 
     // if no token, request is not authenticated
     if (token === null) {
