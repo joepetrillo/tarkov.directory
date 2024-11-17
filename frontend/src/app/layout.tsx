@@ -3,8 +3,6 @@ import { Theme } from "@radix-ui/themes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Analytics } from "@vercel/analytics/react";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
 
 import "./globals.css";
@@ -28,6 +26,16 @@ const Bender = localFont({
     },
   ],
   variable: "--font-bender",
+});
+
+const GeistSans = localFont({
+  src: "../../public/fonts/Geist-Variable.ttf",
+  variable: "--font-geist-sans",
+});
+
+const GeistMono = localFont({
+  src: "../../public/fonts/GeistMono-Variable.ttf",
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {
