@@ -149,7 +149,10 @@ export default function SignUp() {
             Sign Up
           </Button>
           <Text className="font-mono" size={"2"}>
-            Already have an account? <Link href="/sign-in">Sign In</Link>
+            Already have an account?{" "}
+            <Link href="/sign-in" replace={true}>
+              Sign In
+            </Link>
           </Text>
         </Flex>
       </Card>
