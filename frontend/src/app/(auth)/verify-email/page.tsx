@@ -12,7 +12,7 @@ export default async function Page() {
 
   // already verified
   if (user.emailVerified) {
-    redirect("/");
+    redirect("/guns");
   }
 
   return <VerifyEmail />;

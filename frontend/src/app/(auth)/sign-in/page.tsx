@@ -6,7 +6,7 @@ export default async function Page() {
   const { session } = await getCurrentSession();
 
   if (session) {
-    redirect("/");
+    redirect("/guns");
   }
 
   return <SignIn />;

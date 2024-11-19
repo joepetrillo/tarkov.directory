@@ -48,7 +48,7 @@ export const signUpSchema = zfd
 export const verifyEmailSchema = zfd.formData({
   code: z
     .string()
-    .length(6)
+    .length(6, { message: "Code must be 6 characters" })
     .regex(/^[A-Z0-9]+$/, {
       message: "Code can only contain numbers and uppercase letters",
     }),

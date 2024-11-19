@@ -63,7 +63,7 @@ export const signUpAction = actionClient
   .metadata({ actionName: "signUp" })
   .schema(signUpSchema)
   .use(rateLimit)
-  .action(async ({ parsedInput }) => {
+  .action(async ({ parsedInput, metadata }) => {
     await validateTurnstile(parsedInput["cf-turnstile-response"]);
 
     // check if email or username is already taken
@@ -100,7 +100,7 @@ export const signUpAction = actionClient
 
     // check if the user has made too many sign up attempts
     const ip = (await headers()).get("x-forwarded-for") ?? `no-ip`;
-    const identifier = `${"signUp"}-${ip}`;
+    const identifier = `${metadata.actionName}-${ip}`;
 
     const rateLimiter = new RateLimit({
       window: 86400,
@@ -218,6 +218,10 @@ export const signInAction = actionClient
     const session = await createSession(token, existingUser.id);
     await setSessionTokenCookie(token, session.expiresAt);
 
+    if (!existingUser.emailVerified) {
+      redirect("/verify-email");
+    }
+
     redirect("/guns");
   });
 
@@ -261,7 +265,7 @@ export const verifyEmailAction = authActionClient
       });
     }
 
-    // update email verified field and delete the verification codes (any that are expired as well)
+    // update email verified field and delete the verification codes (any that are expired for that email as well)
     await db.transaction(async (tx) => {
       await tx
         .update(userTable)
@@ -272,5 +276,5 @@ export const verifyEmailAction = authActionClient
         .where(eq(emailVerificationTable.email, verification.email));
     });
 
-    redirect("/");
+    redirect("/guns");
   });

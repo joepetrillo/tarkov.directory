@@ -21,7 +21,10 @@ export default function VerifyEmail() {
 
   const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
-    const sanitizedInput = input.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    const sanitizedInput = input
+      .replace(/[^A-Za-z0-9]/g, "")
+      .toUpperCase()
+      .slice(0, 6);
     setCode(sanitizedInput);
   };
 
@@ -33,7 +36,7 @@ export default function VerifyEmail() {
             <Heading size="5" className="font-mono">
               Verify Email
             </Heading>
-            <Text className="block max-w-[400px] text-balance">
+            <Text className="text-balance">
               Please check your email for a verification code. Enter the code
               below to proceed.
             </Text>
@@ -77,7 +80,7 @@ export default function VerifyEmail() {
           <Text className="font-mono" size={"2"}>
             {/* TODO RESEND - loading state and timer countdown when appropriate */}
             Need another code?{" "}
-            <Button variant="ghost" ml={"1"}>
+            <Button variant="ghost" ml={"2"} size={"3"}>
               Resend
             </Button>
           </Text>
