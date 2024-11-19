@@ -8,7 +8,8 @@
     "dev": "bun --watch src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "tada": "gql.tada generate output",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check-peer-deps": "bunx check-peer-dependencies --runOnlyOnRootDependencies"
   },
   "dependencies": {
     "@elysiajs/cron": "^1.1.1",
