@@ -30,6 +30,7 @@ import {
   deleteSessionTokenCookie,
   generateIdFromEntropySize,
   generateSessionToken,
+  generateVerificationCode,
   invalidateSession,
   setSessionTokenCookie,
 } from "@/lib/session";
@@ -126,11 +127,7 @@ export const signUpAction = actionClient
 
     // generate a random user ID and code
     const userId = generateIdFromEntropySize(10);
-    const generatedVerficationCode = Array.from(
-      crypto.getRandomValues(new Uint8Array(6)),
-    )
-      .map((b) => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[b % 36])
-      .join("");
+    const verificationCode = generateVerificationCode();
 
     // insert user and email verification code into database
     // send the email with the code
@@ -144,12 +141,12 @@ export const signUpAction = actionClient
       await tx.insert(emailVerificationTable).values({
         email: parsedInput.email,
         userId: userId,
-        code: generatedVerficationCode,
+        code: verificationCode,
       });
 
       const emailHtml = await render(
         React.createElement(VerificationCodeEmail, {
-          code: generatedVerficationCode,
+          code: verificationCode,
         }),
       );
 
@@ -247,17 +244,20 @@ export const verifyEmailAction = authActionClient
     }
 
     // check if the user entered a valid code, needs to match and not be expired
-    const verification = await db.query.emailVerificationTable.findFirst({
-      where: and(
-        eq(emailVerificationTable.email, user.email),
+    const validVerificationCodes = await db
+      .select({ code: emailVerificationTable.code })
+      .from(emailVerificationTable)
+      .where(
         and(
-          eq(emailVerificationTable.code, parsedInput.code),
+          eq(emailVerificationTable.email, user.email),
           gt(emailVerificationTable.expiresAt, new Date(Date.now())),
         ),
-      ),
-    });
+      );
 
-    if (!verification) {
+    if (
+      validVerificationCodes.filter((v) => v.code === parsedInput.code)
+        .length === 0
+    ) {
       returnValidationErrors(verifyEmailSchema, {
         code: {
           _errors: ["Invalid code"],
@@ -270,11 +270,65 @@ export const verifyEmailAction = authActionClient
       await tx
         .update(userTable)
         .set({ emailVerified: true })
-        .where(eq(userTable.id, verification.userId));
+        .where(eq(userTable.id, user.id));
       await tx
         .delete(emailVerificationTable)
-        .where(eq(emailVerificationTable.email, verification.email));
+        .where(eq(emailVerificationTable.email, user.email));
     });
 
     redirect("/guns");
+  });
+
+// Verify email address with code
+export const sendEmailVerificationCodeAction = authActionClient
+  .metadata({ actionName: "sendEmailVerificationCode" })
+  .use(rateLimit)
+  .action(async ({ metadata, ctx: { user } }) => {
+    // check if the email is already verified
+    if (user.emailVerified) {
+      throw new ActionError("Email already verified");
+    }
+
+    // check rate limit for sending verification codes
+    const identifier = `${metadata.actionName}-${user.email}`;
+
+    const rateLimiter = new RateLimit({
+      window: 960,
+      max: 1,
+    });
+
+    const rateLimitResult = await rateLimiter.limit(identifier);
+
+    if (!rateLimitResult.success) {
+      throw new ActionError(
+        `You have requested too many codes. Try again in ${rateLimitResult.timeRemaining}.`,
+      );
+    }
+
+    // generate a new code and send the email
+    const verificationCode = generateVerificationCode();
+
+    // insert into db and send email
+    await db.transaction(async (tx) => {
+      await tx.insert(emailVerificationTable).values({
+        email: user.email,
+        userId: user.id,
+        code: verificationCode,
+      });
+
+      const emailHtml = await render(
+        React.createElement(VerificationCodeEmail, {
+          code: verificationCode,
+        }),
+      );
+      const options = {
+        from: '"Tarkov Directory" <notifications@tarkov.directory>',
+        to: user.email,
+        subject: "Verify Your Email",
+        html: emailHtml,
+      };
+
+      // send email with code
+      await zeptoTransporter.sendMail(options);
+    });
   });

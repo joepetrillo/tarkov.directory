@@ -102,6 +102,12 @@ export function generateIdFromEntropySize(size: number): string {
   return encodeBase32LowerCaseNoPadding(buffer);
 }
 
+export function generateVerificationCode(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)))
+    .map((b) => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[b % 36])
+    .join("");
+}
+
 export type SessionValidationResult =
   | { session: Session; user: User }
   | { session: null; user: null };
