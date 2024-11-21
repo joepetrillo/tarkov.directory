@@ -52,8 +52,8 @@ export default function VerifyEmail() {
               Verify Email
             </Heading>
             <Text className="text-balance">
-              Please check your email for a verification code. Enter the code
-              below to proceed.
+              Please check your email for a verification code. Enter it below to
+              proceed.
             </Text>
           </Flex>
           {verifyResult?.serverError && !verifyPending && (
@@ -76,6 +76,7 @@ export default function VerifyEmail() {
                   disabled={verifyPending}
                   autoFocus
                   required
+                  placeholder="XXXXXX"
                 />
                 {verifyResult?.validationErrors?.code && !verifyPending && (
                   <ValidationError
@@ -111,7 +112,7 @@ export default function VerifyEmail() {
               </Button>
             </Flex>
           ) : (
-            <Callout.Root variant="soft" color="jade" size={"1"}>
+            <Callout.Root variant="soft" color="blue" size={"1"}>
               <Callout.Icon>
                 <CheckCircledIcon />
               </Callout.Icon>
