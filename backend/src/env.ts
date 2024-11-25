@@ -34,7 +34,7 @@ const EnvDTO = Type.Object({
   ),
   PORT: Type.Number({ default: 3001 }),
   HOSTNAME: Type.String({ default: "localhost" }),
-  VPS_API_KEY: Type.String(),
+  API_KEY: Type.String(),
 });
 
 export const isProd = process.env.NODE_ENV === "production";
