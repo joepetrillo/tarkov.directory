@@ -293,8 +293,8 @@ export const sendEmailVerificationCodeAction = authActionClient
     const identifier = `${metadata.actionName}-${user.email}`;
 
     const rateLimiter = new RateLimit({
-      window: 960,
-      max: 1,
+      window: 900,
+      max: 2,
     });
 
     const rateLimitResult = await rateLimiter.limit(identifier);
