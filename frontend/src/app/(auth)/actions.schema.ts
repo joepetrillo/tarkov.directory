@@ -1,15 +1,37 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import OpenAI from "openai";
+import { env } from "@/env";
+
+const openai = new OpenAI({
+  apiKey: env.OPENAI_API_KEY,
+});
 
 const usernameSchema = z
   .string()
+  .trim()
   .regex(/^[A-Za-z0-9_-]+$/, {
     message:
       "Username can only contain letters, numbers, underscores, and hyphens",
   })
-  .refine((data) => data.length >= 3 && data.length <= 32, {
+  .refine((username) => username.length >= 3 && username.length <= 32, {
     message: "Username must be between 3 and 32 characters",
-  });
+  })
+  .refine(
+    async (username) => {
+      const onlyLettersNumbersUsername = username.replace(/[_-]/g, " ");
+      console.log(onlyLettersNumbersUsername);
+      const res = await openai.moderations.create({
+        input: onlyLettersNumbersUsername,
+        model: "omni-moderation-latest",
+      });
+      return !res.results[0]?.flagged;
+    },
+    {
+      message: "Username contains inappropriate content",
+    },
+  )
+  .transform((username) => username.toLowerCase());
 
 const emailSchema = z
   .string()
@@ -17,7 +39,7 @@ const emailSchema = z
 
 const passwordSchema = z
   .string()
-  .refine((data) => data.length >= 8 && data.length <= 64, {
+  .refine((password) => password.length >= 8 && password.length <= 64, {
     message: "Password must be between 8 and 64 characters",
   });
 
