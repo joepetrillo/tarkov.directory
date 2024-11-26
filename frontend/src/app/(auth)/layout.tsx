@@ -1,4 +1,4 @@
-import BackButton from "@/components/back-button";
+import BackButton from "@/components/ui/back-button";
 import { Container, Flex } from "@radix-ui/themes";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
