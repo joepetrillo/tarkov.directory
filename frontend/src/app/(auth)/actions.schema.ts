@@ -19,8 +19,7 @@ const usernameSchema = z
   })
   .refine(
     async (username) => {
-      const onlyLettersNumbersUsername = username.replace(/[_-]/g, " ");
-      console.log(onlyLettersNumbersUsername);
+      const onlyLettersNumbersUsername = username.replace(/[_-]/g, "");
       const res = await openai.moderations.create({
         input: onlyLettersNumbersUsername,
         model: "omni-moderation-latest",
