@@ -104,7 +104,7 @@ export function generateIdFromEntropySize(size: number): string {
 
 export function generateVerificationCode(): string {
   return Array.from(crypto.getRandomValues(new Uint8Array(6)))
-    .map((b) => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[b % 36])
+    .map((b) => "123456789ABCDEFGHJKMNPQRSTUVWXYZ"[b % 32])
     .join("");
 }
 

@@ -5,7 +5,6 @@ import {
   signUpSchema,
   verifyEmailSchema,
 } from "@/app/(auth)/actions.schema";
-import { env } from "@/env";
 import {
   actionClient,
   ActionError,
@@ -13,10 +12,9 @@ import {
   rateLimit,
 } from "@/lib/action-clients";
 import { db } from "@/lib/db";
-import { emailVerificationTable, userTable } from "@/schema";
-import { TurnstileServerValidationResponse } from "@marsidev/react-turnstile";
+import { emailVerificationTable, sessionTable, userTable } from "@/schema";
 import { hash, verify } from "@node-rs/argon2";
-import { and, eq, gt, or } from "drizzle-orm";
+import { and, eq, gt, ne, or } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { render } from "@react-email/render";
@@ -35,38 +33,12 @@ import {
   setSessionTokenCookie,
 } from "@/lib/session";
 
-async function validateTurnstile(turnstileResponse: string) {
-  const turnstileRes = await fetch(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    {
-      body: JSON.stringify({
-        secret: env.TURNSTILE_SECRET_KEY,
-        response: turnstileResponse,
-      }),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const data: TurnstileServerValidationResponse = await turnstileRes.json();
-
-  if (!data.success) {
-    throw new ActionError(
-      "Could not verify that you are human. Please try again.",
-    );
-  }
-}
-
-// Create a new user and send a verification email
+// Create a new user and send a verification email with code
 export const signUpAction = actionClient
   .metadata({ actionName: "signUp" })
   .schema(signUpSchema)
   .use(rateLimit)
   .action(async ({ parsedInput, metadata }) => {
-    await validateTurnstile(parsedInput["cf-turnstile-response"]);
-
     // check if email or username is already taken
     const existingUsers = await db.query.userTable.findMany({
       where: or(
@@ -103,6 +75,7 @@ export const signUpAction = actionClient
     const ip = (await headers()).get("x-forwarded-for") ?? `no-ip`;
     const identifier = `${metadata.actionName}-${ip}`;
 
+    // limit to 5 sign ups per day (should be plenty for a single ip)
     const rateLimiter = new RateLimit({
       window: 86400,
       max: 5,
@@ -175,8 +148,6 @@ export const signInAction = actionClient
   .schema(signInSchema)
   .use(rateLimit)
   .action(async ({ parsedInput }) => {
-    await validateTurnstile(parsedInput["cf-turnstile-response"]);
-
     // check if the user exists (via email match)
     const existingUser = await db.query.userTable.findFirst({
       where: eq(userTable.email, parsedInput.email),
@@ -237,23 +208,25 @@ export const verifyEmailAction = authActionClient
   .metadata({ actionName: "verifyEmail" })
   .schema(verifyEmailSchema)
   .use(rateLimit)
-  .action(async ({ parsedInput, ctx: { user } }) => {
+  .action(async ({ parsedInput, ctx: { user, session } }) => {
     // check if the email is already verified
     if (user.emailVerified) {
       throw new ActionError("Email already verified");
     }
 
-    // check if the user entered a valid code, needs to match and not be expired
+    // check if the code is valid (exists, matches, and is not expired)
     const validVerificationCodes = await db
       .select({ code: emailVerificationTable.code })
       .from(emailVerificationTable)
       .where(
         and(
           eq(emailVerificationTable.email, user.email),
+          eq(emailVerificationTable.userId, user.id),
           gt(emailVerificationTable.expiresAt, new Date(Date.now())),
         ),
       );
 
+    // if no valid codes exist, return validation error
     if (
       validVerificationCodes.filter((v) => v.code === parsedInput.code)
         .length === 0
@@ -265,7 +238,7 @@ export const verifyEmailAction = authActionClient
       });
     }
 
-    // update email verified field and delete the verification codes (any that are expired for that email as well)
+    // update email verified field, delete existing verification codes (any that for email/user), invalidate other sessions
     await db.transaction(async (tx) => {
       await tx
         .update(userTable)
@@ -273,13 +246,26 @@ export const verifyEmailAction = authActionClient
         .where(eq(userTable.id, user.id));
       await tx
         .delete(emailVerificationTable)
-        .where(eq(emailVerificationTable.email, user.email));
+        .where(
+          or(
+            eq(emailVerificationTable.email, user.email),
+            eq(emailVerificationTable.userId, user.id),
+          ),
+        );
+      await tx
+        .delete(sessionTable)
+        .where(
+          and(
+            ne(sessionTable.id, session.id),
+            eq(sessionTable.userId, user.id),
+          ),
+        );
     });
 
     redirect("/guns");
   });
 
-// Verify email address with code
+// Send code to verify email address (used for re-sending verification code)
 export const sendEmailVerificationCodeAction = authActionClient
   .metadata({ actionName: "sendEmailVerificationCode" })
   .use(rateLimit)
@@ -294,7 +280,7 @@ export const sendEmailVerificationCodeAction = authActionClient
 
     const rateLimiter = new RateLimit({
       window: 900,
-      max: 2,
+      max: 1,
     });
 
     const rateLimitResult = await rateLimiter.limit(identifier);
@@ -321,6 +307,7 @@ export const sendEmailVerificationCodeAction = authActionClient
           code: verificationCode,
         }),
       );
+
       const options = {
         from: '"Tarkov Directory" <notifications@tarkov.directory>',
         to: user.email,

@@ -2,6 +2,11 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import OpenAI from "openai";
 import { env } from "@/env";
+import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
+import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
+import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
+import { TurnstileServerValidationResponse } from "@marsidev/react-turnstile";
+import { ActionError } from "@/lib/action-clients";
 
 const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
@@ -42,10 +47,36 @@ const passwordSchema = z
     message: "Password must be between 8 and 64 characters",
   });
 
+const turnstileResponseSchema = z.string().refine(async (turnstileResponse) => {
+  const turnstileRes = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      body: JSON.stringify({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: turnstileResponse,
+      }),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data: TurnstileServerValidationResponse = await turnstileRes.json();
+
+  if (!data.success) {
+    throw new ActionError(
+      "Could not verify that you are human. Please try again.",
+    );
+  }
+
+  return true;
+  });
+
 export const signInSchema = zfd.formData({
   email: zfd.text(emailSchema),
   password: zfd.text(passwordSchema),
-  "cf-turnstile-response": z.string(),
+  "cf-turnstile-response": turnstileResponseSchema,
 });
 
 export const signUpSchema = zfd
@@ -54,7 +85,7 @@ export const signUpSchema = zfd
     username: zfd.text(usernameSchema),
     password: zfd.text(passwordSchema),
     confirmPassword: zfd.text(passwordSchema),
-    "cf-turnstile-response": z.string(),
+    "cf-turnstile-response": turnstileResponseSchema,
   })
   .refine(
     ({ password, confirmPassword }) => {
@@ -63,6 +94,25 @@ export const signUpSchema = zfd
     {
       path: ["confirmPassword"],
       message: "Passwords must match",
+    },
+  )
+  .refine(
+    ({ password, username, email }) => {
+      zxcvbnOptions.setOptions({
+        dictionary: {
+          ...zxcvbnCommonPackage.dictionary,
+          ...zxcvbnEnPackage.dictionary,
+        },
+        graphs: zxcvbnCommonPackage.adjacencyGraphs,
+        useLevenshteinDistance: true,
+        translations: zxcvbnEnPackage.translations,
+      });
+      const result = zxcvbn(password, [username, email]);
+      return result.score >= 3;
+    },
+    {
+      path: ["password"],
+      message: "Password is too weak",
     },
   );
 
