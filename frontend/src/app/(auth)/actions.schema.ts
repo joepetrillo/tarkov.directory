@@ -71,7 +71,7 @@ const turnstileResponseSchema = z.string().refine(async (turnstileResponse) => {
   }
 
   return true;
-  });
+});
 
 export const signInSchema = zfd.formData({
   email: zfd.text(emailSchema),
@@ -123,4 +123,9 @@ export const verifyEmailSchema = zfd.formData({
     .regex(/^[A-Z0-9]+$/, {
       message: "Code can only contain numbers and uppercase letters",
     }),
+});
+
+export const sendResetPasswordSchema = zfd.formData({
+  email: zfd.text(emailSchema),
+  "cf-turnstile-response": turnstileResponseSchema,
 });

@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  sendResetPasswordSchema,
   signInSchema,
   signUpSchema,
   verifyEmailSchema,
@@ -287,7 +288,7 @@ export const sendEmailVerificationCodeAction = authActionClient
 
     if (!rateLimitResult.success) {
       throw new ActionError(
-        `You have requested too many codes. Try again in ${rateLimitResult.timeRemaining}.`,
+        `You requested a code recently. Try again in ${rateLimitResult.timeRemaining}.`,
       );
     }
 
@@ -318,4 +319,55 @@ export const sendEmailVerificationCodeAction = authActionClient
       // send email with code
       await zeptoTransporter.sendMail(options);
     });
+  });
+
+// Send a reset password link to the email asscoiated with an account
+export const sendResetPasswordAction = actionClient
+  .metadata({ actionName: "sendResetPassword" })
+  .schema(sendResetPasswordSchema)
+  .use(rateLimit)
+  .action(async ({ metadata, parsedInput }) => {
+    const ip = (await headers()).get("x-forwarded-for") ?? `no-ip`;
+    const identifier = `${metadata.actionName}-${ip}`;
+
+    const rateLimiter = new RateLimit({
+      window: 3600,
+      max: 2,
+    });
+
+    const rateLimitResult = await rateLimiter.limit(identifier);
+
+    if (!rateLimitResult.success) {
+      throw new ActionError(
+        `You have requested too many resets. Try again in ${rateLimitResult.timeRemaining}.`,
+      );
+    }
+
+    // // generate a new code and send the email
+    // const verificationCode = generateVerificationCode();
+
+    // // insert into db and send email
+    // await db.transaction(async (tx) => {
+    //   await tx.insert(emailVerificationTable).values({
+    //     email: user.email,
+    //     userId: user.id,
+    //     code: verificationCode,
+    //   });
+
+    //   const emailHtml = await render(
+    //     React.createElement(VerificationCodeEmail, {
+    //       code: verificationCode,
+    //     }),
+    //   );
+
+    //   const options = {
+    //     from: '"Tarkov Directory" <notifications@tarkov.directory>',
+    //     to: user.email,
+    //     subject: "Verify Your Email",
+    //     html: emailHtml,
+    //   };
+
+    //   // send email with code
+    //   await zeptoTransporter.sendMail(options);
+    // });
   });

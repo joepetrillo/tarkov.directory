@@ -113,12 +113,20 @@ export default function SignIn() {
           >
             Sign In
           </Button>
-          <Text className="font-mono" size={"2"}>
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" replace={true}>
-              Sign Up
-            </Link>
-          </Text>
+          <Flex direction={"column"} gap={"4"} className="font-mono">
+            <Text size={"2"}>
+              Don&apos;t have an account?{" "}
+              <Link href="/sign-up" replace={true}>
+                Sign Up
+              </Link>
+            </Text>
+            <Text size={"2"}>
+              Having trouble?{" "}
+              <Link href="/reset-password" replace={true}>
+                Reset Password
+              </Link>
+            </Text>
+          </Flex>
         </Flex>
       </Card>
     </Box>
