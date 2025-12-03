@@ -4,7 +4,7 @@ import { CategorizedGunListData } from "@/types";
 import { notFound } from "next/navigation";
 
 export async function getCategorizedGunList() {
-  const response = await api.guns.index.get();
+  const response = await api.guns.get();
 
   if (response.error) {
     throw new Error("There was an error fetching the categorized gun list");
