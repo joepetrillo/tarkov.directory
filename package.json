@@ -2,7 +2,6 @@
   "name": "tarkov.directory",
   "private": true,
   "trustedDependencies": [
-    "@clerk/shared",
     "@vercel/speed-insights",
     "sharp"
   ],

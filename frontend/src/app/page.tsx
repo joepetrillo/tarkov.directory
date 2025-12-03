@@ -1,7 +1,11 @@
+import React from "react";
+import GunList from "@/components/gun-list";
+import { getCategorizedGunList } from "@/data/guns";
+
 export default async function Page() {
-  return (
-    <div>
-      <p>Home - Nothing here yet</p>
-    </div>
-  );
+  const { categorizedGunList } = await getCategorizedGunList();
+
+  return <GunList categorizedGunList={categorizedGunList} />;
 }
+
+export const revalidate = 86400;

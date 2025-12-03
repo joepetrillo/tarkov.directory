@@ -43,7 +43,7 @@ export const GetAllGuns = graphql(
           MachineGuns
           MarksmanRifles
           Pistols
-          SMGs
+          SubmachineGuns
           Shotguns
         ]
         type: gun
