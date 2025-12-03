@@ -4,7 +4,7 @@ FROM oven/bun
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 COPY backend/package.json backend/
 COPY frontend/package.json frontend/
 COPY shared-types/package.json shared-types/
