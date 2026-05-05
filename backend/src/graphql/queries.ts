@@ -36,15 +36,15 @@ export const GetAllGuns = graphql(
     query GetAllGuns {
       items(
         handbookCategoryNames: [
-          AssaultCarbines
-          AssaultRifles
-          BoltActionRifles
-          GrenadeLaunchers
-          MachineGuns
-          MarksmanRifles
-          Pistols
-          SubmachineGuns
-          Shotguns
+          "AssaultCarbines"
+          "AssaultRifles"
+          "BoltActionRifles"
+          "GrenadeLaunchers"
+          "MachineGuns"
+          "MarksmanRifles"
+          "Pistols"
+          "SubmachineGuns"
+          "Shotguns"
         ]
         type: gun
       ) {
