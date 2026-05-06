@@ -21,7 +21,8 @@ import {
 } from "@tanstack/react-table";
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import ModIcon from "@/components/modding/mod-icon";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -62,6 +63,18 @@ type ModSelectorTableRow = Mod & {
   traderAvailabilityRank: number;
 };
 
+type ScrollEdges = {
+  canScrollUp: boolean;
+  canScrollDown: boolean;
+  canScrollLeft: boolean;
+  canScrollRight: boolean;
+};
+
+type ModSelectorScrollAreaStyle = CSSProperties & {
+  "--scrollarea-scrollbar-vertical-margin-top"?: string;
+  "--scrollarea-scrollbar-vertical-margin-bottom"?: string;
+};
+
 const columnHelper = createColumnHelper<ModSelectorTableRow>();
 
 const traderPriceStatusSortRank: Record<TraderPriceStatus["status"], number> = {
@@ -73,6 +86,40 @@ const traderPriceStatusSortRank: Record<TraderPriceStatus["status"], number> = {
 const modSelectorColumnVisibility = {
   [TRADER_AVAILABILITY_RANK_COLUMN_ID]: false,
 };
+
+const scrollEdgeTolerance = 1;
+
+const emptyScrollEdges: ScrollEdges = {
+  canScrollUp: false,
+  canScrollDown: false,
+  canScrollLeft: false,
+  canScrollRight: false,
+};
+
+const topScrollFadeStyle = {
+  background: "linear-gradient(to bottom, var(--color-panel), transparent)",
+};
+
+const bottomScrollFadeStyle = {
+  background: "linear-gradient(to top, var(--color-panel), transparent)",
+};
+
+const leftScrollFadeStyle = {
+  background: "linear-gradient(to right, var(--color-panel), transparent)",
+};
+
+const rightScrollFadeStyle = {
+  background: "linear-gradient(to left, var(--color-panel), transparent)",
+};
+
+const modSelectorScrollAreaStyle = {
+  height: "max(calc(100dvh - 355px), 350px)",
+  width: "min(calc(100dvw - 32px), 1024px)",
+};
+
+const stickyHeaderCellBoxShadow =
+  "inset 0 1px var(--gray-a5), inset 0 -1px var(--gray-a5)";
+const tableBorderInset = 1;
 
 const modSelectorColumns = [
   columnHelper.accessor("shortName", {
@@ -180,6 +227,38 @@ function getModSelectorRowId(row: ModSelectorTableRow) {
   return row.id;
 }
 
+function getScrollEdges(element: HTMLDivElement): ScrollEdges {
+  return {
+    canScrollUp: element.scrollTop > scrollEdgeTolerance,
+    canScrollDown:
+      element.scrollHeight - element.clientHeight - element.scrollTop >
+      scrollEdgeTolerance,
+    canScrollLeft: element.scrollLeft > scrollEdgeTolerance,
+    canScrollRight:
+      element.scrollWidth - element.clientWidth - element.scrollLeft >
+      scrollEdgeTolerance,
+  };
+}
+
+function areScrollEdgesEqual(a: ScrollEdges, b: ScrollEdges) {
+  return (
+    a.canScrollUp === b.canScrollUp &&
+    a.canScrollDown === b.canScrollDown &&
+    a.canScrollLeft === b.canScrollLeft &&
+    a.canScrollRight === b.canScrollRight
+  );
+}
+
+function areSortingStatesEqual(a: SortingState, b: SortingState) {
+  return (
+    a.length === b.length &&
+    a.every(
+      (columnSort, index) =>
+        columnSort.id === b[index]?.id && columnSort.desc === b[index]?.desc,
+    )
+  );
+}
+
 export default function ModSelector({
   slot,
   selectedMod,
@@ -189,6 +268,12 @@ export default function ModSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [hideConflicting, setHideConflicting] = useState(false);
+  const [hideLocked, setHideLocked] = useState(false);
+  const [scrollEdges, setScrollEdges] = useState<ScrollEdges>(emptyScrollEdges);
+  const [tableHeaderHeight, setTableHeaderHeight] = useState(0);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const tableHeaderRef = useRef<HTMLTableSectionElement | null>(null);
+  const previousSortingRef = useRef<SortingState>(sorting);
   const {
     state: { selections },
     dispatch,
@@ -248,9 +333,12 @@ export default function ModSelector({
           normalizedSearchInput,
         ) || normalizeShortNameSearch(mod.name).includes(normalizedSearchInput);
       const conflictingFilter = hideConflicting ? !mod.isConflicting : true;
-      return nameMatch && conflictingFilter;
+      const lockedFilter = hideLocked
+        ? mod.traderPrice.status !== "locked"
+        : true;
+      return nameMatch && conflictingFilter && lockedFilter;
     });
-  }, [tableData, searchInput, hideConflicting]);
+  }, [tableData, searchInput, hideConflicting, hideLocked]);
 
   const handleSortingChange = useCallback<OnChangeFn<SortingState>>(
     (updater) => {
@@ -281,6 +369,105 @@ export default function ModSelector({
   });
   const tableRows = table.getRowModel().rows;
   const visibleSortingCount = getVisibleSorting(sorting).length;
+  const scrollAreaScrollbarStyle = useMemo<ModSelectorScrollAreaStyle>(
+    () => ({
+      "--scrollarea-scrollbar-vertical-margin-top":
+        tableHeaderHeight > 0
+          ? `calc(${tableHeaderHeight}px + var(--space-1))`
+          : undefined,
+      "--scrollarea-scrollbar-vertical-margin-bottom": "var(--space-1)",
+    }),
+    [tableHeaderHeight],
+  );
+
+  const updateScrollEdges = useCallback(() => {
+    const scrollElement = scrollAreaRef.current;
+    const nextScrollEdges = scrollElement
+      ? getScrollEdges(scrollElement)
+      : emptyScrollEdges;
+
+    setScrollEdges((currentScrollEdges) =>
+      areScrollEdgesEqual(currentScrollEdges, nextScrollEdges)
+        ? currentScrollEdges
+        : nextScrollEdges,
+    );
+  }, []);
+
+  const updateTableHeaderHeight = useCallback(() => {
+    const nextTableHeaderHeight =
+      tableHeaderRef.current?.getBoundingClientRect().height ?? 0;
+
+    setTableHeaderHeight((currentTableHeaderHeight) =>
+      Math.abs(currentTableHeaderHeight - nextTableHeaderHeight) <=
+      scrollEdgeTolerance
+        ? currentTableHeaderHeight
+        : nextTableHeaderHeight,
+    );
+  }, []);
+
+  const updateScrollMeasurements = useCallback(() => {
+    updateScrollEdges();
+    updateTableHeaderHeight();
+  }, [updateScrollEdges, updateTableHeaderHeight]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) {
+      setScrollEdges((currentScrollEdges) =>
+        areScrollEdgesEqual(currentScrollEdges, emptyScrollEdges)
+          ? currentScrollEdges
+          : emptyScrollEdges,
+      );
+      setTableHeaderHeight(0);
+      return;
+    }
+
+    const scrollElement = scrollAreaRef.current;
+    updateScrollMeasurements();
+    const animationFrameId = window.requestAnimationFrame(
+      updateScrollMeasurements,
+    );
+
+    if (!scrollElement) {
+      return () => window.cancelAnimationFrame(animationFrameId);
+    }
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateScrollMeasurements);
+    const contentElement = scrollElement.firstElementChild;
+    const tableHeaderElement = tableHeaderRef.current;
+
+    resizeObserver?.observe(scrollElement);
+    if (contentElement instanceof HTMLElement) {
+      resizeObserver?.observe(contentElement);
+    }
+    if (tableHeaderElement) {
+      resizeObserver?.observe(tableHeaderElement);
+    }
+    window.addEventListener("resize", updateScrollMeasurements);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateScrollMeasurements);
+    };
+  }, [filteredTableData.length, isOpen, sorting, updateScrollMeasurements]);
+
+  useLayoutEffect(() => {
+    const previousSorting = previousSortingRef.current;
+    previousSortingRef.current = sorting;
+
+    if (!isOpen || areSortingStatesEqual(previousSorting, sorting)) {
+      return;
+    }
+
+    scrollAreaRef.current?.scrollTo({
+      top: 0,
+      behavior: "instant",
+    });
+    updateScrollEdges();
+  }, [isOpen, sorting, updateScrollEdges]);
 
   const handleSelectMod = (mod: ModSelectorTableRow | null) => {
     // We are selecting or removing a valid mod and it is not conflicting
@@ -326,139 +513,208 @@ export default function ModSelector({
               placeholder="Search by name"
             />
           </Box>
-          <Flex align="center" mb="4">
-            <Checkbox
-              size={"3"}
-              checked={hideConflicting}
-              onCheckedChange={(checked) =>
-                setHideConflicting(checked as boolean)
-              }
-              id="hide-conflicting"
-            />
-            <Text as="label" htmlFor="hide-conflicting" ml="2" size="2">
-              Hide Conflicting
-            </Text>
+          <Flex align="center" gap="4" mb="4" wrap="wrap">
+            <Flex align="center">
+              <Checkbox
+                size={"3"}
+                checked={hideConflicting}
+                onCheckedChange={(checked) =>
+                  setHideConflicting(checked as boolean)
+                }
+                id="hide-conflicting"
+              />
+              <Text as="label" htmlFor="hide-conflicting" ml="2" size="2">
+                Hide Conflicting
+              </Text>
+            </Flex>
+            <Flex align="center">
+              <Checkbox
+                size={"3"}
+                checked={hideLocked}
+                onCheckedChange={(checked) => setHideLocked(checked as boolean)}
+                id="hide-locked"
+              />
+              <Text as="label" htmlFor="hide-locked" ml="2" size="2">
+                Hide Locked
+              </Text>
+            </Flex>
           </Flex>
           <Inset side="x">
-            <ScrollArea
-              size="2"
-              type="auto"
-              style={{
-                height: "max(calc(100dvh - 355px), 350px)",
-                width: "min(calc(100dvw - 32px), 1024px)",
-              }}
-            >
-              {filteredTableData.length === 0 && (
-                <Flex align={"center"} justify={"center"} mt={"5"}>
-                  <Text weight={"bold"} align={"center"}>
-                    No mods found matching search
-                  </Text>
-                </Flex>
-              )}
-              {filteredTableData.length > 0 && (
-                <Table.Root variant="surface">
-                  <Table.Header>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <Table.Row key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                          const sortDirection = header.column.getIsSorted();
-                          const visibleSortIndex =
-                            header.column.getSortIndex() === -1
-                              ? -1
-                              : getVisibleSortIndex(sorting, header.column.id);
+            <Box className="relative" style={modSelectorScrollAreaStyle}>
+              <ScrollArea
+                ref={scrollAreaRef}
+                onScroll={updateScrollEdges}
+                className="[&_.rt-ScrollAreaCorner]:relative [&_.rt-ScrollAreaCorner]:z-30 [&_.rt-ScrollAreaScrollbar]:relative [&_.rt-ScrollAreaScrollbar]:z-30 [&_.rt-ScrollAreaViewport]:overscroll-none"
+                style={scrollAreaScrollbarStyle}
+                size="2"
+                type="auto"
+              >
+                {filteredTableData.length === 0 && (
+                  <Flex align={"center"} justify={"center"} mt={"5"}>
+                    <Text weight={"bold"} align={"center"}>
+                      No mods found matching filters
+                    </Text>
+                  </Flex>
+                )}
+                {filteredTableData.length > 0 && (
+                  <Table.Root
+                    variant="surface"
+                    className="!border-t-0 [&_.rt-ScrollAreaRoot]:!overflow-visible [&_.rt-ScrollAreaViewport]:!overflow-visible [&_.rt-TableRootTable]:!table [&_.rt-TableRootTable]:!overflow-visible"
+                  >
+                    <Table.Header ref={tableHeaderRef}>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <Table.Row key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => {
+                            const canSort = header.column.getCanSort();
+                            const sortDirection = header.column.getIsSorted();
+                            const visibleSortIndex =
+                              header.column.getSortIndex() === -1
+                                ? -1
+                                : getVisibleSortIndex(
+                                    sorting,
+                                    header.column.id,
+                                  );
 
-                          return (
-                            <Table.ColumnHeaderCell
-                              key={header.id}
-                              translate="no"
-                              onClick={
-                                header.column.getCanSort()
-                                  ? header.column.getToggleSortingHandler()
-                                  : undefined
-                              }
-                              style={{
-                                width:
-                                  header.id === "shortName"
-                                    ? "100%"
-                                    : header.column.getSize(),
-                                minWidth:
-                                  header.id === "shortName"
-                                    ? ""
-                                    : header.column.getSize(),
-                              }}
-                              className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
-                            >
-                              <Flex
-                                align="center"
-                                gap="2"
-                                className="whitespace-nowrap"
+                            return (
+                              <Table.ColumnHeaderCell
+                                key={header.id}
+                                translate="no"
+                                onClick={
+                                  canSort
+                                    ? header.column.getToggleSortingHandler()
+                                    : undefined
+                                }
+                                style={{
+                                  width:
+                                    header.id === "shortName"
+                                      ? "100%"
+                                      : header.column.getSize(),
+                                  minWidth:
+                                    header.id === "shortName"
+                                      ? ""
+                                      : header.column.getSize(),
+                                  boxShadow: stickyHeaderCellBoxShadow,
+                                }}
+                                className={`sticky top-0 z-20 select-none !bg-gray-3 ${canSort ? "cursor-pointer hover:!bg-accent-2" : ""}`}
                               >
-                                {flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
-                                {sortDirection === "asc" ? (
-                                  <ArrowUpIcon />
-                                ) : sortDirection === "desc" ? (
-                                  <ArrowDownIcon />
-                                ) : (
-                                  header.column.getCanSort() && (
-                                    <CaretSortIcon />
-                                  )
-                                )}
-                                {visibleSortingCount > 1 &&
-                                  visibleSortIndex !== -1 && (
-                                    <Badge
-                                      color="gray"
-                                      variant="soft"
-                                      size="1"
-                                      className="font-mono"
-                                    >
-                                      {visibleSortIndex + 1}
-                                    </Badge>
+                                <Flex
+                                  align="center"
+                                  gap="2"
+                                  className="whitespace-nowrap"
+                                >
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
                                   )}
-                              </Flex>
-                            </Table.ColumnHeaderCell>
-                          );
-                        })}
-                      </Table.Row>
-                    ))}
-                  </Table.Header>
-                  <Table.Body>
-                    {tableRows.map((row) => (
-                      <Table.Row
-                        key={row.id}
-                        onClick={() => handleSelectMod(row.original)}
-                        className={`hover:bg-accent-1 ${
-                          row.original.isSelected
-                            ? "slanted-line-bg cursor-pointer bg-accent-1"
-                            : row.original.isConflicting
-                              ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
-                              : "cursor-pointer"
-                        }`}
-                        align="center"
-                      >
-                        {row.getVisibleCells().map((cell, index) => (
-                          <Table.Cell
-                            key={cell.id}
-                            className={`relative ${
-                              row.original.isSelected && index === 0
-                                ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
-                                : ""
-                            }`}
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </Table.Cell>
-                        ))}
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table.Root>
+                                  {sortDirection === "asc" ? (
+                                    <ArrowUpIcon />
+                                  ) : sortDirection === "desc" ? (
+                                    <ArrowDownIcon />
+                                  ) : (
+                                    canSort && <CaretSortIcon />
+                                  )}
+                                  {visibleSortingCount > 1 &&
+                                    visibleSortIndex !== -1 && (
+                                      <Badge
+                                        color="gray"
+                                        variant="soft"
+                                        size="1"
+                                        className="font-mono"
+                                      >
+                                        {visibleSortIndex + 1}
+                                      </Badge>
+                                    )}
+                                </Flex>
+                              </Table.ColumnHeaderCell>
+                            );
+                          })}
+                        </Table.Row>
+                      ))}
+                    </Table.Header>
+                    <Table.Body>
+                      {tableRows.map((row) => (
+                        <Table.Row
+                          key={row.id}
+                          onClick={() => handleSelectMod(row.original)}
+                          className={`hover:bg-accent-1 ${
+                            row.original.isSelected
+                              ? "slanted-line-bg cursor-pointer bg-accent-1"
+                              : row.original.isConflicting
+                                ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
+                                : "cursor-pointer"
+                          }`}
+                          align="center"
+                        >
+                          {row.getVisibleCells().map((cell, index) => (
+                            <Table.Cell
+                              key={cell.id}
+                              className={`relative ${
+                                row.original.isSelected && index === 0
+                                  ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
+                                  : ""
+                              }`}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </Table.Cell>
+                          ))}
+                        </Table.Row>
+                      ))}
+                    </Table.Body>
+                  </Table.Root>
+                )}
+              </ScrollArea>
+              {scrollEdges.canScrollUp && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute z-10 h-8"
+                  style={{
+                    ...topScrollFadeStyle,
+                    left: tableBorderInset,
+                    right: tableBorderInset,
+                    top: tableHeaderHeight,
+                  }}
+                />
               )}
-            </ScrollArea>
+              {scrollEdges.canScrollDown && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute z-10 h-8"
+                  style={{
+                    ...bottomScrollFadeStyle,
+                    bottom: 0,
+                    left: tableBorderInset,
+                    right: tableBorderInset,
+                  }}
+                />
+              )}
+              {scrollEdges.canScrollLeft && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute z-10 w-8"
+                  style={{
+                    ...leftScrollFadeStyle,
+                    bottom: tableBorderInset,
+                    left: tableBorderInset,
+                    top: tableHeaderHeight,
+                  }}
+                />
+              )}
+              {scrollEdges.canScrollRight && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute z-10 w-8"
+                  style={{
+                    ...rightScrollFadeStyle,
+                    bottom: tableBorderInset,
+                    right: tableBorderInset,
+                    top: tableHeaderHeight,
+                  }}
+                />
+              )}
+            </Box>
           </Inset>
           <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
