@@ -45,7 +45,6 @@ export const GetAllGuns = graphql(
           "Pistols"
           "Submachine guns"
           "Shotguns"
-          "Special weapons"
         ]
         type: gun
       ) {
@@ -78,7 +77,7 @@ export const GetAllGuns = graphql(
       }
     }
   `,
-  [BuyForFragment, SlotFragment]
+  [BuyForFragment, SlotFragment],
 );
 
 export const GetAllMods = graphql(
@@ -125,5 +124,5 @@ export const GetAllMods = graphql(
       }
     }
   `,
-  [BuyForFragment, SlotFragment]
+  [BuyForFragment, SlotFragment],
 );
