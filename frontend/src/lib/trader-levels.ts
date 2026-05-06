@@ -4,7 +4,7 @@ export type TraderLevels = Record<string, TraderLevel>;
 
 export const TRADER_LEVEL_STORAGE_KEY = "tarkov-directory.trader-levels.v1";
 
-export const DEFAULT_TRADER_LEVEL: TraderLevel = 4;
+export const DEFAULT_TRADER_LEVEL: TraderLevel = 1;
 
 export const TRADER_LEVEL_OPTIONS = [1, 2, 3, 4] as const;
 

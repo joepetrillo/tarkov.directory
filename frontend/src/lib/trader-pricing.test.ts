@@ -94,7 +94,7 @@ describe("trader pricing", () => {
 
     expect(result.status).toBe("locked");
     expect(result.offer?.normalizedName).toBe("mechanic");
-    expect(result.sortPriceRUB).toBeUndefined();
+    expect(result.sortPriceRUB).toBe(1500);
   });
 
   test("returns no trader price when there are no trader offers", () => {

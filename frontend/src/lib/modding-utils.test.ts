@@ -176,4 +176,33 @@ describe("modding utils", () => {
       true,
     );
   });
+
+  test("ignores stale selected mod ids during conflict checks", () => {
+    const targetSlot = slot("target-slot", ["candidate"]);
+    const mods = {
+      candidate: mod("candidate"),
+    };
+    const utils = createModdingUtils(gun({ slots: [targetSlot] }), mods);
+    const originalWarn = console.warn;
+    console.warn = () => {};
+
+    try {
+      expect(
+        utils.isConflicting(
+          [
+            {
+              slotId: "stale-slot",
+              slotNameId: "stale-slot",
+              modId: "missing-mod",
+              slots: [],
+            },
+          ],
+          ["target-slot"],
+          "candidate",
+        ),
+      ).toBe(false);
+    } finally {
+      console.warn = originalWarn;
+    }
+  });
 });

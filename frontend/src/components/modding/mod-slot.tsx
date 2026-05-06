@@ -16,7 +16,7 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
   const selectedMod = selection.modId ? mods[selection.modId] : null;
 
   if (selectedMod === undefined) {
-    throw new Error(`Mod with id ${selection.modId} not found`);
+    console.warn(`Selected mod with id ${selection.modId} not found`);
   }
 
   return (
@@ -40,7 +40,11 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
         <Box
           className={`p-1 ${slot.required && !selectedMod ? "border border-tomato-8" : ""}`}
         >
-          <ModSelector slot={slot} selectedMod={selectedMod} path={path} />
+          <ModSelector
+            slot={slot}
+            selectedMod={selectedMod ?? null}
+            path={path}
+          />
         </Box>
       </Flex>
       {!!selectedMod?.slots.length &&

@@ -1,5 +1,4 @@
 import { Gun, Mod } from "@tarkov.directory/shared-types";
-import type { TraderLevel, TraderLevels } from "@/lib/trader-levels";
 
 export type CategorizedGunListData = {
   categoryName: string;
@@ -14,9 +13,6 @@ export type GunModdingContextType = {
   dispatch: React.Dispatch<GunModdingAction>;
   gun: Gun;
   mods: Record<string, Mod>;
-  traderLevels: TraderLevels;
-  setTraderLevel: (normalizedName: string, traderLevel: TraderLevel) => void;
-  resetTraderLevels: () => void;
   moddingUtils: {
     calculateStats: (selections: SlotSelectionNode[]) => {
       ergonomics: number;

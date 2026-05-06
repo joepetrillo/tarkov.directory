@@ -6,13 +6,13 @@ import {
   Dialog,
   Flex,
   Grid,
-  Inset,
+  Heading,
   Select,
   Text,
 } from "@radix-ui/themes";
-import { GearIcon, ResetIcon } from "@radix-ui/react-icons";
+import { DoubleArrowDownIcon, GearIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
-import { useGunModding } from "@/contexts/gun-modding.context";
+import { useTraderLevels } from "@/contexts/trader-levels.context";
 import {
   getTraderLevel,
   KNOWN_TRADERS,
@@ -22,73 +22,77 @@ import {
 import { getTraderImage } from "@/lib/utils";
 
 export default function TraderLevelsDialog() {
-  const { traderLevels, setTraderLevel, resetTraderLevels } = useGunModding();
+  const { traderLevels, setTraderLevel, resetTraderLevels } = useTraderLevels();
 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button variant="soft">
+        <Button variant="soft" aria-label="Settings">
           <GearIcon />
-          Trader Levels
+          <span className="hidden min-[400px]:inline">Settings</span>
         </Button>
       </Dialog.Trigger>
       <Dialog.Content maxWidth="420px" aria-describedby={undefined}>
-        <Dialog.Title mb="4">Trader Levels</Dialog.Title>
-        <Inset side="x">
-          <Box px="4">
-            <Grid columns="1" gap="3">
-              {KNOWN_TRADERS.map((trader) => {
-                const traderImage = getTraderImage(trader.normalizedName);
+        <Dialog.Title mb="4">Settings</Dialog.Title>
+        <Box>
+          <Heading as="h2" size="3" mb="3">
+            Trader Levels
+          </Heading>
+          <Grid columns="1" gap="3">
+            {KNOWN_TRADERS.map((trader) => {
+              const traderImage = getTraderImage(trader.normalizedName);
 
-                return (
-                  <Flex
-                    key={trader.normalizedName}
-                    align="center"
-                    justify="between"
-                    gap="4"
-                  >
-                    <Flex align="center" gap="3">
-                      <Image
-                        src={traderImage}
-                        alt={trader.name}
-                        width={32}
-                        height={32}
-                        unoptimized={true}
-                      />
-                      <Text size="2" weight="bold">
-                        {trader.name}
-                      </Text>
-                    </Flex>
-                    <Select.Root
-                      value={String(
-                        getTraderLevel(traderLevels, trader.normalizedName),
-                      )}
-                      onValueChange={(value) =>
-                        setTraderLevel(
-                          trader.normalizedName,
-                          Number(value) as TraderLevel,
-                        )
-                      }
-                    >
-                      <Select.Trigger aria-label={`${trader.name} level`} />
-                      <Select.Content>
-                        {TRADER_LEVEL_OPTIONS.map((level) => (
-                          <Select.Item key={level} value={String(level)}>
-                            LL{level}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Root>
+              return (
+                <Flex
+                  key={trader.normalizedName}
+                  align="center"
+                  justify="between"
+                  gap="4"
+                >
+                  <Flex align="center" gap="3">
+                    <Image
+                      src={traderImage}
+                      alt={trader.name}
+                      width={32}
+                      height={32}
+                      unoptimized={true}
+                    />
+                    <Text size="2" weight="bold">
+                      {trader.name}
+                    </Text>
                   </Flex>
-                );
-              })}
-            </Grid>
-          </Box>
-        </Inset>
+                  <Select.Root
+                    value={String(
+                      getTraderLevel(traderLevels, trader.normalizedName),
+                    )}
+                    onValueChange={(value) =>
+                      setTraderLevel(
+                        trader.normalizedName,
+                        Number(value) as TraderLevel,
+                      )
+                    }
+                  >
+                    <Select.Trigger
+                      aria-label={`${trader.name} level`}
+                      className="w-14 font-mono"
+                    />
+                    <Select.Content className="font-mono">
+                      {TRADER_LEVEL_OPTIONS.map((level) => (
+                        <Select.Item key={level} value={String(level)}>
+                          {level}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Flex>
+              );
+            })}
+          </Grid>
+        </Box>
         <Flex gap="3" mt="5" justify="end">
           <Button variant="soft" color="gray" onClick={resetTraderLevels}>
-            <ResetIcon />
-            Reset
+            <DoubleArrowDownIcon />
+            Reset Levels
           </Button>
           <Dialog.Close>
             <Button variant="classic">Done</Button>

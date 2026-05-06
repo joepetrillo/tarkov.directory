@@ -17,17 +17,18 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import ModIcon from "@/components/modding/mod-icon";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   CaretSortIcon,
 } from "@radix-ui/react-icons";
 import { useGunModding } from "@/contexts/gun-modding.context";
+import { useTraderLevels } from "@/contexts/trader-levels.context";
 import SearchInput from "@/components/ui/search-input";
 import {
   getTraderImage,
@@ -40,6 +41,13 @@ import {
   getTraderPriceStatus,
   type TraderPriceStatus,
 } from "@/lib/trader-pricing";
+import {
+  getNextModSelectorSorting,
+  getVisibleSortIndex,
+  getVisibleSorting,
+  TRADER_AVAILABILITY_RANK_COLUMN_ID,
+  TRADER_PRICE_COLUMN_ID,
+} from "@/lib/mod-selector-sorting";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -47,12 +55,130 @@ type ModSelectorProps = {
   path: string[];
 };
 
-type ModWithConflicting = Mod & {
+type ModSelectorTableRow = Mod & {
+  isSelected: boolean;
   isConflicting: boolean;
   traderPrice: TraderPriceStatus;
+  traderAvailabilityRank: number;
 };
 
-const columnHelper = createColumnHelper<ModWithConflicting>();
+const columnHelper = createColumnHelper<ModSelectorTableRow>();
+
+const traderPriceStatusSortRank: Record<TraderPriceStatus["status"], number> = {
+  available: 0,
+  locked: 1,
+  none: 2,
+};
+
+const modSelectorColumnVisibility = {
+  [TRADER_AVAILABILITY_RANK_COLUMN_ID]: false,
+};
+
+const modSelectorColumns = [
+  columnHelper.accessor("shortName", {
+    header: "Mod",
+    cell: (info) => (
+      <Flex align="center" gap="4" className="min-w-[250px]">
+        <ModIcon
+          iconImageUrl={info.row.original.iconImageUrl}
+          shortName={info.getValue()}
+          showShortName={false}
+          size={46}
+        />
+        <Flex direction="column">
+          <Text size="2" weight="bold">
+            {info.getValue()}{" "}
+            {info.row.original.isSelected
+              ? "(Selected)"
+              : info.row.original.isConflicting
+                ? "(Conflicting)"
+                : ""}
+          </Text>
+          <Text size="1" className="line-clamp-1 text-balance text-gray-11">
+            {info.row.original.name}
+          </Text>
+        </Flex>
+      </Flex>
+    ),
+    enableSorting: false,
+  }),
+  columnHelper.accessor("ergonomicsModifier", {
+    header: "Ergo",
+    size: 100,
+    cell: (info) => {
+      const value = info.getValue();
+      const formattedValue = value > 0 ? `+${value}` : value;
+      const textColorClass =
+        value < 0 ? "text-tomato-11" : value > 0 ? "text-jade-11" : "";
+      return (
+        <Text
+          weight={"bold"}
+          className={`block font-mono ${textColorClass} whitespace-nowrap`}
+        >
+          {formattedValue}
+        </Text>
+      );
+    },
+  }),
+  columnHelper.accessor("recoilModifier", {
+    header: "Recoil",
+    size: 100,
+    invertSorting: true,
+    cell: (info) => {
+      const value = info.getValue();
+      const formattedValue = value > 0 ? `+${value}` : value;
+      const textColorClass =
+        value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
+      return (
+        <Text
+          weight={"bold"}
+          className={`block font-mono ${textColorClass} whitespace-nowrap`}
+        >
+          {formattedValue}
+        </Text>
+      );
+    },
+  }),
+  columnHelper.accessor("avgFleaMarketRUBPrice", {
+    header: "Avg Flea Price",
+    size: 145,
+    sortDescFirst: false,
+    sortUndefined: "last",
+    cell: (info) => {
+      const value = info.getValue();
+      return value ? (
+        <Flex gap="1" align={"center"} wrap={"nowrap"}>
+          <Text size={"3"} className="text-gray-11">
+            ₽
+          </Text>
+          <Text weight={"bold"} className="font-mono">
+            {value.toLocaleString()}
+          </Text>
+        </Flex>
+      ) : (
+        <Text>No Flea Price</Text>
+      );
+    },
+  }),
+  columnHelper.accessor("traderAvailabilityRank", {
+    id: TRADER_AVAILABILITY_RANK_COLUMN_ID,
+    header: "Trader Availability",
+  }),
+  columnHelper.accessor((mod) => mod.traderPrice.sortPriceRUB, {
+    id: TRADER_PRICE_COLUMN_ID,
+    header: "Best Trader Price",
+    size: 230,
+    sortDescFirst: false,
+    sortUndefined: "last",
+    cell: (info) => {
+      return <TraderPriceCell traderPrice={info.row.original.traderPrice} />;
+    },
+  }),
+];
+
+function getModSelectorRowId(row: ModSelectorTableRow) {
+  return row.id;
+}
 
 export default function ModSelector({
   slot,
@@ -68,122 +194,24 @@ export default function ModSelector({
     dispatch,
     mods,
     moddingUtils,
-    traderLevels,
   } = useGunModding();
+  const { traderLevels } = useTraderLevels();
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("shortName", {
-        header: "Mod",
-        cell: (info) => (
-          <Flex align="center" gap="4" className="min-w-[250px]">
-            <ModIcon
-              iconImageUrl={info.row.original.iconImageUrl}
-              shortName={info.getValue()}
-              showShortName={false}
-              size={46}
-            />
-            <Flex direction="column">
-              <Text size="2" weight="bold">
-                {info.getValue()}{" "}
-                {info.row.original.id === selectedMod?.id
-                  ? "(Selected)"
-                  : info.row.original.isConflicting
-                    ? "(Conflicting)"
-                    : ""}
-              </Text>
-              <Text size="1" className="line-clamp-1 text-balance text-gray-11">
-                {info.row.original.name}
-              </Text>
-            </Flex>
-          </Flex>
-        ),
-        enableSorting: false,
-      }),
-      columnHelper.accessor("ergonomicsModifier", {
-        header: "Ergo",
-        size: 100,
-        cell: (info) => {
-          const value = info.getValue();
-          const formattedValue = value > 0 ? `+${value}` : value;
-          const textColorClass =
-            value < 0 ? "text-tomato-11" : value > 0 ? "text-jade-11" : "";
-          return (
-            <Text
-              weight={"bold"}
-              className={`block font-mono ${textColorClass} whitespace-nowrap`}
-            >
-              {formattedValue}
-            </Text>
-          );
-        },
-      }),
-      columnHelper.accessor("recoilModifier", {
-        header: "Recoil",
-        size: 100,
-        invertSorting: true,
-        cell: (info) => {
-          const value = info.getValue();
-          const formattedValue = value > 0 ? `+${value}` : value;
-          const textColorClass =
-            value < 0 ? "text-jade-11" : value > 0 ? "text-tomato-11" : "";
-          return (
-            <Text
-              weight={"bold"}
-              className={`block font-mono ${textColorClass} whitespace-nowrap`}
-            >
-              {formattedValue}
-            </Text>
-          );
-        },
-      }),
-      columnHelper.accessor("avgFleaMarketRUBPrice", {
-        header: "Avg Flea Price",
-        size: 145,
-        sortUndefined: "last",
-        cell: (info) => {
-          const value = info.getValue();
-          return value ? (
-            <Flex gap="1" align={"center"} wrap={"nowrap"}>
-              <Text size={"3"} className="text-gray-11">
-                ₽
-              </Text>
-              <Text weight={"bold"} className="font-mono">
-                {value.toLocaleString()}
-              </Text>
-            </Flex>
-          ) : (
-            <Text>No Flea Price</Text>
-          );
-        },
-      }),
-      columnHelper.accessor((mod) => mod.traderPrice.sortPriceRUB, {
-        id: "traderPrice",
-        header: "Best Trader Price",
-        size: 180,
-        sortUndefined: "last",
-        cell: (info) => {
-          return (
-            <TraderPriceCell traderPrice={info.row.original.traderPrice} />
-          );
-        },
-      }),
-    ],
-    [selectedMod?.id],
-  );
-
-  const tableData: ModWithConflicting[] = useMemo(() => {
+  const tableData: ModSelectorTableRow[] = useMemo(() => {
     const sortedMods = slot.allowedModIds
       .map((modId) => {
         if (!mods[modId]) {
           throw new Error(`Mod with id ${modId} not found`);
         }
+        const traderPrice = getTraderPriceStatus(
+          mods[modId].traderOffers,
+          traderLevels,
+        );
         return {
           ...mods[modId],
-          traderPrice: getTraderPriceStatus(
-            mods[modId].traderOffers,
-            traderLevels,
-          ),
+          isSelected: modId === selectedMod?.id,
+          traderPrice,
+          traderAvailabilityRank: traderPriceStatusSortRank[traderPrice.status],
           isConflicting: moddingUtils.isConflicting(selections, path, modId),
         };
       })
@@ -212,8 +240,9 @@ export default function ModSelector({
   ]);
 
   const filteredTableData = useMemo(() => {
+    const normalizedSearchInput = normalizeShortNameSearch(searchInput);
+
     return tableData.filter((mod) => {
-      const normalizedSearchInput = normalizeShortNameSearch(searchInput);
       const nameMatch =
         normalizeShortNameSearch(mod.shortName).includes(
           normalizedSearchInput,
@@ -223,17 +252,37 @@ export default function ModSelector({
     });
   }, [tableData, searchInput, hideConflicting]);
 
+  const handleSortingChange = useCallback<OnChangeFn<SortingState>>(
+    (updater) => {
+      setSorting((currentSorting) =>
+        getNextModSelectorSorting(updater, currentSorting),
+      );
+    },
+    [],
+  );
+
+  const tableState = useMemo(
+    () => ({
+      sorting,
+      columnVisibility: modSelectorColumnVisibility,
+    }),
+    [sorting],
+  );
+
   const table = useReactTable({
     data: filteredTableData,
-    columns,
+    columns: modSelectorColumns,
     enableMultiSort: true,
-    state: { sorting },
-    onSortingChange: setSorting,
+    state: tableState,
+    onSortingChange: handleSortingChange,
+    getRowId: getModSelectorRowId,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
+  const tableRows = table.getRowModel().rows;
+  const visibleSortingCount = getVisibleSorting(sorting).length;
 
-  const handleSelectMod = (mod: ModWithConflicting | null) => {
+  const handleSelectMod = (mod: ModSelectorTableRow | null) => {
     // We are selecting or removing a valid mod and it is not conflicting
     if (!mod?.isConflicting) {
       dispatch({ type: "updated_selection", path, modId: mod?.id ?? null });
@@ -259,6 +308,7 @@ export default function ModSelector({
       <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Content
           aria-describedby={undefined}
+          translate="no"
           className="max-w-screen-md"
           onOpenAutoFocus={(event) => {
             if (isMobileDevice()) {
@@ -310,55 +360,77 @@ export default function ModSelector({
                   <Table.Header>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <Table.Row key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <Table.ColumnHeaderCell
-                            key={header.id}
-                            onClick={
-                              header.column.getCanSort()
-                                ? header.column.getToggleSortingHandler()
-                                : undefined
-                            }
-                            style={{
-                              width:
-                                header.id === "shortName"
-                                  ? "100%"
-                                  : header.column.getSize(),
-                              minWidth:
-                                header.id === "shortName"
-                                  ? ""
-                                  : header.column.getSize(),
-                            }}
-                            className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
-                          >
-                            <Flex
-                              align="center"
-                              gap="2"
-                              className="whitespace-nowrap"
+                        {headerGroup.headers.map((header) => {
+                          const sortDirection = header.column.getIsSorted();
+                          const visibleSortIndex =
+                            header.column.getSortIndex() === -1
+                              ? -1
+                              : getVisibleSortIndex(sorting, header.column.id);
+
+                          return (
+                            <Table.ColumnHeaderCell
+                              key={header.id}
+                              translate="no"
+                              onClick={
+                                header.column.getCanSort()
+                                  ? header.column.getToggleSortingHandler()
+                                  : undefined
+                              }
+                              style={{
+                                width:
+                                  header.id === "shortName"
+                                    ? "100%"
+                                    : header.column.getSize(),
+                                minWidth:
+                                  header.id === "shortName"
+                                    ? ""
+                                    : header.column.getSize(),
+                              }}
+                              className={`select-none ${header.column.getCanSort() ? "cursor-pointer hover:bg-accent-1" : ""} `}
                             >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                              {{
-                                asc: <ArrowUpIcon />,
-                                desc: <ArrowDownIcon />,
-                              }[header.column.getIsSorted() as string] ??
-                                (header.column.getCanSort() && (
-                                  <CaretSortIcon />
-                                ))}
-                            </Flex>
-                          </Table.ColumnHeaderCell>
-                        ))}
+                              <Flex
+                                align="center"
+                                gap="2"
+                                className="whitespace-nowrap"
+                              >
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                                {sortDirection === "asc" ? (
+                                  <ArrowUpIcon />
+                                ) : sortDirection === "desc" ? (
+                                  <ArrowDownIcon />
+                                ) : (
+                                  header.column.getCanSort() && (
+                                    <CaretSortIcon />
+                                  )
+                                )}
+                                {visibleSortingCount > 1 &&
+                                  visibleSortIndex !== -1 && (
+                                    <Badge
+                                      color="gray"
+                                      variant="soft"
+                                      size="1"
+                                      className="font-mono"
+                                    >
+                                      {visibleSortIndex + 1}
+                                    </Badge>
+                                  )}
+                              </Flex>
+                            </Table.ColumnHeaderCell>
+                          );
+                        })}
                       </Table.Row>
                     ))}
                   </Table.Header>
                   <Table.Body>
-                    {table.getRowModel().rows.map((row) => (
+                    {tableRows.map((row) => (
                       <Table.Row
                         key={row.id}
                         onClick={() => handleSelectMod(row.original)}
                         className={`hover:bg-accent-1 ${
-                          row.original.id === selectedMod?.id
+                          row.original.isSelected
                             ? "slanted-line-bg cursor-pointer bg-accent-1"
                             : row.original.isConflicting
                               ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
@@ -370,7 +442,7 @@ export default function ModSelector({
                           <Table.Cell
                             key={cell.id}
                             className={`relative ${
-                              row.original.id === selectedMod?.id && index === 0
+                              row.original.isSelected && index === 0
                                 ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
                                 : ""
                             }`}
@@ -421,7 +493,14 @@ function TraderPriceCell({ traderPrice }: { traderPrice: TraderPriceStatus }) {
       justify={"center"}
       className={isLocked ? "text-gray-11" : ""}
     >
-      <Flex justify={"between"} align={"center"} gap={"2"}>
+      <Flex justify={"start"} align={"center"} gap={"2"}>
+        <Image
+          src={traderImage}
+          alt={offer.name}
+          width={24}
+          height={24}
+          unoptimized={true}
+        />
         <Flex direction="column">
           <Flex gap="1" align="center" wrap="nowrap">
             <Text size={"3"} className="text-gray-11">
@@ -431,23 +510,16 @@ function TraderPriceCell({ traderPrice }: { traderPrice: TraderPriceStatus }) {
               {offer.price.toLocaleString()}
             </Text>
             {isLocked && (
-              <Badge color="tomato" variant="soft">
+              <Badge color="tomato" variant="surface" size={"1"}>
                 Locked
               </Badge>
             )}
           </Flex>
           <Text size="1" className="whitespace-nowrap text-gray-11">
             {isLocked ? "Requires " : ""}
-            {offer.name} LL{offer.minTraderLevel}
+            {offer.name} {offer.minTraderLevel}
           </Text>
         </Flex>
-        <Image
-          src={traderImage}
-          alt={offer.name}
-          width={24}
-          height={24}
-          unoptimized={true}
-        />
       </Flex>
     </Flex>
   );

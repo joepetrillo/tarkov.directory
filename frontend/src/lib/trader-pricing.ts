@@ -10,7 +10,7 @@ export type TraderPriceStatus =
   | {
       status: "locked";
       offer: TraderOffer;
-      sortPriceRUB: undefined;
+      sortPriceRUB: number;
     }
   | {
       status: "none";
@@ -51,10 +51,12 @@ export function getTraderPriceStatus(
     };
   }
 
+  const cheapestLockedOffer = sortedOffers[0] as TraderOffer;
+
   return {
     status: "locked",
-    offer: sortedOffers[0] as TraderOffer,
-    sortPriceRUB: undefined,
+    offer: cheapestLockedOffer,
+    sortPriceRUB: cheapestLockedOffer.priceRUB,
   };
 }
 

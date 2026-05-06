@@ -1,17 +1,18 @@
 "use client";
 
 import {
-  AlertDialog,
   Box,
   Button,
+  Dialog,
   Flex,
   Heading,
   Separator,
+  Text,
 } from "@radix-ui/themes";
 import GunStats from "@/components/modding/gun-stats";
 import ModSlot from "@/components/modding/mod-slot";
-import TraderLevelsDialog from "@/components/modding/trader-levels-dialog";
 import { useGunModding } from "@/contexts/gun-modding.context";
+import { ResetIcon } from "@radix-ui/react-icons";
 
 export default function GunModding() {
   const {
@@ -25,37 +26,41 @@ export default function GunModding() {
       <Box mb="8">
         <GunStats />
       </Box>
-      <Heading size="3">Modding Slots</Heading>
-      <Separator mt="2" mb="4" size="4" />
-      <Flex gap="3" mb="4" wrap="wrap">
-        <TraderLevelsDialog />
-        <AlertDialog.Root>
-          <AlertDialog.Trigger>
-            <Button variant="classic">Reset</Button>
-          </AlertDialog.Trigger>
-          <AlertDialog.Content maxWidth="425px">
-            <AlertDialog.Title>Reset Selections</AlertDialog.Title>
-            <AlertDialog.Description>
-              Are you sure? All slots will be reset.
-            </AlertDialog.Description>
-            <Flex gap="3" mt="4" justify="end">
-              <AlertDialog.Cancel>
-                <Button variant="soft" color="gray">
-                  Cancel
-                </Button>
-              </AlertDialog.Cancel>
-              <AlertDialog.Action>
-                <Button
-                  variant="classic"
-                  onClick={() => dispatch({ type: "reset" })}
-                >
-                  Reset
-                </Button>
-              </AlertDialog.Action>
-            </Flex>
-          </AlertDialog.Content>
-        </AlertDialog.Root>
+      <Flex direction="row" justify="between" align="end" gap="4">
+        <Heading size="3">Modding Slots</Heading>
+        <Flex gap="3" wrap="wrap">
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant="soft">
+                <ResetIcon />
+                Reset
+              </Button>
+            </Dialog.Trigger>
+            <Dialog.Content aria-describedby={undefined} maxWidth="420px">
+              <Dialog.Title>Reset Selections</Dialog.Title>
+              <Text as="p" size="2" className="text-gray-11">
+                Are you sure? All slots will be reset.
+              </Text>
+              <Flex gap="3" mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft" color="gray">
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Dialog.Close>
+                  <Button
+                    variant="classic"
+                    onClick={() => dispatch({ type: "reset" })}
+                  >
+                    Proceed
+                  </Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+        </Flex>
       </Flex>
+      <Separator mt="2" mb="4" size="4" />
       <Flex direction="column" gap="4">
         {gun.slots.map((slot) => {
           const selection = selections.find(

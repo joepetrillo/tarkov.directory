@@ -148,10 +148,8 @@ export function createModdingUtils(
       if (node.modId !== null) {
         const selectedMod = mods[node.modId];
         if (selectedMod === undefined) {
-          throw new Error(`Mod with id ${node.modId} not found`);
-        }
-
-        if (
+          console.warn(`Selected mod with id ${node.modId} not found`);
+        } else if (
           candidateMod.conflictingModIds.includes(node.modId) ||
           selectedMod.conflictingModIds.includes(modId) ||
           candidateMod.conflictingSlotIds.includes(node.slotId) ||
