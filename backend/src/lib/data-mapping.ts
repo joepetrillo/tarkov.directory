@@ -53,7 +53,7 @@ export function extractCaliber(input: string | null) {
 // Processes relevant mods for a gun
 export function processRelevantMods(
   gun: Gun,
-  allMods: Record<string, Mod>
+  allMods: Record<string, Mod>,
 ): Record<string, Mod> {
   const relevantModIds = new Set<string>();
 
@@ -98,7 +98,7 @@ function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
       ) {
         if (slot?.name && slot?.id) {
           console.warn(
-            `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`
+            `Skipped slot with name "${slot.name}"\nID equals "${slot.id}"\n`,
           );
         } else if (slot?.id) {
           console.warn(`Skipped slot with id ${slot.id}`);
@@ -123,7 +123,7 @@ function processSlots(slots: FragmentOf<typeof SlotFragment>[]): Slot[] {
 
 // Extracts the Flea Market RUB price from list of offers
 function processFleaMarketPrice(
-  offers: FragmentOf<typeof BuyForFragment>[]
+  offers: FragmentOf<typeof BuyForFragment>[],
 ): number | undefined {
   return (
     offers.reduce((acc: number | null, offer) => {
@@ -138,7 +138,7 @@ function processFleaMarketPrice(
 
 // Extracts array of TraderOffer objects from list of offers
 function processTraderOffers(
-  offers: FragmentOf<typeof BuyForFragment>[]
+  offers: FragmentOf<typeof BuyForFragment>[],
 ): TraderOffer[] | undefined {
   const validOffers = offers
     .map((offer): TraderOffer | null => {
@@ -164,7 +164,7 @@ function processTraderOffers(
       };
     })
     .filter((offer): offer is TraderOffer => offer !== null)
-    .sort((a, b) => a.price - b.price);
+    .sort((a, b) => a.priceRUB - b.priceRUB);
 
   return validOffers.length > 0 ? validOffers : undefined;
 }
@@ -194,7 +194,7 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
       ) {
         if (gun?.name && gun?.id) {
           console.warn(
-            `Skipped gun with name "${gun.name}"\nID equals "${gun.id}"\n`
+            `Skipped gun with name "${gun.name}"\nID equals "${gun.id}"\n`,
           );
         } else if (gun?.id) {
           console.warn(`Skipped gun with id ${gun.id}`);
@@ -223,8 +223,8 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
         traderOffers: processTraderOffers(gun.buyFor),
         slots: processSlots(
           gun.properties.slots.filter(
-            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null
-          )
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
+          ),
         ),
       };
 
@@ -241,7 +241,7 @@ export function processAllGuns(gunData: ResultOf<typeof GetAllGuns>): {
 
       return acc;
     },
-    {} as Record<string, Gun>
+    {} as Record<string, Gun>,
   );
 
   return { gunsByCategory, allGuns };
@@ -273,7 +273,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
       ) {
         if (mod?.name && mod?.id) {
           console.warn(
-            `Skipped mod with name "${mod.name}"\nID equals "${mod.id}"\n`
+            `Skipped mod with name "${mod.name}"\nID equals "${mod.id}"\n`,
           );
         } else if (mod?.id) {
           console.warn(`Skipped mod with id ${mod.id}`);
@@ -292,7 +292,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
         recoilModifier: mod.recoilModifier,
         ergonomicsModifier: mod.ergonomicsModifier,
         conflictingSlotIds: mod.conflictingSlotIds.filter(
-          (id): id is string => id !== null
+          (id): id is string => id !== null,
         ),
         conflictingModIds: mod.conflictingItems
           .map((item) => item?.id ?? null)
@@ -301,8 +301,8 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
         traderOffers: processTraderOffers(mod.buyFor),
         slots: processSlots(
           mod.properties.slots.filter(
-            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null
-          )
+            (slot): slot is FragmentOf<typeof SlotFragment> => slot !== null,
+          ),
         ),
       };
 
@@ -310,7 +310,7 @@ export function processAllMods(modData: ResultOf<typeof GetAllMods>): {
 
       return acc;
     },
-    {} as Record<string, Mod>
+    {} as Record<string, Mod>,
   );
 
   return { allMods };

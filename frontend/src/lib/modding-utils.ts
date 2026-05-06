@@ -59,6 +59,7 @@ export function createModdingUtils(
       })
       .filter((slot) => slot.allowedModIds.length > 0)
       .map((slot) => ({
+        slotId: slot.id,
         slotNameId: slot.nameId,
         modId: null,
         slots: [],
@@ -80,8 +81,7 @@ export function createModdingUtils(
       node: SlotSelectionNode,
       remainingPath: string[],
     ): SlotSelectionNode {
-      // if the current node is the one we are targeting in the path, continue down the path
-      if (node.slotNameId === remainingPath[0]) {
+      if (node.slotId === remainingPath[0]) {
         // we are at the end of the path
         if (remainingPath.length === 1) {
           // if modId is null, this means we are removing the mod from the selection
@@ -125,43 +125,51 @@ export function createModdingUtils(
   // checks if the modId passed conflicts with any of the already selected mods (in selections)
   function isConflicting(
     selections: SlotSelectionNode[],
-    fullPathString: string,
+    fullPath: string[],
     modId: string,
   ) {
     const mod = mods[modId];
+    if (mod === undefined) {
+      throw new Error(`Mod with id ${modId} not found`);
+    }
+    const candidateMod = mod;
+
+    const targetPathString = fullPath.join("-");
+    const targetSlotId = fullPath.at(-1);
     let conflicting = false;
 
-    function isConflictingNode(pathString: string, node: SlotSelectionNode) {
+    function isConflictingNode(path: string[], node: SlotSelectionNode) {
+      const pathString = path.join("-");
+
+      if (targetPathString === pathString) {
+        return;
+      }
+
       if (node.modId !== null) {
         const selectedMod = mods[node.modId];
-        // Ensure the mod exists in our mods object
-        if (mod === undefined) {
-          throw new Error(`Mod with id ${modId} not found`);
-        }
         if (selectedMod === undefined) {
           throw new Error(`Mod with id ${node.modId} not found`);
         }
-        // Skip checking for conflicts if we're at the target path
-        if (fullPathString === pathString) {
-          return;
-        } else if (
-          mod.conflictingModIds.includes(node.modId) ||
-          selectedMod.conflictingModIds.includes(modId)
+
+        if (
+          candidateMod.conflictingModIds.includes(node.modId) ||
+          selectedMod.conflictingModIds.includes(modId) ||
+          candidateMod.conflictingSlotIds.includes(node.slotId) ||
+          (targetSlotId !== undefined &&
+            selectedMod.conflictingSlotIds.includes(targetSlotId))
         ) {
-          // Set conflicting to true if there's a conflict
           conflicting = true;
           return;
         }
       }
-      // Recursively check for conflicts in nested slots
+
       node.slots.forEach((selection) => {
-        isConflictingNode(`${pathString}-${selection.slotNameId}`, selection);
+        isConflictingNode([...path, selection.slotId], selection);
       });
     }
 
-    // Start the conflict check from the top-level selections
     selections.forEach((selection) => {
-      isConflictingNode(selection.slotNameId, selection);
+      isConflictingNode([selection.slotId], selection);
     });
 
     return conflicting;

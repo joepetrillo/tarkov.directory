@@ -9,6 +9,7 @@ import {
   Card,
   Box,
   Checkbox,
+  Badge,
 } from "@radix-ui/themes";
 import type { Mod, Slot } from "@tarkov.directory/shared-types";
 import {
@@ -34,6 +35,11 @@ import {
   normalizeShortNameSearch,
 } from "@/lib/utils";
 import Image from "next/image";
+import {
+  getCurrencySymbol,
+  getTraderPriceStatus,
+  type TraderPriceStatus,
+} from "@/lib/trader-pricing";
 
 type ModSelectorProps = {
   slot: Slot;
@@ -43,6 +49,7 @@ type ModSelectorProps = {
 
 type ModWithConflicting = Mod & {
   isConflicting: boolean;
+  traderPrice: TraderPriceStatus;
 };
 
 const columnHelper = createColumnHelper<ModWithConflicting>();
@@ -61,6 +68,7 @@ export default function ModSelector({
     dispatch,
     mods,
     moddingUtils,
+    traderLevels,
   } = useGunModding();
 
   const columns = useMemo(
@@ -149,58 +157,14 @@ export default function ModSelector({
           );
         },
       }),
-      columnHelper.accessor("traderOffers", {
+      columnHelper.accessor((mod) => mod.traderPrice.sortPriceRUB, {
+        id: "traderPrice",
         header: "Best Trader Price",
         size: 180,
         sortUndefined: "last",
-        sortingFn: (a, b) => {
-          const aPrice = a.original.traderOffers?.[0]?.priceRUB ?? -Infinity;
-          const bPrice = b.original.traderOffers?.[0]?.priceRUB ?? -Infinity;
-          return aPrice - bPrice;
-        },
         cell: (info) => {
-          const bestOffer = info.getValue()?.[0];
-          const traderImage = bestOffer
-            ? getTraderImage(bestOffer.normalizedName)
-            : null;
-          return bestOffer ? (
-            <Flex direction="column" justify={"center"} className="relative">
-              <Flex justify={"between"} align={"center"} gap={"1"}>
-                <Flex direction="column">
-                  <Flex gap="1" align="center" wrap="nowrap">
-                    <Text size={"3"} className="text-gray-11">
-                      {bestOffer.currency === "RUB"
-                        ? "₽"
-                        : bestOffer.currency === "USD"
-                          ? "$"
-                          : bestOffer.currency === "EUR"
-                            ? "€"
-                            : bestOffer.currency}
-                    </Text>
-                    <Text
-                      weight={"bold"}
-                      className="whitespace-nowrap font-mono"
-                    >
-                      {bestOffer.price.toLocaleString()}
-                    </Text>
-                  </Flex>
-                  <Text size="1" className="whitespace-nowrap text-gray-11">
-                    {bestOffer.name} {bestOffer.minTraderLevel}
-                  </Text>
-                </Flex>
-                {traderImage !== null && (
-                  <Image
-                    src={traderImage}
-                    alt={bestOffer.name}
-                    width={24}
-                    height={24}
-                    unoptimized={true}
-                  />
-                )}
-              </Flex>
-            </Flex>
-          ) : (
-            <Text>No Trader Price</Text>
+          return (
+            <TraderPriceCell traderPrice={info.row.original.traderPrice} />
           );
         },
       }),
@@ -216,11 +180,11 @@ export default function ModSelector({
         }
         return {
           ...mods[modId],
-          isConflicting: moddingUtils.isConflicting(
-            selections,
-            path.join("-"),
-            modId,
+          traderPrice: getTraderPriceStatus(
+            mods[modId].traderOffers,
+            traderLevels,
           ),
+          isConflicting: moddingUtils.isConflicting(selections, path, modId),
         };
       })
       .sort((a, b) => a.shortName.localeCompare(b.shortName));
@@ -244,6 +208,7 @@ export default function ModSelector({
     moddingUtils,
     selections,
     path,
+    traderLevels,
   ]);
 
   const filteredTableData = useMemo(() => {
@@ -438,5 +403,52 @@ export default function ModSelector({
         </Dialog.Content>
       </Dialog.Root>
     </>
+  );
+}
+
+function TraderPriceCell({ traderPrice }: { traderPrice: TraderPriceStatus }) {
+  if (traderPrice.status === "none") {
+    return <Text>No Trader Price</Text>;
+  }
+
+  const { offer } = traderPrice;
+  const traderImage = getTraderImage(offer.normalizedName);
+  const isLocked = traderPrice.status === "locked";
+
+  return (
+    <Flex
+      direction="column"
+      justify={"center"}
+      className={isLocked ? "text-gray-11" : ""}
+    >
+      <Flex justify={"between"} align={"center"} gap={"2"}>
+        <Flex direction="column">
+          <Flex gap="1" align="center" wrap="nowrap">
+            <Text size={"3"} className="text-gray-11">
+              {getCurrencySymbol(offer.currency)}
+            </Text>
+            <Text weight={"bold"} className="whitespace-nowrap font-mono">
+              {offer.price.toLocaleString()}
+            </Text>
+            {isLocked && (
+              <Badge color="tomato" variant="soft">
+                Locked
+              </Badge>
+            )}
+          </Flex>
+          <Text size="1" className="whitespace-nowrap text-gray-11">
+            {isLocked ? "Requires " : ""}
+            {offer.name} LL{offer.minTraderLevel}
+          </Text>
+        </Flex>
+        <Image
+          src={traderImage}
+          alt={offer.name}
+          width={24}
+          height={24}
+          unoptimized={true}
+        />
+      </Flex>
+    </Flex>
   );
 }

@@ -46,15 +46,15 @@ export default function ModSlot({ slot, selection, path }: ModSlotProps) {
       {!!selectedMod?.slots.length &&
         selectedMod.slots.map((childSlot) => {
           const childSelection = selection.slots.find(
-            (s) => s.slotNameId === childSlot.nameId,
+            (s) => s.slotId === childSlot.id,
           );
           return (
             childSelection && (
-              <div key={childSlot.nameId} className="ml-[30px]">
+              <div key={childSlot.id} className="ml-[30px]">
                 <ModSlot
                   slot={childSlot}
                   selection={childSelection}
-                  path={[...path, childSlot.nameId]}
+                  path={[...path, childSlot.id]}
                 />
               </div>
             )

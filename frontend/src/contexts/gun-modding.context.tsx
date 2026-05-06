@@ -7,7 +7,7 @@ import React, {
   useCallback,
   ReactNode,
   useMemo,
-  useEffect,
+  useState,
 } from "react";
 import { Gun, Mod } from "@tarkov.directory/shared-types";
 import {
@@ -17,6 +17,12 @@ import {
   GunModdingContextType,
 } from "@/types";
 import { createModdingUtils } from "@/lib/modding-utils";
+import {
+  DEFAULT_TRADER_LEVELS,
+  readStoredTraderLevels,
+  type TraderLevel,
+  writeStoredTraderLevels,
+} from "@/lib/trader-levels";
 
 type GunModdingProviderProps = {
   gun: Gun;
@@ -66,22 +72,45 @@ export function GunModdingProvider({
       ? { selections: preset }
       : { selections: moddingUtils.getEmptySelections() },
   );
+  const [traderLevels, setTraderLevels] = useState(() => {
+    if (typeof window === "undefined") {
+      return DEFAULT_TRADER_LEVELS;
+    }
+
+    return readStoredTraderLevels(window.localStorage);
+  });
+
+  const setTraderLevel = useCallback(
+    (normalizedName: string, traderLevel: TraderLevel) => {
+      setTraderLevels((currentTraderLevels) => {
+        const nextTraderLevels = {
+          ...currentTraderLevels,
+          [normalizedName]: traderLevel,
+        };
+
+        writeStoredTraderLevels(window.localStorage, nextTraderLevels);
+
+        return nextTraderLevels;
+      });
+    },
+    [],
+  );
+
+  const resetTraderLevels = useCallback(() => {
+    setTraderLevels(DEFAULT_TRADER_LEVELS);
+    writeStoredTraderLevels(window.localStorage, DEFAULT_TRADER_LEVELS);
+  }, []);
 
   const value: GunModdingContextType = {
     state,
     dispatch,
     gun,
     mods,
+    traderLevels,
+    setTraderLevel,
+    resetTraderLevels,
     moddingUtils,
   };
-
-  useEffect(() => {
-    console.log("SELECTIONS: ", state.selections);
-  }, [state.selections]);
-
-  useEffect(() => {
-    console.log("MODS: ", mods);
-  }, [mods]);
 
   return (
     <GunModdingContext.Provider value={value}>
