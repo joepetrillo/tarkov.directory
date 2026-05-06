@@ -8,6 +8,7 @@ import ragman from "@/components/modding/images/ragman.webp";
 import jaeger from "@/components/modding/images/jaeger.webp";
 import fence from "@/components/modding/images/fence.webp";
 import lightkeeper from "@/components/modding/images/lightkeeper.webp";
+import ref from "@/components/modding/images/ref.webp";
 import unknown from "@/components/modding/images/unknown-trader.webp";
 import { StaticImageData } from "next/image";
 
@@ -34,6 +35,7 @@ export function getTraderImage(normalizedName: string) {
     jaeger,
     fence,
     lightkeeper,
+    ref,
   };
 
   return traderImages[normalizedName] || unknown;

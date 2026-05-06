@@ -27,13 +27,14 @@ export type GunModdingContextType = {
     ) => SlotSelectionNode[];
     isConflicting: (
       selections: SlotSelectionNode[],
-      fullPathString: string,
+      path: string[],
       modId: string,
     ) => boolean;
   };
 };
 
 export type SlotSelectionNode = {
+  slotId: string;
   slotNameId: string;
   modId: string | null;
   slots: SlotSelectionNode[];

@@ -13,7 +13,7 @@ import {
   Card,
 } from "@radix-ui/themes";
 import type { CategorizedGunListData } from "@/types";
-import { useQueryState } from "nuqs";
+import { parseAsString, useQueryState } from "nuqs";
 import SearchInput from "@/components/ui/search-input";
 
 export default function GunList({
@@ -21,10 +21,12 @@ export default function GunList({
 }: {
   categorizedGunList: CategorizedGunListData;
 }) {
-  const [searchInput, setSearchInput] = useQueryState("search", {
-    clearOnDefault: true,
-    defaultValue: "",
-  });
+  const [searchInput, setSearchInput] = useQueryState(
+    "search",
+    parseAsString.withDefault("").withOptions({
+      shallow: true,
+    }),
+  );
 
   const filteredList = categorizedGunList
     .map((category) => {

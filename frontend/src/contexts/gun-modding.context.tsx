@@ -7,7 +7,6 @@ import React, {
   useCallback,
   ReactNode,
   useMemo,
-  useEffect,
 } from "react";
 import { Gun, Mod } from "@tarkov.directory/shared-types";
 import {
@@ -66,7 +65,6 @@ export function GunModdingProvider({
       ? { selections: preset }
       : { selections: moddingUtils.getEmptySelections() },
   );
-
   const value: GunModdingContextType = {
     state,
     dispatch,
@@ -74,14 +72,6 @@ export function GunModdingProvider({
     mods,
     moddingUtils,
   };
-
-  useEffect(() => {
-    console.log("SELECTIONS: ", state.selections);
-  }, [state.selections]);
-
-  useEffect(() => {
-    console.log("MODS: ", mods);
-  }, [mods]);
 
   return (
     <GunModdingContext.Provider value={value}>

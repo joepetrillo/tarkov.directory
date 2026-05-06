@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  cacheComponents: true,
+  cacheLife: {
+    tarkovHourly: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 3600,
+    },
+  },
   logging: {
     fetches: {
       fullUrl: true,
