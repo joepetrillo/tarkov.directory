@@ -2,6 +2,7 @@ import "server-only";
 import { api } from "@/lib/api-client";
 import { CategorizedGunListData } from "@/types";
 import { notFound } from "next/navigation";
+import { cacheLife, cacheTag } from "next/cache";
 
 export async function getCategorizedGunList() {
   const response = await api.guns.get();
@@ -45,6 +46,10 @@ export async function getCategorizedGunList() {
 }
 
 export async function getGun(gunId: string) {
+  "use cache: remote";
+  cacheLife("tarkovHourly");
+  cacheTag("tarkov:guns", `tarkov:gun:${gunId}`);
+
   const response = await api.guns({ gunId }).mods.get();
 
   if (response.status === 404) {
