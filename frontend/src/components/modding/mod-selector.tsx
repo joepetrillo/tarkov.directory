@@ -120,6 +120,8 @@ const modSelectorScrollAreaStyle = {
 const stickyHeaderCellBoxShadow =
   "inset 0 1px var(--gray-a5), inset 0 -1px var(--gray-a5)";
 const tableBorderInset = 1;
+const scrollFadeClassName =
+  "pointer-events-none absolute z-10 opacity-0 transition-opacity duration-150 ease-out motion-reduce:transition-none";
 
 const modSelectorColumns = [
   columnHelper.accessor("shortName", {
@@ -666,54 +668,50 @@ export default function ModSelector({
                   </Table.Root>
                 )}
               </ScrollArea>
-              {scrollEdges.canScrollUp && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute z-10 h-8"
-                  style={{
-                    ...topScrollFadeStyle,
-                    left: tableBorderInset,
-                    right: tableBorderInset,
-                    top: tableHeaderHeight,
-                  }}
-                />
-              )}
-              {scrollEdges.canScrollDown && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute z-10 h-8"
-                  style={{
-                    ...bottomScrollFadeStyle,
-                    bottom: 0,
-                    left: tableBorderInset,
-                    right: tableBorderInset,
-                  }}
-                />
-              )}
-              {scrollEdges.canScrollLeft && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute z-10 w-8"
-                  style={{
-                    ...leftScrollFadeStyle,
-                    bottom: tableBorderInset,
-                    left: tableBorderInset,
-                    top: tableHeaderHeight,
-                  }}
-                />
-              )}
-              {scrollEdges.canScrollRight && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute z-10 w-8"
-                  style={{
-                    ...rightScrollFadeStyle,
-                    bottom: tableBorderInset,
-                    right: tableBorderInset,
-                    top: tableHeaderHeight,
-                  }}
-                />
-              )}
+              <div
+                aria-hidden="true"
+                className={`${scrollFadeClassName} h-8`}
+                style={{
+                  ...topScrollFadeStyle,
+                  left: tableBorderInset,
+                  opacity: scrollEdges.canScrollUp ? 1 : 0,
+                  right: tableBorderInset,
+                  top: tableHeaderHeight,
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className={`${scrollFadeClassName} h-8`}
+                style={{
+                  ...bottomScrollFadeStyle,
+                  bottom: 0,
+                  left: tableBorderInset,
+                  opacity: scrollEdges.canScrollDown ? 1 : 0,
+                  right: tableBorderInset,
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className={`${scrollFadeClassName} w-8`}
+                style={{
+                  ...leftScrollFadeStyle,
+                  bottom: tableBorderInset,
+                  left: 0,
+                  opacity: scrollEdges.canScrollLeft ? 1 : 0,
+                  top: tableHeaderHeight,
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className={`${scrollFadeClassName} w-8`}
+                style={{
+                  ...rightScrollFadeStyle,
+                  bottom: tableBorderInset,
+                  opacity: scrollEdges.canScrollRight ? 1 : 0,
+                  right: 0,
+                  top: tableHeaderHeight,
+                }}
+              />
             </Box>
           </Inset>
           <Flex gap="3" mt="4" justify="end">
