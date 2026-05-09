@@ -65,11 +65,6 @@ export function toTitleCase(str: string) {
   });
 }
 
-// Function that will sleep for the specified number of milliseconds
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 // Function to normalize a string by removing spaces and hyphens and converting to lowercase
 export function normalizeShortNameSearch(input: string) {
   return input.replace(/-/g, "").replace(/\s+/g, "").toLowerCase();

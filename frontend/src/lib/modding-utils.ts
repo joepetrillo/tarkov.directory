@@ -50,20 +50,21 @@ export function createModdingUtils(
 
   // gets us slots with at least one valid mod that can go in it, according to the mods object we have
   function getValidNodeSlots(slots: Slot[]): SlotSelectionNode[] {
-    return slots
-      .map((slot) => {
-        return {
-          ...slot,
-          allowedModIds: slot.allowedModIds.filter((modId) => mods[modId]),
-        };
-      })
-      .filter((slot) => slot.allowedModIds.length > 0)
-      .map((slot) => ({
+    const validNodeSlots: SlotSelectionNode[] = [];
+
+    for (const slot of slots) {
+      const allowedModIds = slot.allowedModIds.filter((modId) => mods[modId]);
+      if (allowedModIds.length === 0) continue;
+
+      validNodeSlots.push({
         slotId: slot.id,
         slotNameId: slot.nameId,
         modId: null,
         slots: [],
-      }));
+      });
+    }
+
+    return validNodeSlots;
   }
 
   // gets us the initial empty selections for the gun we are modding (when no mods are selected)

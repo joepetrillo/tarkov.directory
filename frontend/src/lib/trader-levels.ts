@@ -2,9 +2,9 @@ export type TraderLevel = 1 | 2 | 3 | 4;
 
 export type TraderLevels = Record<string, TraderLevel>;
 
-export const TRADER_LEVEL_STORAGE_KEY = "tarkov-directory.trader-levels.v1";
+const TRADER_LEVEL_STORAGE_KEY = "tarkov-directory.trader-levels.v1";
 
-export const DEFAULT_TRADER_LEVEL: TraderLevel = 1;
+const DEFAULT_TRADER_LEVEL: TraderLevel = 1;
 
 export const TRADER_LEVEL_OPTIONS = [1, 2, 3, 4] as const;
 
@@ -24,7 +24,7 @@ export const DEFAULT_TRADER_LEVELS: TraderLevels = Object.fromEntries(
   KNOWN_TRADERS.map((trader) => [trader.normalizedName, DEFAULT_TRADER_LEVEL]),
 ) as TraderLevels;
 
-export function isTraderLevel(value: unknown): value is TraderLevel {
+function isTraderLevel(value: unknown): value is TraderLevel {
   return (
     typeof value === "number" &&
     TRADER_LEVEL_OPTIONS.includes(value as TraderLevel)
@@ -38,7 +38,7 @@ export function getTraderLevel(
   return traderLevels[normalizedName] ?? DEFAULT_TRADER_LEVEL;
 }
 
-export function normalizeTraderLevels(value: unknown): TraderLevels {
+function normalizeTraderLevels(value: unknown): TraderLevels {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return DEFAULT_TRADER_LEVELS;
   }

@@ -28,18 +28,26 @@ export default function GunList({
     }),
   );
 
-  const filteredList = categorizedGunList
-    .map((category) => {
-      return {
-        categoryName: category.categoryName,
-        guns: category.guns.filter((gun) => {
-          return normalizeShortNameSearch(gun.shortName).includes(
-            normalizeShortNameSearch(searchInput),
-          );
-        }),
-      };
-    })
-    .filter((category) => category.guns.length > 0);
+  const normalizedSearchInput = normalizeShortNameSearch(searchInput);
+  const filteredList = categorizedGunList.reduce<CategorizedGunListData>(
+    (filteredCategories, category) => {
+      const guns = category.guns.filter((gun) => {
+        return normalizeShortNameSearch(gun.shortName).includes(
+          normalizedSearchInput,
+        );
+      });
+
+      if (guns.length > 0) {
+        filteredCategories.push({
+          categoryName: category.categoryName,
+          guns,
+        });
+      }
+
+      return filteredCategories;
+    },
+    [],
+  );
 
   return (
     <div>

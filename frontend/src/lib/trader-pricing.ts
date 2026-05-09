@@ -21,7 +21,7 @@ export type TraderPriceStatus =
 export function sortTraderOffersByPriceRUB(
   traderOffers: TraderOffer[],
 ): TraderOffer[] {
-  return [...traderOffers].sort((a, b) => a.priceRUB - b.priceRUB);
+  return traderOffers.toSorted((a, b) => a.priceRUB - b.priceRUB);
 }
 
 export function getTraderPriceStatus(

@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "bun --bun eslint src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@elysiajs/eden": "1.4.9",
