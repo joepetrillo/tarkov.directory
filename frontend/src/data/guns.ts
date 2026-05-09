@@ -13,34 +13,35 @@ export async function getCategorizedGunList() {
 
   const { allGuns, gunsByCategory } = response.data;
 
-  const categorizedGunList: CategorizedGunListData = Object.entries(
-    gunsByCategory,
-  )
-    .map(([_, gunIds]) => {
-      if (!gunIds[0]) return null;
-      const gunId = gunIds[0];
-      if (!allGuns[gunId]) return null;
-      const gun = allGuns[gunId];
+  const categorizedGunList: CategorizedGunListData = [];
 
-      return {
-        categoryName: gun.category.name,
-        guns: gunIds
-          .map((id) => {
-            const currGun = allGuns[id];
-            if (!currGun) return null;
-            return {
-              id: currGun.id,
-              name: currGun.name,
-              shortName: currGun.shortName,
-              defaultPresetImageUrl: currGun.defaultPresetImageUrl,
-              caliber: currGun.caliber,
-            };
-          })
-          .filter((gun) => gun !== null)
-          .sort((a, b) => a.shortName.localeCompare(b.shortName)),
-      };
-    })
-    .filter((category) => category !== null);
+  for (const gunIds of Object.values(gunsByCategory)) {
+    const gunId = gunIds[0];
+    if (!gunId) continue;
+
+    const gun = allGuns[gunId];
+    if (!gun) continue;
+
+    const guns: CategorizedGunListData[number]["guns"] = [];
+    for (const id of gunIds) {
+      const currGun = allGuns[id];
+      if (!currGun) continue;
+
+      guns.push({
+        id: currGun.id,
+        name: currGun.name,
+        shortName: currGun.shortName,
+        defaultPresetImageUrl: currGun.defaultPresetImageUrl,
+        caliber: currGun.caliber,
+      });
+    }
+
+    guns.sort((a, b) => a.shortName.localeCompare(b.shortName));
+    categorizedGunList.push({
+      categoryName: gun.category.name,
+      guns,
+    });
+  }
 
   return { categorizedGunList };
 }

@@ -3,8 +3,8 @@
 import {
   createContext,
   type ReactNode,
+  use,
   useCallback,
-  useContext,
   useMemo,
   useState,
 } from "react";
@@ -67,7 +67,7 @@ export function TraderLevelsProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTraderLevels() {
-  const context = useContext(TraderLevelsContext);
+  const context = use(TraderLevelsContext);
   if (context === null) {
     throw new Error(
       "useTraderLevels must be used within a TraderLevelsProvider",

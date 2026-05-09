@@ -95,7 +95,7 @@ export default function TraderLevelsDialog() {
             Reset Levels
           </Button>
           <Dialog.Close>
-            <Button variant="classic">Done</Button>
+            <Button variant="classic">Close</Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>

@@ -19,10 +19,22 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import type {
+  OnChangeFn,
+  Row,
+  SortingState,
+  Table as ReactTable,
+  Updater,
+} from "@tanstack/react-table";
 import ModIcon from "@/components/modding/mod-icon";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
+import type { CSSProperties, RefObject } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -63,13 +75,6 @@ type ModSelectorTableRow = Mod & {
   traderAvailabilityRank: number;
 };
 
-type ScrollEdges = {
-  canScrollUp: boolean;
-  canScrollDown: boolean;
-  canScrollLeft: boolean;
-  canScrollRight: boolean;
-};
-
 type ModSelectorScrollAreaStyle = CSSProperties & {
   "--scrollarea-scrollbar-vertical-margin-top"?: string;
   "--scrollarea-scrollbar-vertical-margin-bottom"?: string;
@@ -87,29 +92,34 @@ const modSelectorColumnVisibility = {
   [TRADER_AVAILABILITY_RANK_COLUMN_ID]: false,
 };
 
-const scrollEdgeTolerance = 1;
+const emptySorting: SortingState = [];
+const tableHeaderHeightTolerance = 1;
 
-const emptyScrollEdges: ScrollEdges = {
-  canScrollUp: false,
-  canScrollDown: false,
-  canScrollLeft: false,
-  canScrollRight: false,
+type ModSelectorState = {
+  sorting: SortingState;
+  isOpen: boolean;
+  searchInput: string;
+  hideConflicting: boolean;
+  hideLocked: boolean;
+  tableHeaderHeight: number;
 };
 
-const topScrollFadeStyle = {
-  background: "linear-gradient(to bottom, var(--color-panel), transparent)",
-};
+type ModSelectorAction =
+  | { type: "set_sorting"; updater: Updater<SortingState> }
+  | { type: "set_open"; isOpen: boolean }
+  | { type: "set_search_input"; searchInput: string }
+  | { type: "set_hide_conflicting"; hideConflicting: boolean }
+  | { type: "set_hide_locked"; hideLocked: boolean }
+  | { type: "set_table_header_height"; tableHeaderHeight: number }
+  | { type: "reset_after_selection" };
 
-const bottomScrollFadeStyle = {
-  background: "linear-gradient(to top, var(--color-panel), transparent)",
-};
-
-const leftScrollFadeStyle = {
-  background: "linear-gradient(to right, var(--color-panel), transparent)",
-};
-
-const rightScrollFadeStyle = {
-  background: "linear-gradient(to left, var(--color-panel), transparent)",
+const initialModSelectorState: ModSelectorState = {
+  sorting: emptySorting,
+  isOpen: false,
+  searchInput: "",
+  hideConflicting: false,
+  hideLocked: false,
+  tableHeaderHeight: 0,
 };
 
 const modSelectorScrollAreaStyle = {
@@ -119,9 +129,6 @@ const modSelectorScrollAreaStyle = {
 
 const stickyHeaderCellBoxShadow =
   "inset 0 1px var(--gray-a5), inset 0 -1px var(--gray-a5)";
-const tableBorderInset = 1;
-const scrollFadeClassName =
-  "pointer-events-none absolute z-10 opacity-0 transition-opacity duration-150 ease-out motion-reduce:transition-none";
 
 const modSelectorColumns = [
   columnHelper.accessor("shortName", {
@@ -229,28 +236,6 @@ function getModSelectorRowId(row: ModSelectorTableRow) {
   return row.id;
 }
 
-function getScrollEdges(element: HTMLDivElement): ScrollEdges {
-  return {
-    canScrollUp: element.scrollTop > scrollEdgeTolerance,
-    canScrollDown:
-      element.scrollHeight - element.clientHeight - element.scrollTop >
-      scrollEdgeTolerance,
-    canScrollLeft: element.scrollLeft > scrollEdgeTolerance,
-    canScrollRight:
-      element.scrollWidth - element.clientWidth - element.scrollLeft >
-      scrollEdgeTolerance,
-  };
-}
-
-function areScrollEdgesEqual(a: ScrollEdges, b: ScrollEdges) {
-  return (
-    a.canScrollUp === b.canScrollUp &&
-    a.canScrollDown === b.canScrollDown &&
-    a.canScrollLeft === b.canScrollLeft &&
-    a.canScrollRight === b.canScrollRight
-  );
-}
-
 function areSortingStatesEqual(a: SortingState, b: SortingState) {
   return (
     a.length === b.length &&
@@ -261,48 +246,160 @@ function areSortingStatesEqual(a: SortingState, b: SortingState) {
   );
 }
 
-export default function ModSelector({
-  slot,
-  selectedMod,
-  path,
-}: ModSelectorProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-  const [hideConflicting, setHideConflicting] = useState(false);
-  const [hideLocked, setHideLocked] = useState(false);
-  const [scrollEdges, setScrollEdges] = useState<ScrollEdges>(emptyScrollEdges);
-  const [tableHeaderHeight, setTableHeaderHeight] = useState(0);
+function modSelectorReducer(
+  state: ModSelectorState,
+  action: ModSelectorAction,
+): ModSelectorState {
+  switch (action.type) {
+    case "set_sorting": {
+      const sorting = getNextModSelectorSorting(action.updater, state.sorting);
+      return areSortingStatesEqual(state.sorting, sorting)
+        ? state
+        : { ...state, sorting };
+    }
+    case "set_open":
+      return state.isOpen === action.isOpen
+        ? state
+        : { ...state, isOpen: action.isOpen };
+    case "set_search_input":
+      return state.searchInput === action.searchInput
+        ? state
+        : { ...state, searchInput: action.searchInput };
+    case "set_hide_conflicting":
+      return state.hideConflicting === action.hideConflicting
+        ? state
+        : { ...state, hideConflicting: action.hideConflicting };
+    case "set_hide_locked":
+      return state.hideLocked === action.hideLocked
+        ? state
+        : { ...state, hideLocked: action.hideLocked };
+    case "set_table_header_height":
+      return Math.abs(state.tableHeaderHeight - action.tableHeaderHeight) <=
+        tableHeaderHeightTolerance
+        ? state
+        : { ...state, tableHeaderHeight: action.tableHeaderHeight };
+    case "reset_after_selection":
+      return {
+        ...state,
+        isOpen: false,
+        searchInput: "",
+        sorting: emptySorting,
+      };
+    default:
+      return state;
+  }
+}
+
+export default function ModSelector(props: ModSelectorProps) {
+  const {
+    isOpen,
+    searchInput,
+    hideConflicting,
+    hideLocked,
+    sorting,
+    table,
+    tableRows,
+    filteredTableDataLength,
+    scrollAreaRef,
+    tableHeaderRef,
+    scrollAreaScrollbarStyle,
+    handleSelectMod,
+    handleOpenChange,
+    handleSearchInputChange,
+    handleHideConflictingChange,
+    handleHideLockedChange,
+    handleOpenSelector,
+  } = useModSelectorModel(props);
+
+  return (
+    <>
+      <ModSelectorTrigger
+        selectedMod={props.selectedMod}
+        onOpen={handleOpenSelector}
+      />
+      <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
+        <Dialog.Content
+          aria-describedby={undefined}
+          translate="no"
+          className="max-w-screen-md"
+          onOpenAutoFocus={(event) => {
+            if (isMobileDevice()) {
+              event.preventDefault();
+            }
+          }}
+        >
+          <Dialog.Title className="text-balance" mb={"4"}>
+            {props.slot.name} Mods
+          </Dialog.Title>
+          <ModSelectorFilters
+            searchInput={searchInput}
+            setSearchInput={handleSearchInputChange}
+            hideConflicting={hideConflicting}
+            hideLocked={hideLocked}
+            onHideConflictingChange={handleHideConflictingChange}
+            onHideLockedChange={handleHideLockedChange}
+          />
+          <ModSelectorTableView
+            table={table}
+            tableRows={tableRows}
+            sorting={sorting}
+            filteredTableDataLength={filteredTableDataLength}
+            scrollAreaRef={scrollAreaRef}
+            tableHeaderRef={tableHeaderRef}
+            scrollAreaScrollbarStyle={scrollAreaScrollbarStyle}
+            onSelectMod={handleSelectMod}
+          />
+          <ModSelectorActions onRemoveMod={() => handleSelectMod(null)} />
+        </Dialog.Content>
+      </Dialog.Root>
+    </>
+  );
+}
+
+function useModSelectorModel({ slot, selectedMod, path }: ModSelectorProps) {
+  const [modSelectorState, modSelectorDispatch] = useReducer(
+    modSelectorReducer,
+    initialModSelectorState,
+  );
+  const {
+    sorting,
+    isOpen,
+    searchInput,
+    hideConflicting,
+    hideLocked,
+    tableHeaderHeight,
+  } = modSelectorState;
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const tableHeaderRef = useRef<HTMLTableSectionElement | null>(null);
   const previousSortingRef = useRef<SortingState>(sorting);
   const {
     state: { selections },
-    dispatch,
+    dispatch: gunModdingDispatch,
     mods,
     moddingUtils,
   } = useGunModding();
   const { traderLevels } = useTraderLevels();
 
   const tableData: ModSelectorTableRow[] = useMemo(() => {
-    const sortedMods = slot.allowedModIds
-      .map((modId) => {
-        if (!mods[modId]) {
-          throw new Error(`Mod with id ${modId} not found`);
-        }
-        const traderPrice = getTraderPriceStatus(
-          mods[modId].traderOffers,
-          traderLevels,
-        );
-        return {
-          ...mods[modId],
-          isSelected: modId === selectedMod?.id,
-          traderPrice,
-          traderAvailabilityRank: traderPriceStatusSortRank[traderPrice.status],
-          isConflicting: moddingUtils.isConflicting(selections, path, modId),
-        };
-      })
-      .sort((a, b) => a.shortName.localeCompare(b.shortName));
+    const sortedMods: ModSelectorTableRow[] = [];
+
+    for (const modId of slot.allowedModIds) {
+      const mod = mods[modId];
+      if (!mod) {
+        throw new Error(`Mod with id ${modId} not found`);
+      }
+
+      const traderPrice = getTraderPriceStatus(mod.traderOffers, traderLevels);
+      sortedMods.push({
+        ...mod,
+        isSelected: modId === selectedMod?.id,
+        traderPrice,
+        traderAvailabilityRank: traderPriceStatusSortRank[traderPrice.status],
+        isConflicting: moddingUtils.isConflicting(selections, path, modId),
+      });
+    }
+
+    sortedMods.sort((a, b) => a.shortName.localeCompare(b.shortName));
 
     if (selectedMod?.id) {
       const selectedIndex = sortedMods.findIndex(
@@ -344,9 +441,7 @@ export default function ModSelector({
 
   const handleSortingChange = useCallback<OnChangeFn<SortingState>>(
     (updater) => {
-      setSorting((currentSorting) =>
-        getNextModSelectorSorting(updater, currentSorting),
-      );
+      modSelectorDispatch({ type: "set_sorting", updater });
     },
     [],
   );
@@ -370,7 +465,6 @@ export default function ModSelector({
     getSortedRowModel: getSortedRowModel(),
   });
   const tableRows = table.getRowModel().rows;
-  const visibleSortingCount = getVisibleSorting(sorting).length;
   const scrollAreaScrollbarStyle = useMemo<ModSelectorScrollAreaStyle>(
     () => ({
       "--scrollarea-scrollbar-vertical-margin-top":
@@ -382,79 +476,55 @@ export default function ModSelector({
     [tableHeaderHeight],
   );
 
-  const updateScrollEdges = useCallback(() => {
-    const scrollElement = scrollAreaRef.current;
-    const nextScrollEdges = scrollElement
-      ? getScrollEdges(scrollElement)
-      : emptyScrollEdges;
-
-    setScrollEdges((currentScrollEdges) =>
-      areScrollEdgesEqual(currentScrollEdges, nextScrollEdges)
-        ? currentScrollEdges
-        : nextScrollEdges,
-    );
-  }, []);
-
   const updateTableHeaderHeight = useCallback(() => {
     const nextTableHeaderHeight =
       tableHeaderRef.current?.getBoundingClientRect().height ?? 0;
 
-    setTableHeaderHeight((currentTableHeaderHeight) =>
-      Math.abs(currentTableHeaderHeight - nextTableHeaderHeight) <=
-      scrollEdgeTolerance
-        ? currentTableHeaderHeight
-        : nextTableHeaderHeight,
-    );
+    modSelectorDispatch({
+      type: "set_table_header_height",
+      tableHeaderHeight: nextTableHeaderHeight,
+    });
   }, []);
-
-  const updateScrollMeasurements = useCallback(() => {
-    updateScrollEdges();
-    updateTableHeaderHeight();
-  }, [updateScrollEdges, updateTableHeaderHeight]);
+  const updateTableHeaderHeightRef = useRef(updateTableHeaderHeight);
+  updateTableHeaderHeightRef.current = updateTableHeaderHeight;
 
   useLayoutEffect(() => {
     if (!isOpen) {
-      setScrollEdges((currentScrollEdges) =>
-        areScrollEdgesEqual(currentScrollEdges, emptyScrollEdges)
-          ? currentScrollEdges
-          : emptyScrollEdges,
-      );
-      setTableHeaderHeight(0);
+      modSelectorDispatch({
+        type: "set_table_header_height",
+        tableHeaderHeight: 0,
+      });
       return;
     }
 
-    const scrollElement = scrollAreaRef.current;
-    updateScrollMeasurements();
-    const animationFrameId = window.requestAnimationFrame(
-      updateScrollMeasurements,
-    );
+    const updateTableHeaderHeightFromRef = () => {
+      updateTableHeaderHeightRef.current();
+    };
 
-    if (!scrollElement) {
+    updateTableHeaderHeightFromRef();
+    const animationFrameId = window.requestAnimationFrame(
+      updateTableHeaderHeightFromRef,
+    );
+    const tableHeaderElement = tableHeaderRef.current;
+
+    if (!tableHeaderElement) {
       return () => window.cancelAnimationFrame(animationFrameId);
     }
 
     const resizeObserver =
       typeof ResizeObserver === "undefined"
         ? null
-        : new ResizeObserver(updateScrollMeasurements);
-    const contentElement = scrollElement.firstElementChild;
-    const tableHeaderElement = tableHeaderRef.current;
+        : new ResizeObserver(updateTableHeaderHeightFromRef);
 
-    resizeObserver?.observe(scrollElement);
-    if (contentElement instanceof HTMLElement) {
-      resizeObserver?.observe(contentElement);
-    }
-    if (tableHeaderElement) {
-      resizeObserver?.observe(tableHeaderElement);
-    }
-    window.addEventListener("resize", updateScrollMeasurements);
+    resizeObserver?.observe(tableHeaderElement);
+    window.addEventListener("resize", updateTableHeaderHeightFromRef);
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
       resizeObserver?.disconnect();
-      window.removeEventListener("resize", updateScrollMeasurements);
+      window.removeEventListener("resize", updateTableHeaderHeightFromRef);
     };
-  }, [filteredTableData.length, isOpen, sorting, updateScrollMeasurements]);
+  }, [filteredTableData.length, isOpen, sorting]);
 
   useLayoutEffect(() => {
     const previousSorting = previousSortingRef.current;
@@ -468,267 +538,338 @@ export default function ModSelector({
       top: 0,
       behavior: "instant",
     });
-    updateScrollEdges();
-  }, [isOpen, sorting, updateScrollEdges]);
+  }, [isOpen, sorting]);
 
-  const handleSelectMod = (mod: ModSelectorTableRow | null) => {
-    // We are selecting or removing a valid mod and it is not conflicting
-    if (!mod?.isConflicting) {
-      dispatch({ type: "updated_selection", path, modId: mod?.id ?? null });
-      setIsOpen(false);
-      setSearchInput("");
-      setSorting([]);
-    }
+  const handleSelectMod = useCallback(
+    (mod: ModSelectorTableRow | null) => {
+      // We are selecting or removing a valid mod and it is not conflicting
+      if (!mod?.isConflicting) {
+        gunModdingDispatch({
+          type: "updated_selection",
+          path,
+          modId: mod?.id ?? null,
+        });
+        modSelectorDispatch({ type: "reset_after_selection" });
+      }
+    },
+    [gunModdingDispatch, path],
+  );
+
+  const handleOpenChange = useCallback((nextIsOpen: boolean) => {
+    modSelectorDispatch({ type: "set_open", isOpen: nextIsOpen });
+  }, []);
+
+  const handleSearchInputChange = useCallback((nextSearchInput: string) => {
+    modSelectorDispatch({
+      type: "set_search_input",
+      searchInput: nextSearchInput,
+    });
+  }, []);
+
+  const handleHideConflictingChange = useCallback(
+    (checked: boolean | "indeterminate") => {
+      modSelectorDispatch({
+        type: "set_hide_conflicting",
+        hideConflicting: checked === true,
+      });
+    },
+    [],
+  );
+
+  const handleHideLockedChange = useCallback(
+    (checked: boolean | "indeterminate") => {
+      modSelectorDispatch({
+        type: "set_hide_locked",
+        hideLocked: checked === true,
+      });
+    },
+    [],
+  );
+
+  const handleOpenSelector = useCallback(() => {
+    modSelectorDispatch({ type: "set_open", isOpen: true });
+  }, []);
+
+  return {
+    isOpen,
+    searchInput,
+    hideConflicting,
+    hideLocked,
+    sorting,
+    table,
+    tableRows,
+    filteredTableDataLength: filteredTableData.length,
+    scrollAreaRef,
+    tableHeaderRef,
+    scrollAreaScrollbarStyle,
+    handleSelectMod,
+    handleOpenChange,
+    handleSearchInputChange,
+    handleHideConflictingChange,
+    handleHideLockedChange,
+    handleOpenSelector,
   };
+}
 
+function ModSelectorTrigger({
+  selectedMod,
+  onOpen,
+}: {
+  selectedMod: Mod | null;
+  onOpen: () => void;
+}) {
+  return (
+    <Card variant="classic" asChild className="p-0">
+      <button onClick={onOpen} className="cursor-pointer select-none">
+        <ModIcon
+          iconImageUrl={selectedMod?.iconImageUrl ?? null}
+          shortName={selectedMod?.shortName ?? "Empty"}
+        />
+      </button>
+    </Card>
+  );
+}
+
+function ModSelectorFilters({
+  searchInput,
+  setSearchInput,
+  hideConflicting,
+  hideLocked,
+  onHideConflictingChange,
+  onHideLockedChange,
+}: {
+  searchInput: string;
+  setSearchInput: (value: string) => void;
+  hideConflicting: boolean;
+  hideLocked: boolean;
+  onHideConflictingChange: (checked: boolean | "indeterminate") => void;
+  onHideLockedChange: (checked: boolean | "indeterminate") => void;
+}) {
   return (
     <>
-      <Card variant="classic" asChild className="p-0">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="cursor-pointer select-none"
-        >
-          <ModIcon
-            iconImageUrl={selectedMod?.iconImageUrl ?? null}
-            shortName={selectedMod?.shortName ?? "Empty"}
+      <Box mb={"4"}>
+        <SearchInput
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          placeholder="Search by name"
+        />
+      </Box>
+      <Flex align="center" gap="4" mb="4" wrap="wrap">
+        <Flex align="center">
+          <Checkbox
+            size={"3"}
+            checked={hideConflicting}
+            onCheckedChange={onHideConflictingChange}
+            id="hide-conflicting"
           />
-        </button>
-      </Card>
-      <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-        <Dialog.Content
-          aria-describedby={undefined}
-          translate="no"
-          className="max-w-screen-md"
-          onOpenAutoFocus={(event) => {
-            if (isMobileDevice()) {
-              event.preventDefault();
-            }
-          }}
-        >
-          <Dialog.Title className="text-balance" mb={"4"}>
-            {slot.name} Mods
-          </Dialog.Title>
-          <Box mb={"4"}>
-            <SearchInput
-              searchInput={searchInput}
-              setSearchInput={setSearchInput}
-              placeholder="Search by name"
-            />
-          </Box>
-          <Flex align="center" gap="4" mb="4" wrap="wrap">
-            <Flex align="center">
-              <Checkbox
-                size={"3"}
-                checked={hideConflicting}
-                onCheckedChange={(checked) =>
-                  setHideConflicting(checked as boolean)
-                }
-                id="hide-conflicting"
-              />
-              <Text as="label" htmlFor="hide-conflicting" ml="2" size="2">
-                Hide Conflicting
-              </Text>
-            </Flex>
-            <Flex align="center">
-              <Checkbox
-                size={"3"}
-                checked={hideLocked}
-                onCheckedChange={(checked) => setHideLocked(checked as boolean)}
-                id="hide-locked"
-              />
-              <Text as="label" htmlFor="hide-locked" ml="2" size="2">
-                Hide Locked
-              </Text>
-            </Flex>
-          </Flex>
-          <Inset side="x">
-            <Box className="relative" style={modSelectorScrollAreaStyle}>
-              <ScrollArea
-                ref={scrollAreaRef}
-                onScroll={updateScrollEdges}
-                className="[&_.rt-ScrollAreaCorner]:relative [&_.rt-ScrollAreaCorner]:z-30 [&_.rt-ScrollAreaScrollbar]:relative [&_.rt-ScrollAreaScrollbar]:z-30 [&_.rt-ScrollAreaViewport]:overscroll-none"
-                style={scrollAreaScrollbarStyle}
-                size="2"
-                type="auto"
-              >
-                {filteredTableData.length === 0 && (
-                  <Flex align={"center"} justify={"center"} mt={"5"}>
-                    <Text weight={"bold"} align={"center"}>
-                      No mods found matching filters
-                    </Text>
-                  </Flex>
-                )}
-                {filteredTableData.length > 0 && (
-                  <Table.Root
-                    variant="surface"
-                    className="!border-t-0 [&_.rt-ScrollAreaRoot]:!overflow-visible [&_.rt-ScrollAreaViewport]:!overflow-visible [&_.rt-TableRootTable]:!table [&_.rt-TableRootTable]:!overflow-visible"
-                  >
-                    <Table.Header ref={tableHeaderRef}>
-                      {table.getHeaderGroups().map((headerGroup) => (
-                        <Table.Row key={headerGroup.id}>
-                          {headerGroup.headers.map((header) => {
-                            const canSort = header.column.getCanSort();
-                            const sortDirection = header.column.getIsSorted();
-                            const visibleSortIndex =
-                              header.column.getSortIndex() === -1
-                                ? -1
-                                : getVisibleSortIndex(
-                                    sorting,
-                                    header.column.id,
-                                  );
-
-                            return (
-                              <Table.ColumnHeaderCell
-                                key={header.id}
-                                translate="no"
-                                onClick={
-                                  canSort
-                                    ? header.column.getToggleSortingHandler()
-                                    : undefined
-                                }
-                                style={{
-                                  width:
-                                    header.id === "shortName"
-                                      ? "100%"
-                                      : header.column.getSize(),
-                                  minWidth:
-                                    header.id === "shortName"
-                                      ? ""
-                                      : header.column.getSize(),
-                                  boxShadow: stickyHeaderCellBoxShadow,
-                                }}
-                                className={`sticky top-0 z-20 select-none !bg-gray-3 ${canSort ? "cursor-pointer hover:!bg-accent-2" : ""}`}
-                              >
-                                <Flex
-                                  align="center"
-                                  gap="2"
-                                  className="whitespace-nowrap"
-                                >
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext(),
-                                  )}
-                                  {sortDirection === "asc" ? (
-                                    <ArrowUpIcon />
-                                  ) : sortDirection === "desc" ? (
-                                    <ArrowDownIcon />
-                                  ) : (
-                                    canSort && <CaretSortIcon />
-                                  )}
-                                  {visibleSortingCount > 1 &&
-                                    visibleSortIndex !== -1 && (
-                                      <Badge
-                                        color="gray"
-                                        variant="soft"
-                                        size="1"
-                                        className="font-mono"
-                                      >
-                                        {visibleSortIndex + 1}
-                                      </Badge>
-                                    )}
-                                </Flex>
-                              </Table.ColumnHeaderCell>
-                            );
-                          })}
-                        </Table.Row>
-                      ))}
-                    </Table.Header>
-                    <Table.Body>
-                      {tableRows.map((row) => (
-                        <Table.Row
-                          key={row.id}
-                          onClick={() => handleSelectMod(row.original)}
-                          className={`hover:bg-accent-1 ${
-                            row.original.isSelected
-                              ? "slanted-line-bg cursor-pointer bg-accent-1"
-                              : row.original.isConflicting
-                                ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
-                                : "cursor-pointer"
-                          }`}
-                          align="center"
-                        >
-                          {row.getVisibleCells().map((cell, index) => (
-                            <Table.Cell
-                              key={cell.id}
-                              className={`relative ${
-                                row.original.isSelected && index === 0
-                                  ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
-                                  : ""
-                              }`}
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
-                            </Table.Cell>
-                          ))}
-                        </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table.Root>
-                )}
-              </ScrollArea>
-              <div
-                aria-hidden="true"
-                className={`${scrollFadeClassName} h-8`}
-                style={{
-                  ...topScrollFadeStyle,
-                  left: tableBorderInset,
-                  opacity: scrollEdges.canScrollUp ? 1 : 0,
-                  right: tableBorderInset,
-                  top: tableHeaderHeight,
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className={`${scrollFadeClassName} h-8`}
-                style={{
-                  ...bottomScrollFadeStyle,
-                  bottom: 0,
-                  left: tableBorderInset,
-                  opacity: scrollEdges.canScrollDown ? 1 : 0,
-                  right: tableBorderInset,
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className={`${scrollFadeClassName} w-8`}
-                style={{
-                  ...leftScrollFadeStyle,
-                  bottom: tableBorderInset,
-                  left: 0,
-                  opacity: scrollEdges.canScrollLeft ? 1 : 0,
-                  top: tableHeaderHeight,
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className={`${scrollFadeClassName} w-8`}
-                style={{
-                  ...rightScrollFadeStyle,
-                  bottom: tableBorderInset,
-                  opacity: scrollEdges.canScrollRight ? 1 : 0,
-                  right: 0,
-                  top: tableHeaderHeight,
-                }}
-              />
-            </Box>
-          </Inset>
-          <Flex gap="3" mt="4" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray">
-                Cancel
-              </Button>
-            </Dialog.Close>
-            <Dialog.Close>
-              <Button variant={"classic"} onClick={() => handleSelectMod(null)}>
-                Remove Mod
-              </Button>
-            </Dialog.Close>
-          </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
+          <Text as="label" htmlFor="hide-conflicting" ml="2" size="2">
+            Hide Conflicting
+          </Text>
+        </Flex>
+        <Flex align="center">
+          <Checkbox
+            size={"3"}
+            checked={hideLocked}
+            onCheckedChange={onHideLockedChange}
+            id="hide-locked"
+          />
+          <Text as="label" htmlFor="hide-locked" ml="2" size="2">
+            Hide Locked
+          </Text>
+        </Flex>
+      </Flex>
     </>
+  );
+}
+
+function ModSelectorTableView({
+  table,
+  tableRows,
+  sorting,
+  filteredTableDataLength,
+  scrollAreaRef,
+  tableHeaderRef,
+  scrollAreaScrollbarStyle,
+  onSelectMod,
+}: {
+  table: ReactTable<ModSelectorTableRow>;
+  tableRows: Row<ModSelectorTableRow>[];
+  sorting: SortingState;
+  filteredTableDataLength: number;
+  scrollAreaRef: RefObject<HTMLDivElement | null>;
+  tableHeaderRef: RefObject<HTMLTableSectionElement | null>;
+  scrollAreaScrollbarStyle: ModSelectorScrollAreaStyle;
+  onSelectMod: (mod: ModSelectorTableRow | null) => void;
+}) {
+  const visibleSortingCount = getVisibleSorting(sorting).length;
+
+  return (
+    <Inset side="x">
+      <Box className="relative" style={modSelectorScrollAreaStyle}>
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="[&_.rt-ScrollAreaCorner]:relative [&_.rt-ScrollAreaCorner]:z-30 [&_.rt-ScrollAreaScrollbar]:relative [&_.rt-ScrollAreaScrollbar]:z-30 [&_.rt-ScrollAreaViewport]:overscroll-none"
+          style={scrollAreaScrollbarStyle}
+          size="2"
+          type="auto"
+        >
+          {filteredTableDataLength === 0 && (
+            <Flex align={"center"} justify={"center"} mt={"5"}>
+              <Text weight={"bold"} align={"center"}>
+                No mods found matching filters
+              </Text>
+            </Flex>
+          )}
+          {filteredTableDataLength > 0 && (
+            <Table.Root
+              variant="surface"
+              className="!border-t-0 [&_.rt-ScrollAreaRoot]:!overflow-visible [&_.rt-ScrollAreaViewport]:!overflow-visible [&_.rt-TableRootTable]:!table [&_.rt-TableRootTable]:!overflow-visible"
+            >
+              <ModSelectorTableHeader
+                table={table}
+                sorting={sorting}
+                visibleSortingCount={visibleSortingCount}
+                tableHeaderRef={tableHeaderRef}
+              />
+              <ModSelectorTableBody
+                tableRows={tableRows}
+                onSelectMod={onSelectMod}
+              />
+            </Table.Root>
+          )}
+        </ScrollArea>
+      </Box>
+    </Inset>
+  );
+}
+
+function ModSelectorTableHeader({
+  table,
+  sorting,
+  visibleSortingCount,
+  tableHeaderRef,
+}: {
+  table: ReactTable<ModSelectorTableRow>;
+  sorting: SortingState;
+  visibleSortingCount: number;
+  tableHeaderRef: RefObject<HTMLTableSectionElement | null>;
+}) {
+  return (
+    <Table.Header ref={tableHeaderRef}>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <Table.Row key={headerGroup.id}>
+          {headerGroup.headers.map((header) => {
+            const canSort = header.column.getCanSort();
+            const sortDirection = header.column.getIsSorted();
+            const visibleSortIndex =
+              header.column.getSortIndex() === -1
+                ? -1
+                : getVisibleSortIndex(sorting, header.column.id);
+
+            return (
+              <Table.ColumnHeaderCell
+                key={header.id}
+                translate="no"
+                onClick={
+                  canSort ? header.column.getToggleSortingHandler() : undefined
+                }
+                style={{
+                  width:
+                    header.id === "shortName"
+                      ? "100%"
+                      : header.column.getSize(),
+                  minWidth:
+                    header.id === "shortName" ? "" : header.column.getSize(),
+                  boxShadow: stickyHeaderCellBoxShadow,
+                }}
+                className={`sticky top-0 z-20 select-none !bg-gray-3 ${canSort ? "cursor-pointer hover:!bg-accent-2" : ""}`}
+              >
+                <Flex align="center" gap="2" className="whitespace-nowrap">
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
+                  {sortDirection === "asc" ? (
+                    <ArrowUpIcon />
+                  ) : sortDirection === "desc" ? (
+                    <ArrowDownIcon />
+                  ) : (
+                    canSort && <CaretSortIcon />
+                  )}
+                  {visibleSortingCount > 1 && visibleSortIndex !== -1 && (
+                    <Badge
+                      color="gray"
+                      variant="soft"
+                      size="1"
+                      className="font-mono"
+                    >
+                      {visibleSortIndex + 1}
+                    </Badge>
+                  )}
+                </Flex>
+              </Table.ColumnHeaderCell>
+            );
+          })}
+        </Table.Row>
+      ))}
+    </Table.Header>
+  );
+}
+
+function ModSelectorTableBody({
+  tableRows,
+  onSelectMod,
+}: {
+  tableRows: Row<ModSelectorTableRow>[];
+  onSelectMod: (mod: ModSelectorTableRow | null) => void;
+}) {
+  return (
+    <Table.Body>
+      {tableRows.map((row) => (
+        <Table.Row
+          key={row.id}
+          onClick={() => onSelectMod(row.original)}
+          className={`hover:bg-accent-1 ${
+            row.original.isSelected
+              ? "slanted-line-bg cursor-pointer bg-accent-1"
+              : row.original.isConflicting
+                ? "slanted-line-bg cursor-not-allowed select-none bg-tomato-2 hover:bg-tomato-2"
+                : "cursor-pointer"
+          }`}
+          align="center"
+        >
+          {row.getVisibleCells().map((cell, index) => (
+            <Table.Cell
+              key={cell.id}
+              className={`relative ${
+                row.original.isSelected && index === 0
+                  ? "before:absolute before:bottom-0 before:left-0 before:top-0 before:w-[3px] before:bg-accent-10"
+                  : ""
+              }`}
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </Table.Body>
+  );
+}
+
+function ModSelectorActions({ onRemoveMod }: { onRemoveMod: () => void }) {
+  return (
+    <Flex gap="3" mt="4" justify="end">
+      <Dialog.Close>
+        <Button variant="soft" color="gray">
+          Cancel
+        </Button>
+      </Dialog.Close>
+      <Dialog.Close>
+        <Button variant={"classic"} onClick={onRemoveMod}>
+          Remove Mod
+        </Button>
+      </Dialog.Close>
+    </Flex>
   );
 }
 

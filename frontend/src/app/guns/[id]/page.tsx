@@ -3,12 +3,26 @@ import { GunModdingProvider } from "@/contexts/gun-modding.context";
 import { getGun } from "@/data/guns";
 import { toTitleCase } from "@/lib/utils";
 import { Heading } from "@radix-ui/themes";
+import type { Metadata } from "next";
 
-export default async function Page({
-  params,
-}: {
+type GunPageProps = {
   params: Promise<{ id: string }>;
-}) {
+};
+
+export async function generateMetadata({
+  params,
+}: GunPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const { gun } = await getGun(id);
+  const gunName = toTitleCase(gun.name);
+
+  return {
+    title: `${gunName} Mods | Tarkov Directory`,
+    description: `Compare compatible mods, stats, trader prices, and flea prices for the ${gunName}.`,
+  };
+}
+
+export default async function Page({ params }: GunPageProps) {
   const { id } = await params;
 
   const { relevantMods, gun } = await getGun(id);

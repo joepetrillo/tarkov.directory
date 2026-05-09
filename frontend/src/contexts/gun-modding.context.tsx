@@ -1,11 +1,12 @@
 "use client";
 
-import React, {
+import {
   createContext,
-  useContext,
+  type ReactNode,
+  type Reducer,
+  use,
   useReducer,
   useCallback,
-  ReactNode,
   useMemo,
 } from "react";
 import { Gun, Mod } from "@tarkov.directory/shared-types";
@@ -37,7 +38,7 @@ export function GunModdingProvider({
     [gun, mods],
   );
 
-  const reducer = useCallback<React.Reducer<GunModdingState, GunModdingAction>>(
+  const reducer = useCallback<Reducer<GunModdingState, GunModdingAction>>(
     (state, action) => {
       switch (action.type) {
         case "updated_selection":
@@ -81,7 +82,7 @@ export function GunModdingProvider({
 }
 
 export function useGunModding() {
-  const context = useContext(GunModdingContext);
+  const context = use(GunModdingContext);
   if (context === null) {
     throw new Error("useGunModding must be used within a GunModdingProvider");
   }
