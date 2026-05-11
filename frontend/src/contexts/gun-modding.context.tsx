@@ -8,6 +8,7 @@ import {
   useReducer,
   useCallback,
   useMemo,
+  useLayoutEffect,
 } from "react";
 import { Gun, Mod } from "@tarkov.directory/shared-types";
 import {
@@ -66,6 +67,13 @@ export function GunModdingProvider({
       ? { selections: preset }
       : { selections: moddingUtils.getEmptySelections() },
   );
+
+  useLayoutEffect(() => {
+    return () => {
+      dispatch({ type: "reset" });
+    };
+  }, []);
+
   const value: GunModdingContextType = {
     state,
     dispatch,

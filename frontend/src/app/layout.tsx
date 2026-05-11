@@ -13,8 +13,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Tarkov Directory",
-  description:
-    "Tools and tips to help you survive more raids in Escape from Tarkov.",
+  description: "Escape from Tarkov gun modding on the web.",
 };
 
 export default function RootLayout({
