@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { normalizeShortNameSearch, toTitleCase } from "@/lib/utils";
+import { toTitleCase } from "@/lib/utils";
 import Link from "next/link";
 import {
   Box,
@@ -11,55 +11,123 @@ import {
   Heading,
   Section,
   Card,
+  Select,
 } from "@radix-ui/themes";
 import type { CategorizedGunListData } from "@/types";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs";
 import SearchInput from "@/components/ui/search-input";
+import { useMemo } from "react";
+import {
+  filterCategorizedGunList,
+  getGunCaliberOptions,
+  getGunListCount,
+} from "@/lib/gun-list-filters";
+
+const ALL_CALIBERS_VALUE = "all";
 
 export default function GunList({
   categorizedGunList,
 }: {
   categorizedGunList: CategorizedGunListData;
 }) {
-  const [searchInput, setSearchInput] = useQueryState(
-    "search",
-    parseAsString.withDefault("").withOptions({
-      shallow: true,
+  return <GunListContent categorizedGunList={categorizedGunList} />;
+}
+
+function GunListContent({
+  categorizedGunList,
+}: {
+  categorizedGunList: CategorizedGunListData;
+}) {
+  const caliberOptions = useMemo(
+    () => getGunCaliberOptions(categorizedGunList),
+    [categorizedGunList],
+  );
+  const gunCount = useMemo(
+    () => getGunListCount(categorizedGunList),
+    [categorizedGunList],
+  );
+  const caliberValues = useMemo(
+    () => caliberOptions.map(({ caliber }) => caliber),
+    [caliberOptions],
+  );
+  const filterParsers = useMemo(
+    () => ({
+      search: parseAsString.withDefault(""),
+      caliber: parseAsStringLiteral(caliberValues).withDefault(""),
     }),
+    [caliberValues],
   );
+  const [filters, setFilters] = useQueryStates(filterParsers);
 
-  const normalizedSearchInput = normalizeShortNameSearch(searchInput);
-  const filteredList = categorizedGunList.reduce<CategorizedGunListData>(
-    (filteredCategories, category) => {
-      const guns = category.guns.filter((gun) => {
-        return normalizeShortNameSearch(gun.shortName).includes(
-          normalizedSearchInput,
-        );
-      });
-
-      if (guns.length > 0) {
-        filteredCategories.push({
-          categoryName: category.categoryName,
-          guns,
-        });
-      }
-
-      return filteredCategories;
-    },
-    [],
-  );
+  const filteredList = filterCategorizedGunList(categorizedGunList, filters);
 
   return (
     <div>
-      <SearchInput
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        placeholder="Search by name"
-      />
+      <Flex direction="row" gap="3" align="center">
+        <Box width="100%" className="min-w-0 flex-1">
+          <SearchInput
+            searchInput={filters.search}
+            setSearchInput={(search) => setFilters({ search })}
+            placeholder="Search by name"
+          />
+        </Box>
+        <Select.Root
+          size="2"
+          value={filters.caliber || ALL_CALIBERS_VALUE}
+          onValueChange={(caliber) =>
+            setFilters({
+              caliber: caliber === ALL_CALIBERS_VALUE ? "" : caliber,
+            })
+          }
+        >
+          <Select.Trigger
+            aria-label="Filter by caliber"
+            placeholder="All calibers"
+            className="h-10 w-44 font-mono [&_.caliber-option-count]:hidden"
+          />
+          <Select.Content className="min-w-44 font-mono">
+            <Select.Item
+              value={ALL_CALIBERS_VALUE}
+              textValue="All calibers"
+              className="[&>span:last-child]:w-full"
+            >
+              <Flex align="center" justify="between" gap="4">
+                <Text as="span">All calibers</Text>
+                <Text
+                  as="span"
+                  color="gray"
+                  className="caliber-option-count tabular-nums"
+                >
+                  {gunCount}
+                </Text>
+              </Flex>
+            </Select.Item>
+            {caliberOptions.map(({ caliber, count }) => (
+              <Select.Item
+                key={caliber}
+                value={caliber}
+                textValue={caliber}
+                className="[&>span:last-child]:w-full"
+              >
+                <Flex align="center" justify="between" gap="4">
+                  <Text as="span">{caliber}</Text>
+                  <Text
+                    as="span"
+                    color="gray"
+                    className="caliber-option-count tabular-nums"
+                  >
+                    {count}
+                  </Text>
+                </Flex>
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
       {filteredList.length === 0 && (
         <Flex align={"center"} justify={"center"} mt={"7"}>
           <Text weight={"bold"} align={"center"}>
-            No guns found matching search
+            No guns found matching filters
           </Text>
         </Flex>
       )}
