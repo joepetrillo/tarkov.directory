@@ -1,3 +1,4 @@
+// Align client router stale window with cacheLife tarkovHourly.stale (seconds).
 export const unstable_dynamicStaleTime = 300;
 
 import { Suspense } from "react";

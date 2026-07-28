@@ -1,7 +1,7 @@
 import Elysia from "elysia";
 import { cron } from "@elysiajs/cron";
 import { gunsRoutes } from "./routes/guns";
-import { cacheUpdateService } from "./services/cache-update-service";
+import { tarkovDataCache } from "./services/tarkov-data-cache";
 import { helmet } from "elysia-helmet";
 
 const apiKeyAuth = (app: Elysia) => {
@@ -21,13 +21,22 @@ export const api = new Elysia()
   .use(
     cron({
       name: "update-cache",
-      pattern: "0 0 * * *", // Run daily at midnight
-      run() {
-        cacheUpdateService.updateAllCachedData();
+      pattern: "0 * * * *", // Hourly — flea prices move; dump is ~2MB gzip
+      async run() {
+        try {
+          await tarkovDataCache.refresh();
+        } catch (error) {
+          console.error("Scheduled cache update failed:", error);
+        }
       },
     })
   )
   .onStart(async () => {
     console.log("Initializing cache on startup");
-    await cacheUpdateService.updateAllCachedData();
+    try {
+      await tarkovDataCache.refresh();
+    } catch (error) {
+      // Still listen — first request can retry via ensureCached; don't crash the process.
+      console.error("Startup cache warm failed:", error);
+    }
   });

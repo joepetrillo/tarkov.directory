@@ -47,6 +47,8 @@ export async function getCategorizedGunList() {
 }
 
 export async function getGun(gunId: string) {
+  // Per-id data on a dynamic route: "remote" shares cache across serverless instances.
+  // Plain "use cache" would mostly help only within one warm process.
   "use cache: remote";
   cacheLife("tarkovHourly");
   cacheTag("tarkov:guns", `tarkov:gun:${gunId}`);
@@ -61,7 +63,8 @@ export async function getGun(gunId: string) {
     throw new Error("There was an error fetching the gun");
   }
 
-  if (!response.data.gun && !response.data.relevantMods) {
+  // Eden unions success `{ gun, relevantMods }` with 404 `{ error }` — narrow before use.
+  if (!response.data || !("gun" in response.data) || !response.data.gun) {
     notFound();
   }
 
