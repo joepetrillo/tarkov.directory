@@ -2,6 +2,8 @@
 
 Monorepo for https://tarkov.directory — frontend (Next.js), backend (Elysia on Bun), and shared TypeScript types.
 
+<img width="755" height="762" alt="landing" src="https://github.com/user-attachments/assets/06a22390-4800-42d1-866a-1581cfa77d6f" />
+
 ## How it works
 
 Data flows through three layers. The browser never talks to tarkov.dev.
